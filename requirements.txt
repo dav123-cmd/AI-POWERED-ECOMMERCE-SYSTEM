@@ -28,7 +28,7 @@ flower==2.0.1
 # ── AI / Machine Learning ─────────────────────────────────
 torch==2.2.2
 torchvision==0.17.2
-torchaudio==0.2.2
+torchaudio==2.2.2
 transformers==4.39.3
 sentence-transformers==2.6.1
 faiss-cpu==1.8.0
