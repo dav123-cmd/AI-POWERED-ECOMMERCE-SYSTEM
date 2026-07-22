@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="{% block meta_description %}ShopAI — The Future of Shopping{% endblock %}" />
+  <title>{% block title %}neuralmart.co.ke{% endblock %} | NeuralMart</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <!-- Base CSS -->
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/main.css' %}" />
+  {% block extra_css %}{% endblock %}
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><rect width='24' height='24' rx='5' fill='%230A0A0F'/><path fill='%23C9A84C' d='M7 7V6a5 5 0 0 1 10 0v1h2a1 1 0 0 1 1 1v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a1 1 0 0 1 1-1h2zm2 0h6V6a3 3 0 0 0-6 0v1z'/></svg>" />
+</head>
+
+<body>
+  <!-- ── Cursor Glow ─────────────────────────────────────── -->
+  <div class="cursor-glow" id="cursorGlow"></div>
+
+  <!-- ── Page Noise Overlay ─────────────────────────────── -->
+  <div class="noise-overlay"></div>
+
+  <!-- ── Navbar ─────────────────────────────────────────── -->
+  {% include 'partials/navbar.html' %}
+
+  <!-- ── Flash Messages ────────────────────────────────── -->
+  {% if messages %}
+  <div class="messages-container" id="messagesContainer">
+    {% for message in messages %}
+    <div class="message message--{{ message.tags }}" data-auto-dismiss>
+      <span class="message__icon">
+        {% if message.tags == 'success' %}<i class="fa-solid fa-circle-check"></i>
+        {% elif message.tags == 'error' %}<i class="fa-solid fa-circle-xmark"></i>
+        {% elif message.tags == 'warning' %}<i class="fa-solid fa-triangle-exclamation"></i>
+        {% else %}<i class="fa-solid fa-circle-info"></i>{% endif %}
+      </span>
+      <span class="message__text">{{ message }}</span>
+      <button class="message__close" onclick="this.parentElement.remove()">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- ── Main Content ───────────────────────────────────── -->
+  <main class="main-content" id="mainContent">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- ── Footer ────────────────────────────────────────── -->
+  {% include 'partials/footer.html' %}
+
+  <!-- ── AI Chatbot Widget ──────────────────────────────── -->
+  {% include 'partials/chatbot_widget.html' %}
+
+  <!-- ── Base JS ───────────────────────────────────────── -->
+  <script src="{% static 'js/main.js' %}"></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

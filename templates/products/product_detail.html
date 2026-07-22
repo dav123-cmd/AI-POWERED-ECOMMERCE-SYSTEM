@@ -1,0 +1,235 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}{{ product.name }}{% endblock %}
+{% block meta_description %}{{ product.short_desc|default:product.description|truncatewords:20 }}{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top:2.5rem;padding-bottom:5rem;">
+
+  <!-- Breadcrumb -->
+  <nav style="font-size:.8rem;color:var(--text-muted);margin-bottom:2rem;display:flex;align-items:center;gap:.5rem;">
+    <a href="{% url 'products:home' %}" style="color:var(--text-muted);">Home</a> /
+    {% if product.category %}<a href="{{ product.category.get_absolute_url }}" style="color:var(--text-muted);">{{ product.category.name }}</a> /{% endif %}
+    <span style="color:var(--text-primary);">{{ product.name|truncatewords:6 }}</span>
+  </nav>
+
+  <!-- Main Product Grid -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:4rem;margin-bottom:5rem;">
+
+    <!-- Images -->
+    <div>
+      <!-- Main Image -->
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-xl);overflow:hidden;aspect-ratio:1/1;position:relative;margin-bottom:1rem;">
+        {% if product.primary_image %}
+        <img id="mainImage" src="{{ product.primary_image.image.url }}" alt="{{ product.name }}"
+             class="product-image-zoom" style="width:100%;height:100%;object-fit:contain;padding:1rem;" />
+        {% else %}
+        <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:8rem;">🛍️</div>
+        {% endif %}
+        <!-- Badges -->
+        <div style="position:absolute;top:1rem;left:1rem;display:flex;flex-direction:column;gap:.5rem;">
+          {% if product.is_on_sale %}<span class="badge badge-sale">-{{ product.discount_percent }}%</span>{% endif %}
+          {% if product.is_new %}<span class="badge badge-new">New</span>{% endif %}
+        </div>
+      </div>
+      <!-- Thumbnails -->
+      {% if images.count > 1 %}
+      <div style="display:flex;gap:.75rem;overflow-x:auto;">
+        {% for img in images %}
+        <div onclick="switchImage('{{ img.image.url }}')"
+             style="width:72px;height:72px;flex-shrink:0;background:var(--bg-card);border:2px solid {% if img.is_primary %}var(--accent-gold){% else %}var(--border){% endif %};border-radius:10px;overflow:hidden;cursor:pointer;transition:var(--transition);"
+             class="thumb-img">
+          <img src="{{ img.image.url }}" alt="{{ img.alt_text }}" style="width:100%;height:100%;object-fit:cover;" />
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Product Info -->
+    <div>
+      {% if product.brand %}<div style="font-size:.75rem;color:var(--text-muted);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.5rem;">{{ product.brand.name }}</div>{% endif %}
+      {% if product.category %}<div style="margin-bottom:.75rem;"><a href="{{ product.category.get_absolute_url }}" style="font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--accent-gold);font-family:var(--font-mono);">{{ product.category.name }}</a></div>{% endif %}
+
+      <h1 style="font-family:var(--font-display);font-size:2rem;font-weight:800;line-height:1.15;margin-bottom:1rem;">{{ product.name }}</h1>
+
+      <!-- Rating -->
+      <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;">
+        <div class="stars" style="font-size:1rem;">
+          {% with r=product.rating_avg|floatformat:"0" %}
+          {% for i in "12345" %}{% if forloop.counter <= r|add:"0" %}★{% else %}☆{% endif %}{% endfor %}
+          {% endwith %}
+        </div>
+        <span style="font-size:.875rem;color:var(--text-muted);">{{ product.rating_avg }} ({{ product.rating_count }} reviews)</span>
+        <span style="font-size:.875rem;color:var(--text-muted);">·</span>
+        <span style="font-size:.875rem;color:var(--text-muted);">{{ product.view_count }} views</span>
+      </div>
+
+      <!-- Price -->
+      <div style="display:flex;align-items:baseline;gap:1rem;margin-bottom:2rem;padding:1.25rem;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);">
+        <span style="font-family:var(--font-display);font-size:2.25rem;font-weight:800;color:var(--accent-gold);">KES {{ product.effective_price|floatformat:"0" }}</span>
+        {% if product.is_on_sale %}
+        <span style="font-size:1.25rem;color:var(--text-muted);text-decoration:line-through;">KES {{ product.compare_price|floatformat:"0" }}</span>
+        <span class="badge badge-sale">Save {{ product.discount_percent }}%</span>
+        {% endif %}
+        {% if product.ai_price %}
+        <span class="badge badge-ai"><i class="fa-solid fa-microchip"></i> AI Price</span>
+        {% endif %}
+      </div>
+
+      <!-- Short Description -->
+      {% if product.short_desc %}
+      <p style="color:var(--text-secondary);line-height:1.7;margin-bottom:1.5rem;">{{ product.short_desc }}</p>
+      {% endif %}
+
+      <!-- Variants -->
+      {% regroup variants by name as variant_groups %}
+      {% for group in variant_groups %}
+      <div style="margin-bottom:1.25rem;">
+        <label style="font-size:.875rem;font-weight:600;color:var(--text-secondary);display:block;margin-bottom:.625rem;">{{ group.grouper }}</label>
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+          {% for v in group.list %}
+          <button onclick="selectVariant(this,'{{ group.grouper }}')"
+                  data-value="{{ v.value }}" data-stock="{{ v.stock }}"
+                  style="padding:.4rem 1rem;background:var(--bg-elevated);border:1px solid var(--border);border-radius:8px;font-size:.875rem;color:var(--text-secondary);transition:var(--transition);cursor:pointer;{% if not v.is_available %}opacity:.4;cursor:not-allowed;text-decoration:line-through;{% endif %}">
+            {{ v.value }}
+          </button>
+          {% endfor %}
+        </div>
+      </div>
+      {% endfor %}
+
+      <!-- Stock -->
+      <div style="margin-bottom:1.5rem;display:flex;align-items:center;gap:.75rem;">
+        {% if product.is_in_stock %}
+        <span style="display:flex;align-items:center;gap:.375rem;font-size:.875rem;color:var(--accent-green);">
+          <i class="fa-solid fa-circle-check"></i>
+          {% if product.is_low_stock %}Only {{ product.stock }} left — order soon!{% else %}In Stock{% endif %}
+        </span>
+        {% else %}
+        <span style="display:flex;align-items:center;gap:.375rem;font-size:.875rem;color:var(--accent-red);">
+          <i class="fa-solid fa-circle-xmark"></i> Out of Stock
+        </span>
+        {% endif %}
+      </div>
+
+      <!-- Quantity + Add to Cart -->
+      <div style="display:flex;gap:1rem;margin-bottom:1.25rem;">
+        <div style="display:flex;align-items:center;background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;">
+          <button onclick="changeQty(-1)" style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;color:var(--text-secondary);font-size:1.1rem;transition:var(--transition);" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background=''">−</button>
+          <span id="qtyDisplay" style="width:48px;text-align:center;font-family:var(--font-mono);font-weight:600;">1</span>
+          <button onclick="changeQty(1)"  style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;color:var(--text-secondary);font-size:1.1rem;transition:var(--transition);" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background=''">+</button>
+        </div>
+        <button id="addToCartBtn" onclick="addToCart('{{ product.id }}', qty, this)" class="btn btn-primary" style="flex:1;justify-content:center;"
+                {% if not product.is_in_stock %}disabled{% endif %}>
+          <i class="fa-solid fa-bag-shopping"></i>
+          {% if product.is_in_stock %}Add to Cart{% else %}Out of Stock{% endif %}
+        </button>
+      </div>
+
+      <!-- Wishlist + Share -->
+      <div style="display:flex;gap:.75rem;margin-bottom:2rem;">
+        <button onclick="toggleWishlist('{{ product.id }}', this)" class="btn btn-secondary" style="flex:1;justify-content:center;">
+          <i class="fa-{% if in_wishlist %}solid{% else %}regular{% endif %} fa-heart" style="color:{% if in_wishlist %}var(--accent-red){% else %}inherit{% endif %};"></i>
+          {% if in_wishlist %}Saved{% else %}Save{% endif %}
+        </button>
+        <button onclick="shareProduct()" class="btn btn-ghost">
+          <i class="fa-solid fa-share-nodes"></i>
+        </button>
+      </div>
+
+      <!-- SKU / Tags -->
+      <div style="padding-top:1.5rem;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:.5rem;">
+        {% if product.sku %}<div style="font-size:.8rem;color:var(--text-muted);">SKU: <span style="font-family:var(--font-mono);">{{ product.sku }}</span></div>{% endif %}
+        {% if product.tags.all %}
+        <div style="display:flex;flex-wrap:wrap;gap:.375rem;align-items:center;">
+          <span style="font-size:.8rem;color:var(--text-muted);">Tags:</span>
+          {% for tag in product.tags.all %}
+          <a href="{% url 'products:list' %}?q={{ tag.name }}" style="font-size:.75rem;padding:.2rem .6rem;background:var(--bg-elevated);border:1px solid var(--border);border-radius:12px;color:var(--text-muted);">{{ tag.name }}</a>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Description Tabs -->
+  <div class="card" style="padding:2rem;margin-bottom:3rem;">
+    <div style="display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:2rem;">
+      {% for tab in 'Description,Reviews,Shipping' %}
+      <button class="tab-btn {% if forloop.first %}active{% endif %}" onclick="switchTab(this,'tab-{{ forloop.counter }}')"
+              style="padding:.75rem 1.5rem;font-weight:600;color:var(--text-muted);border-bottom:2px solid transparent;transition:var(--transition);font-family:var(--font-display);">
+        {{ tab }}
+      </button>
+      {% endfor %}
+    </div>
+    <div id="tab-1" class="tab-content">{{ product.description|linebreaks }}</div>
+    <div id="tab-2" class="tab-content" style="display:none;">
+      {% if reviews %}
+        {% for review in reviews %}
+        <div style="padding:1.5rem 0;border-bottom:1px solid var(--border);">
+          <div style="display:flex;align-items:center;gap:1rem;margin-bottom:.75rem;">
+            <img src="{{ review.user.avatar_url }}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;" />
+            <div>
+              <div style="font-weight:600;font-size:.9rem;">{{ review.user.get_full_name }}</div>
+              <div class="stars" style="font-size:.875rem;">{% for i in "12345" %}{% if forloop.counter <= review.rating %}★{% else %}☆{% endif %}{% endfor %}</div>
+            </div>
+            <span style="margin-left:auto;font-size:.75rem;color:var(--text-muted);">{{ review.created_at|date:"M d, Y" }}</span>
+          </div>
+          <p style="color:var(--text-secondary);line-height:1.6;">{{ review.comment }}</p>
+        </div>
+        {% endfor %}
+      {% else %}
+      <p style="color:var(--text-muted);text-align:center;padding:2rem;">No reviews yet. Be the first to review!</p>
+      {% endif %}
+    </div>
+    <div id="tab-3" class="tab-content" style="display:none;">
+      <div style="display:flex;flex-direction:column;gap:1rem;">
+        <div style="display:flex;gap:1rem;align-items:center;"><i class="fa-solid fa-truck" style="color:var(--accent-gold);width:20px;"></i><span>Free delivery on orders over KES 2,000</span></div>
+        <div style="display:flex;gap:1rem;align-items:center;"><i class="fa-solid fa-rotate-left" style="color:var(--accent-cyan);width:20px;"></i><span>30-day hassle-free returns</span></div>
+        <div style="display:flex;gap:1rem;align-items:center;"><i class="fa-solid fa-shield-halved" style="color:var(--accent-green);width:20px;"></i><span>Secure payments with Stripe, PayPal & M-Pesa</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Related Products -->
+  {% if related %}
+  <div class="section-header">
+    <div>
+      <div class="section-label">You Might Also Like</div>
+      <h2 class="section-title" style="font-size:1.75rem;">Related Products</h2>
+    </div>
+  </div>
+  <div class="grid-products">
+    {% for product in related %}{% include 'products/partials/product_card.html' %}{% endfor %}
+  </div>
+  {% endif %}
+</div>
+
+<style>
+.tab-btn.active{color:var(--text-primary)!important;border-bottom-color:var(--accent-gold)!important;}
+.tab-btn:hover{color:var(--text-primary);}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let qty = 1;
+function changeQty(d){qty=Math.max(1,qty+d);document.getElementById('qtyDisplay').textContent=qty;}
+function switchTab(btn,id){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c=>c.style.display='none');
+  btn.classList.add('active');
+  document.getElementById(id).style.display='block';
+}
+function switchImage(url){document.getElementById('mainImage').src=url;}
+function selectVariant(btn,group){
+  btn.closest('div').querySelectorAll('button').forEach(b=>{b.style.borderColor='var(--border)';b.style.color='var(--text-secondary)';});
+  btn.style.borderColor='var(--accent-gold)';btn.style.color='var(--accent-gold)';
+}
+function shareProduct(){
+  if(navigator.share){navigator.share({title:'{{ product.name }}',url:window.location.href});}
+  else{navigator.clipboard.writeText(window.location.href);showToast('Link copied!','success');}
+}
+</script>
+{% endblock %}

@@ -1,0 +1,55 @@
+<div class="product-card" data-animate>
+  <div class="product-card__image">
+    {% if product.primary_image %}
+    <img src="{{ product.primary_image.image.url }}" alt="{{ product.primary_image.alt_text|default:product.name }}" loading="lazy" />
+    {% else %}
+    <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:4rem;background:var(--bg-secondary);">🛍️</div>
+    {% endif %}
+    <!-- Badges -->
+    <div class="product-card__badges">
+      {% if product.is_on_sale %}<span class="badge badge-sale">-{{ product.discount_percent }}%</span>{% endif %}
+      {% if product.is_new %}<span class="badge badge-new">New</span>{% endif %}
+      {% if product.is_low_stock %}<span class="badge" style="background:rgba(249,115,22,0.9);color:white;">Low Stock</span>{% endif %}
+    </div>
+    <!-- Quick actions -->
+    <div class="product-card__actions">
+      <button class="product-card__action-btn" onclick="toggleWishlist('{{ product.id }}', this)" title="Wishlist">
+        <i class="fa-regular fa-heart"></i>
+      </button>
+      <a href="{% url 'products:quick_view' product.slug %}" class="product-card__action-btn" title="Quick View"
+         onclick="openQuickView('{{ product.slug }}', event)">
+        <i class="fa-regular fa-eye"></i>
+      </a>
+    </div>
+  </div>
+  <div class="product-card__body">
+    {% if product.category %}
+    <div class="product-card__category">{{ product.category.name }}</div>
+    {% endif %}
+    <a href="{{ product.get_absolute_url }}">
+      <h3 class="product-card__name">{{ product.name }}</h3>
+    </a>
+    <div class="product-card__rating">
+      <div class="stars">
+        {% with rating=product.rating_avg|floatformat:"0" %}
+        {% for i in "12345" %}
+          <i class="fa-{% if forloop.counter <= rating|add:'0' %}solid{% else %}regular{% endif %} fa-star"></i>
+        {% endfor %}
+        {% endwith %}
+      </div>
+      <span style="font-size:0.75rem;color:var(--text-muted);">({{ product.rating_count }})</span>
+    </div>
+    <div class="product-card__price-row">
+      <div>
+        <span class="product-card__price">KES {{ product.effective_price|floatformat:"0" }}</span>
+        {% if product.is_on_sale %}
+        <span class="product-card__price-old">KES {{ product.compare_price|floatformat:"0" }}</span>
+        {% endif %}
+      </div>
+      <button class="product-card__add-btn" onclick="addToCart('{{ product.id }}', 1, this)" title="Add to cart"
+              {% if not product.is_in_stock %}disabled style="opacity:0.4;cursor:not-allowed;"{% endif %}>
+        {% if product.is_in_stock %}<i class="fa-solid fa-plus"></i>{% else %}<i class="fa-solid fa-ban"></i>{% endif %}
+      </button>
+    </div>
+  </div>
+</div>

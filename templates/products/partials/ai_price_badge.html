@@ -1,0 +1,54 @@
+{% comment %}
+AI Dynamic Price Badge — include on product detail page.
+Usage: {% include 'products/partials/ai_price_badge.html' with product=product %}
+{% endcomment %}
+<div id="aiPriceWidget-{{ product.id }}" data-product-id="{{ product.id }}" style="display:none;margin-bottom:1rem;">
+  <div style="background:linear-gradient(135deg,rgba(201,168,76,.1),rgba(0,212,255,.05));border:1px solid var(--border-accent);border-radius:var(--radius-md);padding:1rem 1.25rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+    <div style="display:flex;align-items:center;gap:.5rem;">
+      <i class="fa-solid fa-microchip" style="color:var(--accent-cyan);"></i>
+      <span style="font-size:.75rem;font-family:var(--font-mono);color:var(--accent-cyan);text-transform:uppercase;letter-spacing:.05em;">AI Dynamic Price</span>
+    </div>
+    <div style="flex:1;">
+      <span id="aiPriceDisplay-{{ product.id }}" style="font-family:var(--font-display);font-size:1.5rem;font-weight:800;color:var(--accent-gold);"></span>
+      <span id="aiSavingsDisplay-{{ product.id }}" style="font-size:.8rem;color:var(--accent-green);margin-left:.5rem;display:none;">
+        You save <strong id="aiSavingsAmount-{{ product.id }}"></strong>!
+      </span>
+    </div>
+    <div style="font-size:.7rem;color:var(--text-muted);text-align:right;">
+      Updated every<br>4 hours by AI
+    </div>
+  </div>
+</div>
+
+<script>
+(async function() {
+  const pid = '{{ product.id }}';
+  try {
+    const res  = await fetch(`/shop/api/price/${pid}/`);
+    const data = await res.json();
+    if (!data.success) return;
+
+    const widget   = document.getElementById(`aiPriceWidget-${pid}`);
+    const display  = document.getElementById(`aiPriceDisplay-${pid}`);
+    const savings  = document.getElementById(`aiSavingsDisplay-${pid}`);
+    const savAmt   = document.getElementById(`aiSavingsAmount-${pid}`);
+
+    display.textContent = `KES ${Math.round(data.ai_price).toLocaleString()}`;
+
+    if (data.savings > 0) {
+      savings.style.display = 'inline';
+      savAmt.textContent    = `KES ${Math.round(data.savings).toLocaleString()}`;
+    }
+
+    widget.style.display = 'block';
+
+    // Update the main price display if multiplier != 1
+    if (Math.abs(data.multiplier - 1.0) > 0.01) {
+      const mainPrice = document.querySelector('.product-card__price, [data-main-price]');
+      if (mainPrice) {
+        mainPrice.textContent = `KES ${Math.round(data.ai_price).toLocaleString()}`;
+      }
+    }
+  } catch(e) {}
+})();
+</script>

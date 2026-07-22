@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% block title %}Order {{ order.order_number }}{% endblock %}
+{% block content %}
+<div class="container" style="padding-top:2.5rem;padding-bottom:5rem;max-width:880px;">
+  <div style="display:flex;align-items:center;gap:1rem;margin-bottom:2rem;flex-wrap:wrap;">
+    <a href="{% url 'orders:history' %}" style="color:var(--text-muted);font-size:.875rem;"><i class="fa-solid fa-arrow-left"></i> My Orders</a>
+    <h1 style="font-family:var(--font-display);font-size:1.75rem;font-weight:800;margin-left:auto;">{{ order.order_number }}</h1>
+    <span style="padding:.4rem 1rem;border-radius:20px;font-size:.8rem;font-weight:700;font-family:var(--font-mono);text-transform:uppercase;
+      {% if order.status == 'delivered' %}background:rgba(16,185,129,.15);color:var(--accent-green);
+      {% elif order.status == 'shipped' %}background:rgba(0,212,255,.15);color:var(--accent-cyan);
+      {% elif order.status == 'cancelled' %}background:rgba(239,68,68,.15);color:var(--accent-red);
+      {% else %}background:rgba(201,168,76,.15);color:var(--accent-gold);{% endif %}">
+      {{ order.get_status_display }}
+    </span>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 320px;gap:1.5rem;align-items:start;">
+    <div style="display:flex;flex-direction:column;gap:1.25rem;">
+      <!-- Items -->
+      <div class="card" style="padding:1.75rem;">
+        <h3 style="font-family:var(--font-display);font-weight:700;margin-bottom:1.25rem;">Order Items</h3>
+        {% for item in items %}
+        <div style="display:flex;gap:1rem;align-items:center;padding:1rem 0;border-bottom:1px solid var(--border);">
+          <div style="width:64px;height:64px;background:var(--bg-secondary);border-radius:var(--radius-md);overflow:hidden;flex-shrink:0;">
+            {% if item.product and item.product.primary_image %}<img src="{{ item.product.primary_image.image.url }}" style="width:100%;height:100%;object-fit:cover;" />{% else %}<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:2rem;">🛍️</div>{% endif %}
+          </div>
+          <div style="flex:1;">
+            <div style="font-weight:600;">{{ item.product_name }}</div>
+            {% if item.variant_info %}<div style="font-size:.8rem;color:var(--text-muted);">{{ item.variant_info }}</div>{% endif %}
+            <div style="font-size:.8rem;color:var(--text-muted);">SKU: {{ item.sku }}</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:.875rem;color:var(--text-muted);">{{ item.quantity }} × KES {{ item.unit_price|floatformat:"0" }}</div>
+            <div style="font-weight:700;">KES {{ item.total_price|floatformat:"0" }}</div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      <!-- Status Timeline -->
+      <div class="card" style="padding:1.75rem;">
+        <h3 style="font-family:var(--font-display);font-weight:700;margin-bottom:1.25rem;">Status History</h3>
+        {% for h in history %}
+        <div style="display:flex;gap:1rem;padding:.75rem 0;border-bottom:1px solid var(--border);">
+          <div style="width:32px;height:32px;border-radius:50%;background:var(--bg-elevated);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.8rem;flex-shrink:0;">📋</div>
+          <div>
+            <div style="font-weight:600;font-size:.875rem;text-transform:capitalize;">{{ h.status }}</div>
+            {% if h.note %}<div style="font-size:.8rem;color:var(--text-muted);">{{ h.note }}</div>{% endif %}
+            <div style="font-size:.75rem;color:var(--text-muted);margin-top:.25rem;">{{ h.changed_at|date:"M d, Y H:i" }}</div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    <!-- Summary sidebar -->
+    <div style="display:flex;flex-direction:column;gap:1.25rem;">
+      <div class="card" style="padding:1.5rem;">
+        <h3 style="font-family:var(--font-display);font-weight:700;margin-bottom:1rem;">Summary</h3>
+        <div style="display:flex;flex-direction:column;gap:.5rem;font-size:.875rem;">
+          <div style="display:flex;justify-content:space-between;"><span style="color:var(--text-muted);">Subtotal</span><span>KES {{ order.subtotal|floatformat:"0" }}</span></div>
+          {% if order.discount_amount %}<div style="display:flex;justify-content:space-between;"><span style="color:var(--accent-green);">Discount</span><span style="color:var(--accent-green);">−KES {{ order.discount_amount|floatformat:"0" }}</span></div>{% endif %}
+          <div style="display:flex;justify-content:space-between;"><span style="color:var(--text-muted);">Shipping</span><span>{% if order.shipping_fee == 0 %}FREE{% else %}KES {{ order.shipping_fee|floatformat:"0" }}{% endif %}</span></div>
+          <div style="display:flex;justify-content:space-between;"><span style="color:var(--text-muted);">VAT</span><span>KES {{ order.tax_amount|floatformat:"0" }}</span></div>
+          <div style="display:flex;justify-content:space-between;padding-top:.625rem;border-top:1px solid var(--border);margin-top:.25rem;font-family:var(--font-display);font-weight:700;"><span>Total</span><span style="color:var(--accent-gold);">KES {{ order.total|floatformat:"0" }}</span></div>
+        </div>
+      </div>
+      <div class="card" style="padding:1.5rem;">
+        <h3 style="font-family:var(--font-display);font-weight:700;margin-bottom:1rem;">Ship To</h3>
+        <p style="font-size:.875rem;color:var(--text-secondary);line-height:1.7;">{{ order.shipping_address }}</p>
+      </div>
+      {% if order.is_cancellable %}
+      <form method="post" action="{% url 'orders:cancel_order' order.order_number %}" onsubmit="return confirm('Cancel this order?');">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-ghost" style="width:100%;justify-content:center;color:var(--accent-red);border-color:rgba(239,68,68,.3);">
+          <i class="fa-solid fa-xmark"></i> Cancel Order
+        </button>
+      </form>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

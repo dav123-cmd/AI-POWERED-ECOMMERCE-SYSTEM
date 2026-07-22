@@ -1,0 +1,190 @@
+{% extends 'base.html' %}<!----->
+{% load static %}<!----->
+{% block title %}My Wishlist{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top:2.5rem;padding-bottom:5rem;">
+
+  <!-- Header -->
+  <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:2rem;flex-wrap:wrap;gap:1rem;">
+    <div>
+      <h1 style="font-family:var(--font-display);font-size:2rem;font-weight:800;display:flex;align-items:center;gap:.625rem;">
+        <i class="fa-solid fa-heart" style="color:var(--accent-red);"></i> My Wishlist
+      </h1>
+      <p style="color:var(--text-muted);font-size:.875rem;margin-top:.25rem;">
+        {{ items.count }} item{{ items.count|pluralize }} · Total value
+        <strong style="color:var(--accent-gold);">KES {{ total_value|floatformat:"0" }}</strong>
+      </p>
+    </div>
+    {% if items %}
+    <div style="display:flex;gap:.625rem;flex-wrap:wrap;">
+      <select id="sortSelect" class="form-input" style="width:auto;font-size:.8rem;" onchange="applySort(this.value)">
+        <option value="-added_at" {% if sort == '-added_at' %}selected{% endif %}>Recently Added</option>
+        <option value="added_at"  {% if sort == 'added_at'  %}selected{% endif %}>Oldest First</option>
+        <option value="price"     {% if sort == 'price'     %}selected{% endif %}>Price: Low → High</option>
+        <option value="-price"    {% if sort == '-price'    %}selected{% endif %}>Price: High → Low</option>
+      </select>
+      <button onclick="moveAllToCart()" class="btn btn-primary btn-sm" id="moveAllBtn">
+        <i class="fa-solid fa-bag-shopping"></i> Add All to Cart
+      </button>
+      <button onclick="clearWishlist()" class="btn btn-ghost btn-sm">
+        <i class="fa-solid fa-trash-can"></i> Clear All
+      </button>
+    </div>
+    {% endif %}
+  </div>
+
+  {% if items %}
+
+  <!-- Alert banners -->
+  {% if price_drops %}
+  <div style="display:flex;align-items:center;gap:.75rem;padding:1rem 1.25rem;background:linear-gradient(135deg,rgba(16,185,129,.1),rgba(16,185,129,.04));border:1px solid rgba(16,185,129,.25);border-radius:var(--radius-md);margin-bottom:1rem;">
+    <span style="font-size:1.25rem;"><i class='fas fa-fire'></i></span>
+    <span style="font-size:.875rem;">
+      <strong style="color:var(--accent-green);">{{ price_drops|length }} item{{ price_drops|length|pluralize }}</strong>
+      in your wishlist dropped in price since you saved them!
+    </span>
+  </div>
+  {% endif %}
+  {% if out_of_stock %}
+  <div style="display:flex;align-items:center;gap:.75rem;padding:1rem 1.25rem;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:var(--radius-md);margin-bottom:1.5rem;">
+    <span style="font-size:1.25rem;"><i class='fas fa-triangle-exclamation'><i/></span>
+    <span style="font-size:.875rem;color:var(--text-secondary);">
+      <strong style="color:var(--accent-red);">{{ out_of_stock|length }} item{{ out_of_stock|length|pluralize }}</strong>
+      currently out of stock — we'll notify you when they're back.
+    </span>
+  </div>
+  {% endif %}
+
+  <!-- Wishlist Grid -->
+  <div class="grid-products" id="wishlistGrid">
+    {% for item in items %}
+    <div class="product-card" data-animate id="wishlistCard-{{ item.id }}" data-product-id="{{ item.product.id }}">
+      <div class="product-card__image">
+        {% if item.product.primary_image %}
+        <img src="{{ item.product.primary_image.image.url }}" alt="{{ item.product.name }}" loading="lazy" />
+        {% else %}
+        <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:4rem;background:var(--bg-secondary);"><i class='fas fa-shopping-bag'></i></div>
+        {% endif %}
+        <div class="product-card__badges">
+          {% if item.price_dropped %}<span class="badge" style="background:var(--accent-green);color:white;">-{{ item.price_drop_pct }}% drop</span>{% endif %}
+          {% if not item.product.is_in_stock %}<span class="badge" style="background:rgba(239,68,68,.9);color:white;">Out of Stock</span>{% endif %}
+        </div>
+        <div class="product-card__actions">
+          <button class="product-card__action-btn" onclick="removeFromWishlist('{{ item.id }}', '{{ item.product.id }}')" title="Remove">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+      </div>
+      <div class="product-card__body">
+        {% if item.product.category %}<div class="product-card__category">{{ item.product.category.name }}</div>{% endif %}
+        <a href="{{ item.product.get_absolute_url }}"><h3 class="product-card__name">{{ item.product.name }}</h3></a>
+
+        <div style="font-size:.75rem;color:var(--text-muted);margin:.25rem 0;">
+          Saved {{ item.added_at|timesince }} ago
+          {% if item.price_dropped %}
+          · <span style="color:var(--accent-green);">was KES {{ item.price_at_add|floatformat:"0" }}</span>
+          {% endif %}
+        </div>
+
+        <div class="product-card__price-row">
+          <div>
+            <span class="product-card__price">KES {{ item.current_price|floatformat:"0" }}</span>
+          </div>
+        </div>
+
+        <button onclick="moveToCart('{{ item.product.id }}', this)" class="btn btn-secondary btn-sm" style="width:100%;justify-content:center;margin-top:.75rem;"
+                {% if not item.product.is_in_stock %}disabled style="opacity:.5;cursor:not-allowed;"{% endif %}>
+          <i class="fa-solid fa-bag-shopping"></i>
+          {% if item.product.is_in_stock %}Move to Cart{% else %}Notify Me{% endif %}
+        </button>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  {% else %}
+  <!-- Empty state -->
+  <div style="text-align:center;padding:6rem 2rem;">
+    <div style="font-size:5rem;margin-bottom:1.5rem;"><i class='fas fa-heart-broken'></i></div>
+    <h2 style="font-family:var(--font-display);font-size:1.75rem;font-weight:800;margin-bottom:.75rem;">Your wishlist is empty</h2>
+    <p style="color:var(--text-muted);margin-bottom:2rem;">Save products you love and we'll watch for price drops and restocks.</p>
+    <a href="{% url 'products:list' %}" class="btn btn-primary btn-lg">
+      <i class="fa-solid fa-bag-shopping"></i> Discover Products
+    </a>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function applySort(val) {
+  window.location.href = `?sort=${val}`;
+}
+
+async function removeFromWishlist(itemId, productId) {
+  const res  = await fetch(`/wishlist/remove/${itemId}/`, {
+    method: 'POST',
+    headers: { 'X-CSRFToken': getCookie('csrftoken'), 'X-Requested-With': 'XMLHttpRequest' },
+  });
+  const data = await res.json();
+  if (data.success) {
+    document.getElementById(`wishlistCard-${itemId}`)?.remove();
+    showToast('Removed from wishlist', 'info');
+    if (data.count === 0) setTimeout(() => window.location.reload(), 600);
+  }
+}
+
+async function moveToCart(productId, btn) {
+  const card = btn.closest('.product-card');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+  try {
+    const res  = await fetch(`/wishlist/move-to-cart/${productId}/`, {
+      method: 'POST',
+      headers: { 'X-CSRFToken': getCookie('csrftoken') },
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast(data.message, 'success');
+      card?.remove();
+      const badge = document.querySelector('.navbar__icon-btn[title="Cart"] .navbar__badge');
+      if (badge) badge.textContent = data.cart_count;
+    } else {
+      showToast(data.error || 'Could not move to cart.', 'error');
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fa-solid fa-bag-shopping"></i> Move to Cart';
+    }
+  } catch {
+    showToast('Network error.', 'error');
+    btn.disabled = false;
+  }
+}
+
+async function moveAllToCart() {
+  const btn = document.getElementById('moveAllBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Adding...';
+  const res  = await fetch('{% url "wishlist:move_all_to_cart" %}', {
+    method: 'POST', headers: { 'X-CSRFToken': getCookie('csrftoken') },
+  });
+  const data = await res.json();
+  showToast(data.message, 'success');
+  setTimeout(() => window.location.reload(), 900);
+}
+
+async function clearWishlist() {
+  if (!confirm('Clear your entire wishlist?')) return;
+  const res  = await fetch('{% url "wishlist:clear" %}', {
+    method: 'POST', headers: { 'X-CSRFToken': getCookie('csrftoken') },
+  });
+  const data = await res.json();
+  if (data.success) {
+    showToast('Wishlist cleared', 'info');
+    setTimeout(() => window.location.reload(), 600);
+  }
+}
+</script>
+{% endblock %}

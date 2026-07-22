@@ -1,0 +1,620 @@
+{% extends 'base.html' %} {% load static %}
+<!---->
+{% block title %}Notifications{% endblock %} {% block content %}
+<div
+  class="container"
+  style="padding-top: 2.5rem; padding-bottom: 5rem; max-width: 840px"
+>
+  <!-- Header -->
+  <div
+    style="
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    "
+  >
+    <div>
+      <h1
+        style="
+          font-family: var(--font-display);
+          font-size: 2rem;
+          font-weight: 800;
+          display: flex;
+          align-items: center;
+          gap: 0.625rem;
+        "
+      >
+        <i class="fa-regular fa-bell" style="color: var(--accent-gold)"></i>
+        Notifications {% if unread_count %}
+        <span
+          style="
+            font-size: 0.8rem;
+            font-family: var(--font-mono);
+            padding: 0.2rem 0.625rem;
+            background: rgba(201, 168, 76, 0.15);
+            color: var(--accent-gold);
+            border-radius: 12px;
+          "
+          >{{ unread_count }} new</span
+        >
+        {% endif %}
+      </h1>
+    </div>
+    <div style="display: flex; gap: 0.625rem">
+      <button
+        onclick="markAllRead()"
+        class="btn btn-secondary btn-sm"
+        {%
+        if
+        not
+        unread_count
+        %}disabled
+        style="opacity: 0.5"
+        {%
+        endif
+        %}
+      >
+        <i class="fa-solid fa-check-double"></i> Mark all read
+      </button>
+      <button onclick="clearAll()" class="btn btn-ghost btn-sm">
+        <i class="fa-solid fa-trash-can"></i> Clear all
+      </button>
+      <button
+        onclick="togglePrefs()"
+        class="btn btn-ghost btn-sm"
+        title="Preferences"
+      >
+        <i class="fa-solid fa-gear"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Preferences Panel (collapsed by default) -->
+  <div
+    id="prefsPanel"
+    class="card"
+    style="display: none; padding: 1.75rem; margin-bottom: 2rem"
+  >
+    <h3
+      style="
+        font-family: var(--font-display);
+        font-weight: 700;
+        margin-bottom: 1.25rem;
+        font-size: 1rem;
+      "
+    >
+      <i class="fa-solid fa-gear" style="color: var(--accent-gold)"></i>
+      Notification Preferences
+    </h3>
+    <form method="post" action="{% url 'notifications:preferences' %}">
+      {% csrf_token %}
+      <div
+        style="
+          display: flex;
+          flex-direction: column;
+          gap: 0.875rem;
+          margin-bottom: 1.5rem;
+        "
+      >
+        <label
+          style="
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem 1rem;
+            background: var(--bg-elevated);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+          "
+        >
+          <span style="font-size: 0.875rem">Order &amp; shipping emails</span>
+          <input
+            type="checkbox"
+            name="email_orders"
+            {%
+            if
+            prefs.email_orders
+            %}checked{%
+            endif
+            %}
+            style="accent-color: var(--accent-gold); width: 18px; height: 18px"
+          />
+        </label>
+        <label
+          style="
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem 1rem;
+            background: var(--bg-elevated);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+          "
+        >
+          <span style="font-size: 0.875rem">Promotions &amp; price drops</span>
+          <input
+            type="checkbox"
+            name="email_promos"
+            {%
+            if
+            prefs.email_promos
+            %}checked{%
+            endif
+            %}
+            style="accent-color: var(--accent-gold); width: 18px; height: 18px"
+          />
+        </label>
+        <label
+          style="
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem 1rem;
+            background: var(--bg-elevated);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+          "
+        >
+          <span style="font-size: 0.875rem">Review status updates</span>
+          <input
+            type="checkbox"
+            name="email_reviews"
+            {%
+            if
+            prefs.email_reviews
+            %}checked{%
+            endif
+            %}
+            style="accent-color: var(--accent-gold); width: 18px; height: 18px"
+          />
+        </label>
+        <label
+          style="
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem 1rem;
+            background: var(--bg-elevated);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+          "
+        >
+          <span style="font-size: 0.875rem"
+            >AI insights &amp; recommendations</span
+          >
+          <input
+            type="checkbox"
+            name="email_ai"
+            {%
+            if
+            prefs.email_ai
+            %}checked{%
+            endif
+            %}
+            style="accent-color: var(--accent-gold); width: 18px; height: 18px"
+          />
+        </label>
+        <label
+          style="
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem 1rem;
+            background: var(--bg-elevated);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+          "
+        >
+          <span style="font-size: 0.875rem">Push notifications</span>
+          <input
+            type="checkbox"
+            name="push_enabled"
+            {%
+            if
+            prefs.push_enabled
+            %}checked{%
+            endif
+            %}
+            style="accent-color: var(--accent-gold); width: 18px; height: 18px"
+          />
+        </label>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email Digest Frequency</label>
+        <select name="digest_frequency" class="form-input">
+          <option
+            value="instant"
+            {%
+            if
+            prefs.digest_frequency=""
+            ="instant"
+            %}selected{%
+            endif
+            %}
+          >
+            Instant
+          </option>
+          <option
+            value="daily"
+            {%
+            if
+            prefs.digest_frequency=""
+            ="daily"
+            %}selected{%
+            endif
+            %}
+          >
+            Daily Digest
+          </option>
+          <option
+            value="weekly"
+            {%
+            if
+            prefs.digest_frequency=""
+            ="weekly"
+            %}selected{%
+            endif
+            %}
+          >
+            Weekly Digest
+          </option>
+          <option
+            value="off"
+            {%
+            if
+            prefs.digest_frequency=""
+            ="off"
+            %}selected{%
+            endif
+            %}
+          >
+            Off
+          </option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary btn-sm">
+        <i class="fa-solid fa-floppy-disk"></i> Save Preferences
+      </button>
+    </form>
+  </div>
+
+  <!-- Filters -->
+  <div
+    style="
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+      overflow-x: auto;
+      scrollbar-width: none;
+    "
+  >
+    <a
+      href="?"
+      class="notif-filter-pill {% if not current_category and not only_unread %}active{% endif %}"
+      >All</a
+    >
+    <a
+      href="?unread=1"
+      class="notif-filter-pill {% if only_unread %}active{% endif %}"
+      >Unread</a
+    >
+    {% for value, label in categories %}
+    <a
+      href="?category={{ value }}"
+      class="notif-filter-pill {% if current_category == value %}active{% endif %}"
+      >{{ label }}</a
+    >
+    {% endfor %}
+  </div>
+
+  <!-- Notification List -->
+  <div
+    id="notifList"
+    style="display: flex; flex-direction: column; gap: 0.75rem"
+  >
+    {% for n in notifications %}
+    <div
+      class="notif-row {% if not n.is_read %}notif-row--unread{% endif %}"
+      id="notif-{{ n.id }}"
+      data-id="{{ n.id }}"
+    >
+      <div class="notif-row__icon notif-row__icon--{{ n.level }}">
+        {{ n.icon|default:"fas fa-bell" }}
+      </div>
+      <div
+        class="notif-row__body"
+        onclick="openNotif('{{ n.id }}', '{{ n.link }}')"
+      >
+        <div
+          style="
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+          "
+        >
+          <span class="notif-row__title">{{ n.title }}</span>
+          <span class="notif-row__cat">{{ n.get_category_display }}</span>
+          {% if not n.is_read %}<span class="notif-dot"></span>{% endif %}
+        </div>
+        {% if n.message %}
+        <div class="notif-row__msg">{{ n.message }}</div>
+        {% endif %}
+        <div class="notif-row__time">{{ n.time_ago }} ago</div>
+      </div>
+      <div class="notif-row__actions">
+        {% if not n.is_read %}
+        <button onclick="markRead('{{ n.id }}', event)" title="Mark as read">
+          <i class="fa-solid fa-check"></i>
+        </button>
+        {% endif %}
+        <button onclick="deleteNotif('{{ n.id }}', event)" title="Delete">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Empty state -->
+  {% if not notifications %}
+  <div style="text-align: center; padding: 5rem 2rem">
+    <div style="font-size: 4rem; margin-bottom: 1.25rem">
+      <i class="fas fa-bell"></i>
+    </div>
+    <h2
+      style="
+        font-family: var(--font-display);
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+      "
+    >
+      You're all caught up
+    </h2>
+    <p style="color: var(--text-muted)">
+      No notifications {% if current_category %}in this category{% elif
+      only_unread %}unread{% endif %} right now.
+    </p>
+  </div>
+  {% endif %}
+
+  <!-- Pagination -->
+  {% if page_obj.has_other_pages %}
+  <div
+    style="
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-top: 2.5rem;
+    "
+  >
+    {% if page_obj.has_previous %}
+    <a
+      href="?page={{ page_obj.previous_page_number }}{% if current_category %}&category={{ current_category }}{% endif %}"
+      class="btn btn-ghost btn-sm"
+      >← Prev</a
+    >
+    {% endif %}
+    <span
+      style="
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+        color: var(--text-muted);
+      "
+      >Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span
+    >
+    {% if page_obj.has_next %}
+    <a
+      href="?page={{ page_obj.next_page_number }}{% if current_category %}&category={{ current_category }}{% endif %}"
+      class="btn btn-ghost btn-sm"
+      >Next →</a
+    >
+    {% endif %}
+  </div>
+  {% endif %}
+</div>
+
+<style>
+  .notif-filter-pill {
+    padding: 0.4rem 1rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+    text-decoration: none;
+    transition: var(--transition);
+  }
+  .notif-filter-pill:hover,
+  .notif-filter-pill.active {
+    border-color: var(--border-accent);
+    color: var(--accent-gold);
+    background: var(--bg-hover);
+  }
+
+  .notif-row {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    padding: 1.1rem 1.25rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    transition: var(--transition);
+  }
+  .notif-row--unread {
+    border-color: var(--border-accent);
+    background: linear-gradient(135deg, rgba(201, 168, 76, 0.04), transparent);
+  }
+  .notif-row__icon {
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    background: var(--bg-elevated);
+  }
+  .notif-row__icon--success {
+    background: rgba(16, 185, 129, 0.12);
+  }
+  .notif-row__icon--warning {
+    background: rgba(234, 179, 8, 0.12);
+  }
+  .notif-row__icon--danger {
+    background: rgba(239, 68, 68, 0.12);
+  }
+  .notif-row__body {
+    flex: 1;
+    cursor: pointer;
+    min-width: 0;
+  }
+  .notif-row__title {
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+  .notif-row__cat {
+    font-size: 0.65rem;
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    color: var(--text-muted);
+    background: var(--bg-elevated);
+    padding: 0.15rem 0.5rem;
+    border-radius: 8px;
+  }
+  .notif-row__msg {
+    font-size: 0.825rem;
+    color: var(--text-muted);
+    margin-top: 0.25rem;
+    line-height: 1.5;
+  }
+  .notif-row__time {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin-top: 0.375rem;
+  }
+  .notif-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--accent-gold);
+    flex-shrink: 0;
+  }
+  .notif-row__actions {
+    display: flex;
+    gap: 0.375rem;
+    flex-shrink: 0;
+  }
+  .notif-row__actions button {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    font-size: 0.75rem;
+    transition: var(--transition);
+    cursor: pointer;
+  }
+  .notif-row__actions button:hover {
+    color: var(--text-primary);
+    border-color: var(--border-accent);
+  }
+</style>
+{% endblock %} {% block extra_js %}
+<script>
+  function togglePrefs() {
+    const panel = document.getElementById("prefsPanel");
+    panel.style.display = panel.style.display === "none" ? "block" : "none";
+  }
+
+  function openNotif(id, link) {
+    markRead(id, null, () => {
+      if (link) window.location.href = link;
+    });
+  }
+
+  async function markRead(id, event, then) {
+    if (event) event.stopPropagation();
+    const res = await fetch(`/notifications/read/${id}/`, {
+      method: "POST",
+      headers: { "X-CSRFToken": getCookie("csrftoken") },
+    });
+    const data = await res.json();
+    if (data.success) {
+      const row = document.getElementById(`notif-${id}`);
+      row?.classList.remove("notif-row--unread");
+      row?.querySelector(".notif-dot")?.remove();
+      row?.querySelector('button[title="Mark as read"]')?.remove();
+      updateBellBadge(data.unread_count);
+      if (then) then();
+    }
+  }
+
+  async function deleteNotif(id, event) {
+    event.stopPropagation();
+    const res = await fetch(`/notifications/delete/${id}/`, {
+      method: "POST",
+      headers: { "X-CSRFToken": getCookie("csrftoken") },
+    });
+    const data = await res.json();
+    if (data.success) {
+      document.getElementById(`notif-${id}`)?.remove();
+      updateBellBadge(data.unread_count);
+      showToast("Notification removed", "info");
+    }
+  }
+
+  async function markAllRead() {
+    const res = await fetch('{% url "notifications:mark_all_read" %}', {
+      method: "POST",
+      headers: { "X-CSRFToken": getCookie("csrftoken") },
+    });
+    const data = await res.json();
+    if (data.success) {
+      document.querySelectorAll(".notif-row--unread").forEach((r) => {
+        r.classList.remove("notif-row--unread");
+        r.querySelector(".notif-dot")?.remove();
+        r.querySelector('button[title="Mark as read"]')?.remove();
+      });
+      updateBellBadge(0);
+      showToast("All notifications marked as read", "success");
+    }
+  }
+
+  async function clearAll() {
+    if (!confirm("Clear all notifications? This cannot be undone.")) return;
+    const res = await fetch('{% url "notifications:clear_all" %}', {
+      method: "POST",
+      headers: { "X-CSRFToken": getCookie("csrftoken") },
+    });
+    const data = await res.json();
+    if (data.success) {
+      document.getElementById("notifList").innerHTML = "";
+      updateBellBadge(0);
+      showToast("All notifications cleared", "info");
+      setTimeout(() => window.location.reload(), 800);
+    }
+  }
+
+  function updateBellBadge(count) {
+    const badge = document.getElementById("navBellBadge");
+    if (!badge) return;
+    if (count > 0) {
+      badge.textContent = count;
+      badge.style.display = "flex";
+    } else {
+      badge.style.display = "none";
+    }
+  }
+</script>
+{% endblock %}

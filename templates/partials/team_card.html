@@ -1,0 +1,41 @@
+
+<section class="section">
+  <div class="container">
+    <div class="section-header">
+      <h1 class="section-title">Meet the Team</h1>
+    </div>
+
+    <div class="grid-container" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
+      {% for member in members %}
+        <div class="ui-card">
+          <div class="ui-card__image">
+            <img src="{{ member.image.url }}" alt="{{ member.name }}">
+          </div>
+          <div class="ui-card__body">
+            <h3 class="ui-card__title">{{ member.name }}</h3>
+            <p style="color:var(--accent-gold); font-weight:bold;">{{ member.role }}</p>
+            <p class="ui-card__text">{{ member.bio|truncatewords:20 }}</p>
+            {% if member.linkedin_url %}
+              <a href="{{ member.linkedin_url }}"><i class="fa-brands fa-linkedin"></i> LinkedIn</a>
+            {% endif %}
+          </div>
+        </div>
+      {% empty %}
+        <div class="ui-card" style="grid-column: 1 / -1; text-align:center;">
+          <div class="ui-card__body">
+            <h3 class="ui-card__title">No team members yet</h3>
+            <p class="ui-card__text">Add a TeamMember record in the admin panel to populate this page.</p>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+
+
+
+
+
+
+

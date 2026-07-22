@@ -1,0 +1,426 @@
+{% load static %}
+
+<!-- ── Search Overlay ─────────────────────────────────────── -->
+<div class="search-overlay" id="searchOverlay">
+  <div class="search-overlay__inner">
+    <div class="search-overlay__input-wrap">
+      <i class="fa-solid fa-magnifying-glass search-overlay__icon"></i>
+      <input
+        type="text"
+        class="search-overlay__input"
+        id="searchInput"
+        placeholder="Search products, brands, categories..."
+        autocomplete="off"
+      />
+      <button class="search-overlay__close" id="searchClose">ESC</button>
+    </div>
+    <div id="searchSuggestions" style="margin-top:1rem;"></div>
+  </div>
+</div>
+
+<!-- ── Navbar ─────────────────────────────────────────────── -->
+<nav class="navbar" id="navbar">
+
+  <!-- Logo -->
+  <a href="{% url 'products:home' %}" class="navbar__logo">
+    <div class="navbar__logo-icon"> <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <defs>
+    <!-- Deep space gradient background -->
+    <radialGradient id="bgGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#0d1b2a"/>
+      <stop offset="100%" stop-color="#050d15"/>
+    </radialGradient>
+
+    <!-- Brain/neural glow -->
+    <radialGradient id="nodeGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#00e5ff" stop-opacity="1"/>
+      <stop offset="100%" stop-color="#0077b6" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Cart gradient -->
+    <linearGradient id="cartGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00e5ff"/>
+      <stop offset="100%" stop-color="#7b2ff7"/>
+    </linearGradient>
+
+    <!-- Pulse glow filter -->
+    <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="2.5" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <filter id="softGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="1.2" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Clip circle -->
+    <clipPath id="circleClip">
+      <circle cx="60" cy="60" r="54"/>
+    </clipPath>
+  </defs>
+
+  <!-- Background circle -->
+  <circle cx="60" cy="60" r="58" fill="url(#bgGrad)" stroke="#00e5ff" stroke-width="0.8" stroke-opacity="0.4"/>
+
+  <!-- Subtle grid lines -->
+  <g clip-path="url(#circleClip)" opacity="0.06" stroke="#00e5ff" stroke-width="0.4">
+    <line x1="0" y1="30" x2="120" y2="30"/>
+    <line x1="0" y1="50" x2="120" y2="50"/>
+    <line x1="0" y1="70" x2="120" y2="70"/>
+    <line x1="0" y1="90" x2="120" y2="90"/>
+    <line x1="20" y1="0" x2="20" y2="120"/>
+    <line x1="40" y1="0" x2="40" y2="120"/>
+    <line x1="60" y1="0" x2="60" y2="120"/>
+    <line x1="80" y1="0" x2="80" y2="120"/>
+    <line x1="100" y1="0" x2="100" y2="120"/>
+  </g>
+
+  <!-- === NEURAL NETWORK SYNAPSES (connections) === -->
+  <g filter="url(#softGlow)" stroke-linecap="round">
+
+    <!-- Left layer → Middle layer connections -->
+    <line x1="26" y1="36" x2="52" y2="28" stroke="#00e5ff" stroke-width="0.9" opacity="0.55"/>
+    <line x1="26" y1="36" x2="52" y2="50" stroke="#00e5ff" stroke-width="0.9" opacity="0.45"/>
+    <line x1="26" y1="60" x2="52" y2="28" stroke="#7b2ff7" stroke-width="0.9" opacity="0.4"/>
+    <line x1="26" y1="60" x2="52" y2="50" stroke="#00e5ff" stroke-width="0.9" opacity="0.55"/>
+    <line x1="26" y1="60" x2="52" y2="72" stroke="#00e5ff" stroke-width="0.9" opacity="0.4"/>
+    <line x1="26" y1="84" x2="52" y2="50" stroke="#7b2ff7" stroke-width="0.9" opacity="0.35"/>
+    <line x1="26" y1="84" x2="52" y2="72" stroke="#00e5ff" stroke-width="0.9" opacity="0.55"/>
+
+    <!-- Middle layer → Right layer connections -->
+    <line x1="52" y1="28" x2="78" y2="36" stroke="#00e5ff" stroke-width="0.9" opacity="0.5"/>
+    <line x1="52" y1="28" x2="78" y2="60" stroke="#7b2ff7" stroke-width="0.9" opacity="0.35"/>
+    <line x1="52" y1="50" x2="78" y2="36" stroke="#00e5ff" stroke-width="0.9" opacity="0.55"/>
+    <line x1="52" y1="50" x2="78" y2="60" stroke="#00e5ff" stroke-width="0.9" opacity="0.45"/>
+    <line x1="52" y1="72" x2="78" y2="60" stroke="#00e5ff" stroke-width="0.9" opacity="0.55"/>
+    <line x1="52" y1="72" x2="78" y2="84" stroke="#7b2ff7" stroke-width="0.9" opacity="0.4"/>
+
+    <!-- Right layer → Output -->
+    <line x1="78" y1="36" x2="96" y2="50" stroke="#00e5ff" stroke-width="0.9" opacity="0.5"/>
+    <line x1="78" y1="60" x2="96" y2="50" stroke="#00e5ff" stroke-width="0.9" opacity="0.55"/>
+    <line x1="78" y1="84" x2="96" y2="72" stroke="#7b2ff7" stroke-width="0.9" opacity="0.4"/>
+    <line x1="78" y1="60" x2="96" y2="72" stroke="#00e5ff" stroke-width="0.9" opacity="0.45"/>
+  </g>
+
+  <!-- === NEURAL NODES === -->
+  <g filter="url(#glow)">
+
+    <!-- Input layer (left) -->
+    <circle cx="26" cy="36" r="4.5" fill="#0d1b2a" stroke="#00e5ff" stroke-width="1.6"/>
+    <circle cx="26" cy="36" r="2" fill="#00e5ff"/>
+    <circle cx="26" cy="60" r="4.5" fill="#0d1b2a" stroke="#00e5ff" stroke-width="1.6"/>
+    <circle cx="26" cy="60" r="2" fill="#00e5ff"/>
+    <circle cx="26" cy="84" r="4.5" fill="#0d1b2a" stroke="#7b2ff7" stroke-width="1.6"/>
+    <circle cx="26" cy="84" r="2" fill="#7b2ff7"/>
+
+    <!-- Hidden layer (middle) -->
+    <circle cx="52" cy="28" r="4.5" fill="#0d1b2a" stroke="#00e5ff" stroke-width="1.6"/>
+    <circle cx="52" cy="28" r="2" fill="#00e5ff"/>
+    <circle cx="52" cy="50" r="5.5" fill="#0d1b2a" stroke="#00e5ff" stroke-width="2"/>
+    <circle cx="52" cy="50" r="2.5" fill="#00e5ff"/>
+    <circle cx="52" cy="72" r="4.5" fill="#0d1b2a" stroke="#7b2ff7" stroke-width="1.6"/>
+    <circle cx="52" cy="72" r="2" fill="#7b2ff7"/>
+
+    <!-- Hidden layer 2 (right-mid) -->
+    <circle cx="78" cy="36" r="4.5" fill="#0d1b2a" stroke="#00e5ff" stroke-width="1.6"/>
+    <circle cx="78" cy="36" r="2" fill="#00e5ff"/>
+    <circle cx="78" cy="60" r="4.5" fill="#0d1b2a" stroke="#00e5ff" stroke-width="1.6"/>
+    <circle cx="78" cy="60" r="2" fill="#00e5ff"/>
+    <circle cx="78" cy="84" r="4.5" fill="#0d1b2a" stroke="#7b2ff7" stroke-width="1.6"/>
+    <circle cx="78" cy="84" r="2" fill="#7b2ff7"/>
+
+    <!-- Output nodes -->
+    <circle cx="96" cy="50" r="5" fill="#0d1b2a" stroke="#00e5ff" stroke-width="2"/>
+    <circle cx="96" cy="50" r="2.5" fill="#00e5ff"/>
+    <circle cx="96" cy="72" r="5" fill="#0d1b2a" stroke="#7b2ff7" stroke-width="2"/>
+    <circle cx="96" cy="72" r="2.5" fill="#7b2ff7"/>
+  </g>
+
+  <!-- === SHOPPING CART (bottom-right, embedded in the neural layer) === -->
+  <g transform="translate(62, 72)" filter="url(#softGlow)">
+    <!-- Cart body -->
+    <path d="M0,0 L3,-8 L18,-8 L15,2 L3,2 Z" fill="none" stroke="url(#cartGrad)" stroke-width="1.8" stroke-linejoin="round"/>
+    <!-- Cart handle -->
+    <path d="M-4,-8 L0,-8" stroke="url(#cartGrad)" stroke-width="1.8" stroke-linecap="round"/>
+    <!-- Cart wheels -->
+    <circle cx="5" cy="5" r="1.8" fill="#00e5ff"/>
+    <circle cx="13" cy="5" r="1.8" fill="#7b2ff7"/>
+  </g>
+
+  <!-- Outer ring accent -->
+  <circle cx="60" cy="60" r="57" fill="none" stroke="#7b2ff7" stroke-width="0.5" stroke-opacity="0.3" stroke-dasharray="4 6"/>
+</svg>  </div>
+    <span class="navbar__logo-text">Neural<span>Mart</span></span>
+  </a>
+
+
+  <!-- Navigation Links -->
+  <div class="navbar__nav">
+    <a href="{% url 'products:home' %}" class="navbar__nav-link {% if request.resolver_match.namespace == 'products' and request.resolver_match.url_name == 'home' %}active{% endif %}">
+      Home
+    </a>
+    <a href="{% url 'products:list' %}" class="navbar__nav-link {% if request.resolver_match.namespace == 'products' and request.resolver_match.url_name == 'list' %}active{% endif %}">
+      Shop
+    </a>
+    <a href="{% url 'products:categories' %}" class="navbar__nav-link">
+      Categories
+    </a>
+    <a href="{% url 'ai_search:visual' %}" class="navbar__nav-link">
+      <i class="fa-solid fa-camera" style="font-size:0.8rem;margin-right:0.25rem;"></i>
+      Visual Search
+    </a>
+    <a href="{% url 'products:deals' %}" class="navbar__nav-link">
+      Deals <i class="fa-solid fa-fire" style="color:var(--accent-red);"></i>
+    </a>
+  </div>
+
+  <!-- Actions -->
+  <div class="navbar__actions">
+
+    <!-- Search Button -->
+    <button class="navbar__search-btn" id="searchOpenBtn" title="Search (Ctrl+K)">
+      <i class="fa-solid fa-magnifying-glass"></i>
+    </button>
+
+    {% if user.is_authenticated %}
+      <!-- Wishlist -->
+      <a href="{% url 'wishlist:index' %}" class="navbar__icon-btn" title="Wishlist">
+        <i class="fa-regular fa-heart"></i>
+        {% if user.wishlist_count %}
+        <span class="navbar__badge">{{ user.wishlist_count }}</span>
+        {% endif %}
+      </a>
+
+      <!-- Cart -->
+      <a href="{% url 'orders:cart' %}" class="navbar__icon-btn" title="Cart">
+        <i class="fa-solid fa-bag-shopping"></i>
+        {% if cart_count %}
+        <span class="navbar__badge">{{ cart_count }}</span>
+        {% endif %}
+      </a>
+
+      <!-- Notifications -->
+      <div style="position:relative;">
+        <button class="navbar__icon-btn" id="notifBellToggle" title="Notifications">
+          <i class="fa-regular fa-bell"></i>
+          <span class="navbar__badge" id="navBellBadge" style="{% if not unread_notifications %}display:none;{% endif %}">{{ unread_notifications }}</span>
+        </button>
+
+        <div class="notif-dropdown" id="notifDropdown">
+          <div class="notif-dropdown__header">
+            <span>Notifications</span>
+            <a href="{% url 'notifications:index' %}" style="font-size:.75rem;color:var(--accent-gold);">View all</a>
+          </div>
+          <div class="notif-dropdown__list" id="notifDropdownList">
+            {% for n in recent_notifications %}
+            <div class="notif-dropdown__item {% if not n.is_read %}notif-dropdown__item--unread{% endif %}" onclick="window.location.href='{% url 'notifications:go' n.id %}'">
+              <span class="notif-dropdown__icon"><i class="{{ n.icon|default:'fa-solid fa-bell' }}"></i></span>
+              <div style="flex:1;min-width:0;">
+                <div class="notif-dropdown__title">{{ n.title }}</div>
+                <div class="notif-dropdown__time">{{ n.time_ago }} ago</div>
+              </div>
+            </div>
+            {% empty %}
+            <div style="padding:1.5rem;text-align:center;font-size:.8rem;color:var(--text-muted);">No notifications yet</div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <!-- User Avatar / Dropdown -->
+      <div class="navbar__user-avatar" id="userMenuToggle">
+        {% if user.avatar %}
+          <img src="{{ user.avatar.url }}" alt="{{ user.get_full_name }}" />
+        {% else %}
+          <img src="https://ui-avatars.com/api/?name={{ user.get_full_name|urlencode }}&background=c9a84c&color=0a0a0f&bold=true" alt="{{ user.get_full_name }}" />
+        {% endif %}
+      </div>
+
+      <!-- User Dropdown Menu -->
+      <div class="user-dropdown" id="userDropdown">
+        <div class="user-dropdown__header">
+          <div class="user-dropdown__name">{{ user.get_full_name }}</div>
+          <div class="user-dropdown__email">{{ user.email }}</div>
+        </div>
+        <div class="user-dropdown__divider"></div>
+        <a href="{% url 'users:profile' %}" class="user-dropdown__link">
+          <i class="fa-regular fa-user"></i> My Profile
+        </a>
+        <a href="{% url 'orders:history' %}" class="user-dropdown__link">
+          <i class="fa-regular fa-bag-shopping"></i> My Orders
+        </a>
+        <a href="{% url 'wishlist:index' %}" class="user-dropdown__link">
+          <i class="fa-regular fa-heart"></i> Wishlist
+        </a>
+        {% if user.is_staff %}
+        <div class="user-dropdown__divider"></div>
+        <a href="{% url 'dashboard:home' %}" class="user-dropdown__link">
+          <i class="fa-solid fa-gauge"></i> Dashboard
+        </a>
+        {% endif %}
+        <div class="user-dropdown__divider"></div>
+        <a href="{% url 'users:logout' %}" class="user-dropdown__link user-dropdown__link--danger">
+          <i class="fa-solid fa-arrow-right-from-bracket"></i> Logout
+        </a>
+      </div>
+
+    {% else %}
+      <a href="{% url 'orders:cart' %}" class="navbar__icon-btn" title="Cart">
+        <i class="fa-solid fa-bag-shopping"></i>
+        {% if cart_count %}
+        <span class="navbar__badge">{{ cart_count }}</span>
+        {% endif %}
+      </a>
+      <a href="{% url 'users:login' %}" class="btn-nav-cta">Sign In</a>
+    {% endif %}
+
+  </div>
+</nav>
+
+<!-- Dropdown Styles (inline for partial) -->
+<style>
+.user-dropdown {
+  position: absolute;
+  top: calc(var(--nav-height) - 8px);
+  right: 1.5rem;
+  width: 220px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  z-index: 1100;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-8px);
+  transition: var(--transition);
+}
+.user-dropdown.open {
+  opacity: 1;
+  pointer-events: all;
+  transform: translateY(0);
+}
+.user-dropdown__header { padding: 1rem; }
+.user-dropdown__name { font-weight: 600; font-size: 0.9rem; }
+.user-dropdown__email { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem; }
+.user-dropdown__divider { height: 1px; background: var(--border); margin: 0.25rem 0; }
+.user-dropdown__link {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.625rem 1rem;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  transition: var(--transition);
+}
+.user-dropdown__link:hover { background: var(--bg-hover); color: var(--text-primary); }
+.user-dropdown__link i { width: 16px; text-align: center; color: var(--text-muted); }
+.user-dropdown__link--danger:hover { color: var(--accent-red); }
+
+/* Notification Bell Dropdown */
+.notif-dropdown {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: 320px;
+  max-height: 420px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  z-index: 1100;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-8px);
+  transition: var(--transition);
+  display: flex;
+  flex-direction: column;
+}
+.notif-dropdown.open { opacity: 1; pointer-events: all; transform: translateY(0); }
+.notif-dropdown__header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: .875rem 1rem; border-bottom: 1px solid var(--border);
+  font-size: .85rem; font-weight: 600; flex-shrink: 0;
+}
+.notif-dropdown__list { overflow-y: auto; flex: 1; }
+.notif-dropdown__item {
+  display: flex; gap: .625rem; align-items: flex-start;
+  padding: .75rem 1rem; cursor: pointer; transition: var(--transition);
+  border-bottom: 1px solid var(--border);
+}
+.notif-dropdown__item:hover { background: var(--bg-hover); }
+.notif-dropdown__item--unread { background: rgba(201,168,76,0.05); }
+.notif-dropdown__icon { font-size: 1rem; flex-shrink: 0; margin-top: .1rem; }
+.notif-dropdown__title { font-size: .8rem; line-height: 1.4; }
+.notif-dropdown__time { font-size: .68rem; color: var(--text-muted); margin-top: .2rem; }
+</style>
+
+<script>
+(function() {
+  const toggle   = document.getElementById('notifBellToggle');
+  const dropdown = document.getElementById('notifDropdown');
+  if (!toggle || !dropdown) return;
+
+  toggle.addEventListener('click', async (e) => {
+    e.stopPropagation();
+    const opening = !dropdown.classList.contains('open');
+    document.getElementById('userDropdown')?.classList.remove('open');
+    dropdown.classList.toggle('open');
+    if (opening) await refreshNotifFeed();
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!dropdown.contains(e.target) && !toggle.contains(e.target)) {
+      dropdown.classList.remove('open');
+    }
+  });
+
+  async function refreshNotifFeed() {
+    try {
+      const res  = await fetch('{% url "notifications:feed" %}');
+      const data = await res.json();
+      if (!data.success) return;
+
+      const list = document.getElementById('notifDropdownList');
+      list.innerHTML = data.notifications.length
+        ? data.notifications.map(n => `
+            <div class="notif-dropdown__item ${!n.is_read ? 'notif-dropdown__item--unread' : ''}" onclick="window.location.href='/notifications/go/${n.id}/'">
+              <span class="notif-dropdown__icon"><i class="${n.icon || 'fa-solid fa-bell'}"></i></span>
+              <div style="flex:1;min-width:0;">
+                <div class="notif-dropdown__title">${n.title}</div>
+                <div class="notif-dropdown__time">${n.time_ago} ago</div>
+              </div>
+            </div>`).join('')
+        : '<div style="padding:1.5rem;text-align:center;font-size:.8rem;color:var(--text-muted);">No notifications yet</div>';
+
+      const badge = document.getElementById('navBellBadge');
+      if (data.unread_count > 0) { badge.textContent = data.unread_count; badge.style.display = 'flex'; }
+      else { badge.style.display = 'none'; }
+    } catch(e) {}
+  }
+
+  // Poll every 60s for new notifications (only updates badge count, lightweight)
+  {% if user.is_authenticated %}
+  setInterval(async () => {
+    try {
+      const res  = await fetch('{% url "notifications:feed" %}');
+      const data = await res.json();
+      if (data.success) {
+        const badge = document.getElementById('navBellBadge');
+        if (data.unread_count > 0) { badge.textContent = data.unread_count; badge.style.display = 'flex'; }
+        else { badge.style.display = 'none'; }
+      }
+    } catch(e) {}
+  }, 60000);
+  {% endif %}
+})();
+</script>
+

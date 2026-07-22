@@ -1,0 +1,272 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Home — AI-Powered Shopping{% endblock %}
+{% block content %}
+
+<!-- ── HERO ──────────────────────────────────────────────── -->
+<section class="hero-section">
+  <!-- Particle Canvas -->
+  <canvas id="c-particles"></canvas>
+
+  <div class="hero-content">
+    
+    <!-- Left Column: Text & CTAs -->
+    <div>
+      <div class="badge">
+        <span class="badge-dot"></span>
+        <span class="badge-text">AI-Powered Shopping Live</span>
+      </div>
+        <h1>Shop Smarter <br> with the <br> <span style="color:cyan;">NeuralMart</span> App </h1>
+      <h2>
+        Welcome {{user.get_short_name}} to NeuralMart App
+        <span class="text-gradient">Kenya's next-gen AI marketplace</span>
+      </h2>
+
+      <p class="subtitle">
+        Discover millions of products with intelligent recommendations, visual search, voice shopping,personalized predictive forecasting and  <span style="color:cyan;"">FREE next-day delivery </span>all in Kenya's most intelligent marketplace.
+      </p>
+
+      <div class="btn-group">
+        <!-- Start Shopping Button -->
+        <a href="{% url 'products:list' %}" class="btn btn-primary">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <path d="M16 10a4 4 0 0 1-8 0"></path>
+          </svg>
+          Start Shopping
+        </a>
+        
+        <!-- Visual Search Button -->
+        <a href="{% url 'ai_search:visual' %}" class="btn btn-secondary">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+            <circle cx="12" cy="13" r="4"></circle>
+          </svg>
+          Visual Search
+        </a>
+
+        <!-- Watch Demo Button -->
+        <a href="#" class="btn btn-secondary">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polygon points="10 8 16 12 10 16 10 8"></polygon>
+          </svg>
+          Watch Demo
+        </a>
+
+        <!-- Download Button -->
+        <a href="#" class="btn btn-secondary">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          DOWNLOAD THE APP NOW 
+        </a>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-grid">
+        <div class="stat-item">
+          <div class="stat-value">50K+</div>
+          <div class="stat-label">Happy Shoppers</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">10K+</div>
+          <div class="stat-label">Products Listed</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value" style="display:flex;align-items:center;gap:0.35rem;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="#00f2fe" stroke="none">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+            </svg>
+            4.9
+          </div>
+          <div class="stat-label">AI Trust Rating</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Visual Floating Elements (3D Isometric) -->
+    <div class="visual-container">
+      
+      <!-- Big Card -->
+      {% if big_card %}
+      <div class="card-big">
+        <div class="card-big-img">
+          {% if big_card.image %}
+            <img src="{{ big_card.image.url }}" alt="{{ big_card.name }}" style="width:100%;height:100%;object-fit:cover;">
+          {% else %}
+            <!-- Sneaker SVG Fallback -->
+            <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="#00f2fe" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-5"></path>
+              <path d="M4 15v-3a6 6 0 0 1 6-6h2a6 6 0 0 1 6 6v3"></path>
+              <path d="M9 19v-4"></path>
+              <path d="M15 19v-4"></path>
+            </svg>
+          {% endif %}
+        </div>
+        <div style="padding:1.25rem;">
+          <div style="font-size:0.65rem;color:#00f2fe;font-family:monospace;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5rem;">AI Recommendation</div>
+          <div style="font-weight:700;margin-bottom:0.5rem;">{{ big_card.name }}</div>
+          <div style="font-size:1.1rem;font-weight:800;color:#00f2fe;">KES {{ big_card.price }}</div>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Small Card -->
+      {% if small_card %}
+      <div class="card-small">
+        <div class="card-small-img">
+          {% if small_card.image %}
+            <img src="{{ small_card.image.url }}" alt="{{ small_card.name }}" style="width:100%;height:100%;object-fit:cover;">
+          {% else %}
+            <!-- Shopping Bag SVG Fallback -->
+            <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="#b829f7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <path d="M16 10a4 4 0 0 1-8 0"></path>
+            </svg>
+          {% endif %}
+        </div>
+        <div style="padding:1rem;">
+          <div style="font-weight:600;font-size:0.9rem;margin-bottom:0.5rem;color:#e2e8f0;">{{ small_card.name }}</div>
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-weight:700;color:#b829f7;">KES {{ small_card.price }}</span>
+            {% if small_card.discount_percentage %}
+            <span style="font-size:0.7rem;background:rgba(0,242,254,0.1);color:#00f2fe;padding:2px 6px;border-radius:10px;">-{{ small_card.discount_percentage }}%</span>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- AI Floating Badge (Now Small) -->
+      <div class="ai-float-badge">
+        <!-- AI/Brain SVG -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 0.2rem;">
+          <path d="M12 2a10 10 0 0 1 10 10v2a2 2 0 0 1-2 2h-1.5a1.5 1.5 0 0 1-1.5-1.5v-3a1.5 1.5 0 0 0-1.5-1.5H15a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h1"></path>
+          <path d="M12 2a10 10 0 0 0-10 10v2a2 2 0 0 0 2 2h1.5a1.5 1.5 0 0 0 1.5-1.5v-3a1.5 1.5 0 0 1 1.5-1.5H9a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1H8"></path>
+          <path d="M12 2v20"></path>
+        </svg>
+        <div class="ai-badge-title">ARIA AI</div>
+        <div class="ai-badge-sub">Live Sync</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── CATEGORIES ─────────────────────────────────────────── -->
+{% if categories %}
+<section class="section-sm" style="background:var(--bg-secondary);border-top:1px solid var(--border);border-bottom:1px solid var(--border);">
+  <div class="container">
+    <div style="display:flex;gap:1rem;overflow-x:auto;scrollbar-width:none;padding-bottom:0.5rem;">
+      <a href="{% url 'products:list' %}" class="cat-pill active">All</a>
+      {% for cat in categories %}
+      <a href="{{ cat.get_absolute_url }}" class="cat-pill">
+        {% if cat.icon %}<i class="fa-solid {{ cat.icon }}"></i>{% endif %}
+        {{ cat.name }}
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- ── FEATURED ───────────────────────────────────────────── -->
+{% if featured %}
+<section class="section">
+  <div class="container">
+    <div class="section-header">
+      <div>
+        <div class="section-label">Handpicked for You</div>
+        <h2 class="section-title">Featured Products</h2>
+      </div>
+      <a href="{% url 'products:list' %}" class="btn btn-ghost btn-sm">View All <i class="fa-solid fa-arrow-right"></i></a>
+    </div>
+    <div class="grid-products">
+      {% for product in featured %}{% include 'products/partials/product_card.html' %}{% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- ── AI FEATURE BANNER ──────────────────────────────────── -->
+<section style="background:linear-gradient(135deg,rgba(124,58,237,0.15),rgba(0,212,255,0.08));border-top:1px solid rgba(124,58,237,0.2);border-bottom:1px solid rgba(0,212,255,0.1);padding:4rem 0;">
+  <div class="container">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:2rem;">
+      <div style="text-align:center;padding:1.5rem;">
+        <i class="fa-solid fa-magnifying-glass" style="font-size:2.25rem;color:var(--accent-gold);margin-bottom:1rem;display:block;"></i>
+        <h3 style="font-family:var(--font-display);font-weight:700;margin-bottom:0.5rem;">Smart Search</h3>
+        <p style="color:var(--text-muted);font-size:0.875rem;line-height:1.6;">Natural language &amp; photo-based product discovery</p>
+      </div>
+      <div style="text-align:center;padding:1.5rem;">
+        <i class="fa-solid fa-robot" style="font-size:2.25rem;color:var(--accent-cyan);margin-bottom:1rem;display:block;"></i>
+        <h3 style="font-family:var(--font-display);font-weight:700;margin-bottom:0.5rem;">ARIA Assistant</h3>
+        <p style="color:var(--text-muted);font-size:0.875rem;line-height:1.6;">24/7 AI shopping assistant for help &amp; recommendations</p>
+      </div>
+      <div style="text-align:center;padding:1.5rem;">
+        <i class="fa-solid fa-bullseye" style="font-size:2.25rem;color:var(--accent-purple);margin-bottom:1rem;display:block;"></i>
+        <h3 style="font-family:var(--font-display);font-weight:700;margin-bottom:0.5rem;">Just For You</h3>
+        <p style="color:var(--text-muted);font-size:0.875rem;line-height:1.6;">Personalized picks that improve with every visit</p>
+      </div>
+      <div style="text-align:center;padding:1.5rem;">
+        <i class="fa-solid fa-chart-line" style="font-size:2.25rem;color:var(--accent-green);margin-bottom:1rem;display:block;"></i>
+        <h3 style="font-family:var(--font-display);font-weight:700;margin-bottom:0.5rem;">Best Price AI</h3>
+        <p style="color:var(--text-muted);font-size:0.875rem;line-height:1.6;">Dynamic pricing ensures you always get the best deal</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── DEALS ──────────────────────────────────────────────── -->
+{% if on_sale %}
+<section class="section" style="background:var(--bg-secondary);">
+  <div class="container">
+    <div class="section-header">
+      <div>
+        <div class="section-label">Limited Time</div>
+        <h2 class="section-title"><i class="fa-solid fa-fire" style="color:var(--accent-red);"></i> Hot Deals</h2>
+      </div>
+      <a href="{% url 'products:deals' %}" class="btn btn-ghost btn-sm">All Deals <i class="fa-solid fa-arrow-right"></i></a>
+    </div>
+    <div class="grid-products">
+      {% for product in on_sale %}{% include 'products/partials/product_card.html' %}{% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- ── NEW ARRIVALS ───────────────────────────────────────── -->
+{% if new_arrivals %}
+<section class="section">
+  <div class="container">
+    <div class="section-header">
+      <div>
+        <div class="section-label">Just Dropped</div>
+        <h2 class="section-title">New Arrivals</h2>
+      </div>
+      <a href="{% url 'products:new_arrivals' %}" class="btn btn-ghost btn-sm">See All <i class="fa-solid fa-arrow-right"></i></a>
+    </div>
+    <div class="grid-products">
+      {% for product in new_arrivals %}{% include 'products/partials/product_card.html' %}{% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+<div>
+   {% include "partials/about_card.html" %}
+   {% include "partials/team_card.html" %}
+</div>
+<style>
+@keyframes float1{0%,100%{transform:translateY(0) rotate(-2deg);}50%{transform:translateY(-16px) rotate(1deg);}}
+@keyframes float2{0%,100%{transform:translateY(0) rotate(2deg);}50%{transform:translateY(-12px) rotate(-1deg);}}
+@keyframes float3{0%,100%{transform:translateY(-50%) rotate(0deg);}50%{transform:translateY(calc(-50% - 10px)) rotate(2deg);}}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
+.cat-pill{display:inline-flex;align-items:center;gap:0.5rem;padding:0.5rem 1.25rem;background:var(--bg-card);border:1px solid var(--border);border-radius:24px;font-size:0.875rem;color:var(--text-secondary);white-space:nowrap;transition:var(--transition);text-decoration:none;}
+.cat-pill:hover,.cat-pill.active{background:var(--bg-elevated);border-color:var(--border-accent);color:var(--accent-gold);}
+</style>
+<script src="{% static 'js/main.js' %}"></script>
+{% endblock %}

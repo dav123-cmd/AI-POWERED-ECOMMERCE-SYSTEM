@@ -1,0 +1,114 @@
+<!-- ── ARIA Chatbot Widget ──────────────────────────────── -->
+<div class="chatbot-widget" id="chatbotWidget">
+
+  <!-- Pulse ring -->
+  <div id="chatbotPulse" style="position:absolute;width:58px;height:58px;border-radius:50%;border:2px solid rgba(124,58,237,.4);animation:pulseRing 2s ease-out infinite;pointer-events:none;"></div>
+
+  <button class="chatbot-toggle" id="chatbotToggle" title="Chat with ARIA">
+    <i id="chatbotToggleIcon" class="fa-solid fa-robot" style="transition:transform .3s;"></i>
+  </button>
+
+  <div class="chatbot-panel" id="chatbotPanel">
+    <!-- Header -->
+    <div class="chatbot-header">
+      <div class="chatbot-avatar"><i class="fa-solid fa-robot"></i></div>
+      <div style="flex:1;">
+        <div class="chatbot-name">ARIA — ShopAI</div>
+        <div class="chatbot-status">Online · AI Powered</div>
+      </div>
+      <a href="/ai/chat/" style="color:rgba(255,255,255,.7);font-size:.75rem;margin-right:.5rem;" title="Open full chat"><i class="fa-solid fa-expand"></i></a>
+      <button onclick="toggleChatbot()" style="color:rgba(255,255,255,.7);font-size:.9rem;"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+
+    <!-- Messages -->
+    <div class="chatbot-messages" id="widgetMessages">
+      <div class="chat-msg chat-msg--ai">
+        Hi! I'm <strong>ARIA</strong>. Ask me about products, orders, or anything else!
+      </div>
+    </div>
+
+    <!-- Quick replies -->
+    <div style="padding:0 .875rem .5rem;display:flex;gap:.375rem;flex-wrap:wrap;">
+      <button class="quick-reply" onclick="widgetSend('Find me a deal')">Deals</button>
+      <button class="quick-reply" onclick="widgetSend('Track my order')">Track order</button>
+      <button class="quick-reply" onclick="widgetSend('Recommend something for me')">Recommend</button>
+      <button class="quick-reply" onclick="widgetSend('Shipping info')">Shipping</button>
+    </div>
+
+    <!-- Input -->
+    <div class="chatbot-input-row">
+      <input type="text" class="chatbot-input" id="widgetInput"
+             placeholder="Ask ARIA..."
+             onkeypress="if(event.key==='Enter') widgetSend()" />
+      <button class="chatbot-send" onclick="widgetSend()">
+        <i class="fa-solid fa-paper-plane"></i>
+      </button>
+    </div>
+  </div>
+</div>
+
+<style>
+@keyframes pulseRing{0%{transform:scale(1);opacity:.6;}100%{transform:scale(1.5);opacity:0;}}
+</style>
+
+<script>
+let chatbotOpen = false;
+
+function toggleChatbot() {
+  chatbotOpen = !chatbotOpen;
+  document.getElementById('chatbotPanel').classList.toggle('open', chatbotOpen);
+  document.getElementById('chatbotToggleIcon').style.transform = chatbotOpen ? 'rotate(20deg)' : '';
+  document.getElementById('chatbotPulse').style.display = chatbotOpen ? 'none' : 'block';
+  if (chatbotOpen) document.getElementById('widgetInput').focus();
+}
+document.getElementById('chatbotToggle').addEventListener('click', toggleChatbot);
+
+function appendWidgetMsg(text, role) {
+  const box = document.getElementById('widgetMessages');
+  const div = document.createElement('div');
+  div.className = `chat-msg chat-msg--${role === 'user' ? 'user' : 'ai'}`;
+  div.innerHTML = formatWidgetMsg(text);
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+}
+
+function formatWidgetMsg(text) {
+  return text
+    .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g,'<a href="$2" style="color:var(--accent-gold);">$1</a>')
+    .replace(/\n/g,'<br>');
+}
+
+function showWidgetTyping() {
+  const box = document.getElementById('widgetMessages');
+  const div = document.createElement('div');
+  div.className = 'chat-msg chat-msg--ai';
+  div.id = 'wTyping';
+  div.innerHTML = '<span style="opacity:.5;letter-spacing:.1em;">···</span>';
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+}
+
+async function widgetSend(text) {
+  const input = document.getElementById('widgetInput');
+  const msg   = text || input.value.trim();
+  if (!msg) return;
+  input.value = '';
+  appendWidgetMsg(msg, 'user');
+  showWidgetTyping();
+
+  try {
+    const res  = await fetch('/ai/chat/message/', {
+      method: 'POST',
+      headers: { 'Content-Type':'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+      body: JSON.stringify({ message: msg }),
+    });
+    const data = await res.json();
+    document.getElementById('wTyping')?.remove();
+    appendWidgetMsg(data.reply || 'Sorry, something went wrong!', 'assistant');
+  } catch {
+    document.getElementById('wTyping')?.remove();
+    appendWidgetMsg('Connection issue. Please try again.', 'assistant');
+  }
+}
+</script>

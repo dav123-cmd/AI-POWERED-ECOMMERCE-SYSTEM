@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block title %}Payment Failed{% endblock %}
+{% block content %}
+<div class="container" style="padding-top:5rem;padding-bottom:6rem;max-width:560px;text-align:center;">
+  <div style="width:100px;height:100px;background:rgba(239,68,68,.15);border:2px solid var(--accent-red);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 2rem;font-size:2.5rem;">✕</div>
+  <h1 style="font-family:var(--font-display);font-size:2.25rem;font-weight:800;margin-bottom:.75rem;">Payment Failed</h1>
+  <p style="color:var(--text-muted);margin-bottom:2.5rem;">
+    Your payment for order <span style="font-family:var(--font-mono);color:var(--accent-gold);">{{ order.order_number }}</span> could not be processed.
+  </p>
+  <div class="card" style="padding:2rem;margin-bottom:2rem;text-align:left;">
+    <h3 style="font-family:var(--font-display);font-weight:700;margin-bottom:1rem;">What happened?</h3>
+    <div style="display:flex;flex-direction:column;gap:.75rem;font-size:.875rem;color:var(--text-secondary);">
+      <div style="display:flex;gap:.75rem;"><i class="fa-solid fa-credit-card" style="color:var(--accent-red);margin-top:.1rem;"></i>Card was declined or insufficient funds</div>
+      <div style="display:flex;gap:.75rem;"><i class="fa-solid fa-wifi-slash" style="color:var(--accent-red);margin-top:.1rem;"></i>Network timeout during processing</div>
+      <div style="display:flex;gap:.75rem;"><i class="fa-solid fa-ban" style="color:var(--accent-red);margin-top:.1rem;"></i>Payment cancelled by user</div>
+    </div>
+  </div>
+  <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+    <a href="/payments/{{ order.order_number }}/" class="btn btn-primary">
+      <i class="fa-solid fa-rotate"></i> Try Again
+    </a>
+    <a href="{% url 'orders:checkout' %}" class="btn btn-secondary">Change Payment Method</a>
+    <a href="{% url 'products:home' %}" class="btn btn-ghost">Back to Home</a>
+  </div>
+</div>
+{% endblock %}

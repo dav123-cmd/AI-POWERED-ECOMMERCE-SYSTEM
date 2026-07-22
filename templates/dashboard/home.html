@@ -1,0 +1,1024 @@
+{% extends 'base.html' %} {% load static %}<!---->
+ {% block title %}Admin Dashboard{% endblock %} {% block extra_css %}
+<style>
+  /* dash-layout, dash-main, .kpi, .kpi-sm, .chart-card, .ai-pill are defined
+   in dashboard/partials/sidebar.html (included on every dashboard page) */
+</style>
+{% endblock %}
+ {% block content %}
+<div class="dash-layout">
+  {% include 'dashboard/partials/sidebar.html' with active='home' %}
+
+  <main class="dash-main">
+    <!-- Header -->
+    <div
+      style="
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1.75rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+      "
+    >
+      <div>
+        <h1
+          style="
+            font-family: var(--font-display);
+            font-size: 1.75rem;
+            font-weight: 800;
+          "
+        >
+          Dashboard Overview
+        </h1>
+        <p
+          style="
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+          "
+        >
+          {{ today|date:"l, F d, Y" }}
+        </p>
+      </div>
+      <div style="display: flex; gap: 0.75rem">
+        <a href="{% url 'analytics:export' %}" class="btn btn-ghost btn-sm"
+          ><i class="fa-solid fa-download"></i> Export</a
+        >
+        <a
+          href="{% url 'analytics:dashboard' %}"
+          class="btn btn-secondary btn-sm"
+          ><i class="fa-solid fa-chart-line"></i> Full Analytics</a
+        >
+      </div>
+    </div>
+
+    <!-- Primary KPI Grid -->
+    <div
+      style="
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
+        margin-bottom: 1rem;
+      "
+    >
+      <div class="kpi kpi-gold">
+        <div
+          style="
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            font-family: var(--font-mono);
+            text-transform: uppercase;
+            margin-bottom: 0.375rem;
+          "
+        >
+          Today's Revenue
+        </div>
+        <div
+          style="
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            font-weight: 800;
+          "
+        >
+          KES {{ today_revenue|floatformat:"0" }}
+        </div>
+        <div
+          style="
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 0.375rem;
+          "
+        >
+          {{ today_orders }} orders today
+        </div>
+      </div>
+      <div class="kpi kpi-cyan">
+        <div
+          style="
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            font-family: var(--font-mono);
+            text-transform: uppercase;
+            margin-bottom: 0.375rem;
+          "
+        >
+          30-Day Revenue
+        </div>
+        <div
+          style="
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            font-weight: 800;
+          "
+        >
+          KES {{ month_revenue|floatformat:"0" }}
+        </div>
+        <div
+          style="
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 0.375rem;
+          "
+        >
+          {{ month_orders }} orders
+        </div>
+      </div>
+      <div class="kpi kpi-green">
+        <div
+          style="
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            font-family: var(--font-mono);
+            text-transform: uppercase;
+            margin-bottom: 0.375rem;
+          "
+        >
+          Total Users
+        </div>
+        <div
+          style="
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            font-weight: 800;
+          "
+        >
+          {{ total_users }}
+        </div>
+        <div
+          style="
+            font-size: 0.75rem;
+            color: var(--accent-green);
+            margin-top: 0.375rem;
+          "
+        >
+          +{{ new_users_week }} this week
+        </div>
+      </div>
+      <div
+        class="kpi {% if fraud_flagged > 0 %}kpi-red{% else %}kpi-green{% endif %}"
+      >
+        <div
+          style="
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            font-family: var(--font-mono);
+            text-transform: uppercase;
+            margin-bottom: 0.375rem;
+          "
+        >
+          Fraud Alerts
+        </div>
+        <div
+          style="font-family:var(--font-display);font-size:1.5rem;font-weight:800;{% if fraud_flagged > 0 %}color:var(--accent-red);{% endif %}"
+        >
+          {{ fraud_flagged }}
+        </div>
+        <a
+          href="{% url 'payments:fraud_dashboard' %}"
+          style="
+            font-size: 0.75rem;
+            color: var(--accent-cyan);
+            margin-top: 0.375rem;
+            display: block;
+          "
+          >Review flagged →</a
+        >
+      </div>
+    </div>
+
+    <!-- Secondary / Ops KPI Row -->
+    <div
+      style="
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+      "
+    >
+      <a
+        href="{% url 'dashboard:orders' %}?status=pending"
+        class="kpi-sm"
+        style="text-decoration: none"
+      >
+        <div class="kpi-sm__icon" style="background: rgba(201, 168, 76, 0.12)">
+          <i class="fas fa-clock"></i>
+        </div>
+        <div>
+          <div style="font-size: 0.7rem; color: var(--text-muted)">
+            Pending Orders
+          </div>
+          <div
+            style="
+              font-family: var(--font-display);
+              font-weight: 700;
+              font-size: 1.1rem;
+            "
+          >
+            {{ pending_orders }}
+          </div>
+        </div>
+      </a>
+      <a
+        href="{% url 'reviews:moderation' %}"
+        class="kpi-sm"
+        style="text-decoration: none"
+      >
+        <div class="kpi-sm__icon" style="background: rgba(249, 115, 22, 0.12)">
+          <i class="fas fa-star"></i>
+        </div>
+        <div>
+          <div style="font-size: 0.7rem; color: var(--text-muted)">
+            Pending Reviews
+          </div>
+          <div
+            style="
+              font-family: var(--font-display);
+              font-weight: 700;
+              font-size: 1.1rem;
+            "
+          >
+            {{ pending_reviews }}
+          </div>
+        </div>
+      </a>
+      <a
+        href="{% url 'dashboard:products' %}?low_stock=1"
+        class="kpi-sm"
+        style="text-decoration: none"
+      >
+        <div class="kpi-sm__icon" style="background: rgba(234, 179, 8, 0.12)">
+          <i class="fas fa-triangle-exclamation"></i>
+        </div>
+        <div>
+          <div style="font-size: 0.7rem; color: var(--text-muted)">
+            Low Stock
+          </div>
+          <div
+            style="
+              font-family: var(--font-display);
+              font-weight: 700;
+              font-size: 1.1rem;
+            "
+          >
+            {{ low_stock_count }}
+          </div>
+        </div>
+      </a>
+      <a
+        href="{% url 'dashboard:products' %}"
+        class="kpi-sm"
+        style="text-decoration: none"
+      >
+        <div class="kpi-sm__icon" style="background: rgba(239, 68, 68, 0.12)">
+          <i class="fas fa-box"></i>
+        </div>
+        <div>
+          <div style="font-size: 0.7rem; color: var(--text-muted)">
+            Out of Stock
+          </div>
+          <div
+            style="
+              font-family: var(--font-display);
+              font-weight: 700;
+              font-size: 1.1rem;
+            "
+          >
+            {{ out_of_stock }}
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <!-- Charts Row A: Revenue Trend + Forecast | Orders by Status -->
+    <div
+      style="
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+      "
+    >
+      <div class="chart-card">
+        <div class="chart-card__title">
+          <span
+            ><i
+              class="fa-solid fa-chart-area"
+              style="color: var(--accent-gold)"
+            ></i>
+            Revenue Trend &amp; LSTM Forecast</span
+          >
+          <span
+            style="
+              font-size: 0.65rem;
+              font-family: var(--font-mono);
+              color: var(--accent-cyan);
+            "
+            >30D + 14D forecast</span
+          >
+        </div>
+        <div style="position: relative; height: 220px;">
+          <canvas id="revenueForecastChart"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-card__title">
+          <span
+            ><i
+              class="fa-solid fa-chart-pie"
+              style="color: var(--accent-cyan)"
+            ></i>
+            Orders by Status</span
+          >
+        </div>
+        <div style="position: relative; height: 220px;">
+          <canvas id="orderStatusChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Row B: Hourly Revenue | User Growth -->
+    <div
+      style="
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+      "
+    >
+      <div class="chart-card">
+        <div class="chart-card__title">
+          <span
+            ><i class="fa-solid fa-clock" style="color: var(--accent-gold)"></i>
+            Today's Revenue — Hourly</span
+          >
+        </div>
+        <div style="position: relative; height: 220px;">
+          <canvas id="hourlyChart"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-card__title">
+          <span
+            ><i
+              class="fa-solid fa-user-plus"
+              style="color: var(--accent-green)"
+            ></i>
+            User Growth — 14 Days</span
+          >
+        </div>
+        <div style="position: relative; height: 220px;">
+          <canvas id="userGrowthChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Row C: Sentiment | Fraud Risk | Category -->
+    <div
+      style="
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+      "
+    >
+      <div class="chart-card">
+        <div class="chart-card__title">
+          <span style="font-size: 0.875rem"
+            ><i
+              class="fa-solid fa-face-smile"
+              style="color: var(--accent-green)"
+            ></i>
+            Review Sentiment</span
+          >
+        </div>
+        <div style="position: relative; height: 210px;">
+          <canvas id="sentimentChart"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-card__title">
+          <span style="font-size: 0.875rem"
+            ><i
+              class="fa-solid fa-shield-halved"
+              style="color: var(--accent-red)"
+            ></i>
+            Fraud Risk Levels</span
+          >
+        </div>
+        <div style="position: relative; height: 210px;">
+          <canvas id="fraudRiskChart"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-card__title">
+          <span style="font-size: 0.875rem"
+            ><i
+              class="fa-solid fa-tags"
+              style="color: var(--accent-purple)"
+            ></i>
+            Revenue by Category</span
+          >
+        </div>
+        <div style="position: relative; height: 210px;">
+          <canvas id="categoryChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI Models Status + Top Products -->
+    <div
+      style="
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+      "
+    >
+      <div class="chart-card">
+        <div class="chart-card__title">
+          <span
+            ><i
+              class="fa-solid fa-microchip"
+              style="color: var(--accent-cyan)"
+            ></i>
+            AI Models Status</span
+          >
+          <a
+            href="{% url 'dashboard:ai_models' %}"
+            style="
+              font-size: 0.8rem;
+              color: var(--accent-cyan);
+              font-weight: 400;
+            "
+            >Manage ({{ ai_active_count }}/{{ ai_total_count }}) →</a
+          >
+        </div>
+        <div
+          style="
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            max-height: 260px;
+            overflow-y: auto;
+          "
+        >
+          {% for m in ai_status %}
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              padding: 0.5rem 0;
+              border-bottom: 1px solid var(--border);
+            "
+          >
+            <div>
+              <span style="font-size: 0.85rem">{{ m.name }}</span>
+              <div style="font-size: 0.7rem; color: var(--text-muted)">
+                {{ m.arch }}
+              </div>
+            </div>
+            <span
+              class="ai-pill {% if m.exists %}ai-on{% else %}ai-off{% endif %}"
+              >{% if m.exists %}● Active{% else %}○ Missing{% endif %}</span
+            >
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-card__title">
+          <span
+            ><i
+              class="fa-solid fa-trophy"
+              style="color: var(--accent-gold)"
+            ></i>
+            Top Products (30d)</span
+          >
+        </div>
+        <div
+          style="
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            max-height: 260px;
+            overflow-y: auto;
+          "
+        >
+          {% for p in top_products %}
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              padding: 0.5rem 0;
+              border-bottom: 1px solid var(--border);
+            "
+          >
+            <div style="min-width: 0; flex: 1">
+              <div
+                style="
+                  font-size: 0.85rem;
+                  overflow: hidden;
+                  text-overflow: ellipsis;
+                  white-space: nowrap;
+                "
+              >
+                {{ p.product_name }}
+              </div>
+              <div style="font-size: 0.7rem; color: var(--text-muted)">
+                {{ p.total_units }} units sold
+              </div>
+            </div>
+            <div
+              style="
+                font-family: var(--font-display);
+                font-weight: 700;
+                font-size: 0.875rem;
+                color: var(--accent-gold);
+                flex-shrink: 0;
+                margin-left: 0.75rem;
+              "
+            >
+              KES {{ p.total_revenue|floatformat:"0" }}
+            </div>
+          </div>
+          {% empty %}
+          <div
+            style="
+              text-align: center;
+              color: var(--text-muted);
+              font-size: 0.875rem;
+              padding: 1rem;
+            "
+          >
+            No sales data yet
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Orders + Activity -->
+    <div
+      style="
+        display: grid;
+        grid-template-columns: 3fr 2fr;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+      "
+    >
+      <!-- Recent Orders -->
+      <div
+        style="
+          background: var(--bg-card);
+          border: 1px solid var(--border);
+          border-radius: var(--radius-lg);
+          overflow: hidden;
+        "
+      >
+        <div
+          style="
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+          "
+        >
+          <div style="font-family: var(--font-display); font-weight: 700">
+            Recent Orders
+          </div>
+          <a
+            href="{% url 'dashboard:orders' %}"
+            style="font-size: 0.8rem; color: var(--accent-cyan)"
+            >View All →</a
+          >
+        </div>
+        <div style="overflow-x: auto">
+          <table style="width: 100%; border-collapse: collapse">
+            <thead>
+              <tr style="background: var(--bg-secondary)">
+                {% for col in cols_order_table %}
+                <th
+                  style="
+                    padding: 0.625rem 1rem;
+                    text-align: left;
+                    font-size: 0.7rem;
+                    color: var(--text-muted);
+                    font-family: var(--font-mono);
+                    text-transform: uppercase;
+                  "
+                >
+                  {{ col }}
+                </th>
+                {% endfor %}
+              </tr>
+            </thead>
+            <tbody>
+              {% for order in recent_orders %}
+              <tr style="border-bottom: 1px solid var(--border)">
+                <td style="padding: 0.75rem 1rem">
+                  <div
+                    style="
+                      font-family: var(--font-mono);
+                      font-size: 0.8rem;
+                      color: var(--accent-gold);
+                    "
+                  >
+                    {{ order.order_number }}
+                  </div>
+                </td>
+                <td style="padding: 0.75rem 1rem; font-size: 0.85rem">
+                  {{ order.shipping_name|truncatewords:2 }}
+                </td>
+                <td
+                  style="
+                    padding: 0.75rem 1rem;
+                    font-family: var(--font-display);
+                    font-weight: 700;
+                    font-size: 0.9rem;
+                  "
+                >
+                  KES {{ order.total|floatformat:"0" }}
+                </td>
+                <td style="padding: 0.75rem 1rem">
+                  <span
+                    style="padding:.2rem .5rem;border-radius:10px;font-size:.7rem;font-family:var(--font-mono);text-transform:uppercase;
+                    {% if order.status == 'delivered' %}background:rgba(16,185,129,.15);color:var(--accent-green);
+                    {% elif order.status == 'shipped'  %}background:rgba(0,212,255,.15);color:var(--accent-cyan);
+                    {% elif order.status == 'cancelled'%}background:rgba(239,68,68,.15);color:var(--accent-red);
+                    {% else %}background:rgba(201,168,76,.15);color:var(--accent-gold);{% endif %}"
+                  >
+                    {{ order.status }}
+                  </span>
+                </td>
+                <td style="padding: 0.75rem 1rem">
+                  <a
+                    href="{% url 'orders:order_detail' order.order_number %}"
+                    style="font-size: 0.8rem; color: var(--accent-cyan)"
+                    >View</a
+                  >
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td
+                  colspan="5"
+                  style="
+                    padding: 2rem;
+                    text-align: center;
+                    color: var(--text-muted);
+                  "
+                >
+                  No orders yet
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Activity Log -->
+      <div
+        style="
+          background: var(--bg-card);
+          border: 1px solid var(--border);
+          border-radius: var(--radius-lg);
+          overflow: hidden;
+        "
+      >
+        <div
+          style="
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+          "
+        >
+          <div style="font-family: var(--font-display); font-weight: 700">
+            Recent Activity
+          </div>
+          <a
+            href="{% url 'dashboard:activity' %}"
+            style="font-size: 0.8rem; color: var(--accent-cyan)"
+            >All →</a
+          >
+        </div>
+        <div
+          style="
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            max-height: 340px;
+            overflow-y: auto;
+          "
+        >
+          {% for log in activity_log %}
+          <div style="display: flex; gap: 0.75rem; align-items: flex-start">
+            <div
+              style="
+                width: 30px;
+                height: 30px;
+                border-radius: 50%;
+                background: var(--bg-elevated);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 0.7rem;
+                flex-shrink: 0;
+                margin-top: 0.1rem;
+              "
+            >
+{% if log.action == 'create' %}<i class="fa-solid fa-plus"></i>{% elif log.action == 'update' %}<i class="fa-solid fa-pen"></i>{% elif log.action == 'delete' %}<i class="fa-solid fa-trash"></i>{% elif log.action == 'approve' %}<i class="fa-solid fa-circle-check"></i>{% elif log.action == 'reject' %}<i class="fa-solid fa-ban"></i>{% elif log.action == 'export' %}<i class="fa-solid fa-file-export"></i>{% elif log.action == 'login' %}<i class="fa-solid fa-key"></i>{% elif log.action == 'train' %}<i class="fa-solid fa-brain"></i>{% else %}<i class="fa-solid fa-clipboard"></i>{% endif %}             
+            <div style="flex: 1; min-width: 0">
+              <div
+                style="
+                  font-size: 0.8rem;
+                  font-weight: 500;
+                  overflow: hidden;
+                  text-overflow: ellipsis;
+                  white-space: nowrap;
+                "
+              >
+                {{ log.get_action_display }} {{
+                log.object_repr|default:log.model_name|truncatewords:5 }}
+              </div>
+              <div style="font-size: 0.72rem; color: var(--text-muted)">
+                {{ log.user.get_short_name|default:"System" }} · {{
+                log.created_at|timesince }} ago
+              </div>
+            </div>
+          </div>
+          {% empty %}
+          <div
+            style="
+              text-align: center;
+              color: var(--text-muted);
+              font-size: 0.875rem;
+              padding: 1rem;
+            "
+          >
+            No activity yet
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Low Stock Alerts -->
+    {% if low_stock %}
+    <div
+      style="
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+      "
+    >
+      <div
+        style="
+          padding: 1.25rem 1.5rem;
+          border-bottom: 1px solid var(--border);
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+        "
+      >
+        <div
+          style="
+            font-family: var(--font-display);
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+          "
+        >
+          <i
+            class="fa-solid fa-triangle-exclamation"
+            style="color: #f97316"
+          ></i>
+          Low Stock Alerts
+        </div>
+        <a
+          href="{% url 'dashboard:products' %}?low_stock=1"
+          style="font-size: 0.8rem; color: var(--accent-cyan)"
+          >View All →</a
+        >
+      </div>
+      <div
+        style="
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+          gap: 1rem;
+          padding: 1.25rem;
+        "
+      >
+        {% for product in low_stock %}
+        <div
+          style="padding:.875rem;background:var(--bg-secondary);border-left:3px solid {% if product.stock <= 2 %}var(--accent-red){% else %}#eab308{% endif %};border-radius:0 var(--radius-sm) var(--radius-sm) 0;"
+        >
+          <div
+            style="font-size: 0.85rem; font-weight: 600; margin-bottom: 0.25rem"
+          >
+            {{ product.name|truncatewords:4 }}
+          </div>
+          <div style="font-size: 0.75rem; color: var(--text-muted)">
+            Stock:
+            <strong
+              style="color:{% if product.stock <= 2 %}var(--accent-red){% else %}#eab308{% endif %};"
+              >{{ product.stock }}</strong
+            >
+            · {{ product.category.name|default:"—" }}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+  </main>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    
+    // Global Chart Defaults
+    Chart.defaults.color       = '#9996A0';
+    Chart.defaults.borderColor = 'rgba(255,255,255,0.06)';
+    Chart.defaults.font.family = "'DM Sans', sans-serif";
+
+    // Unpack Django Context JSON Variables safely
+    const hourlyData    = {{ hourly_json|safe }};
+    const trendData      = {{ chart_json|safe }};
+    const categoryData   = {{ category_json|safe }};
+    const orderStatus    = {{ order_status_json|safe }};
+    const userGrowth     = {{ user_growth_json|safe }};
+    const sentimentData  = {{ sentiment_json|safe }};
+    const fraudBuckets   = {{ fraud_buckets_json|safe }};
+
+    // ── 1. Revenue Trend + LSTM Forecast Line Chart (FIXED ID) ───────────────
+    const revenueCanvas = document.getElementById('revenueForecastChart');
+    if (revenueCanvas && trendData) {
+      const ctx = revenueCanvas.getContext('2d');
+      const g1  = ctx.createLinearGradient(0,0,0,220); g1.addColorStop(0,'rgba(201,168,76,0.28)'); g1.addColorStop(1,'rgba(201,168,76,0)');
+      const g2  = ctx.createLinearGradient(0,0,0,220); g2.addColorStop(0,'rgba(0,212,255,0.16)');  g2.addColorStop(1,'rgba(0,212,255,0)');
+      
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: [...(trendData.labels || []), ...(trendData.forecast_labels || [])],
+          datasets: [
+            { 
+              label:'Actual', 
+              data:[...(trendData.revenues || []), ...Array(trendData.forecast_labels ? trendData.forecast_labels.length : 0).fill(null)],
+              borderColor:'#C9A84C', backgroundColor:g1, fill:true, tension:.4, pointRadius:2, borderWidth:2 
+            },
+            { 
+              label:'AI Forecast', 
+              data:[...Array(trendData.labels ? trendData.labels.length : 0).fill(null), ...(trendData.forecast_revenues || [])],
+              borderColor:'#00D4FF', backgroundColor:g2, fill:true, tension:.4, borderDash:[6,3], pointRadius:2, borderWidth:2 
+            },
+          ]
+        },
+        options: { 
+          responsive:true, 
+          maintainAspectRatio:false, 
+          interaction:{mode:'index',intersect:false},
+          plugins:{ 
+            legend:{display:false}, 
+            tooltip:{ callbacks:{ label:c=>c.raw!==null?` KES ${Math.round(c.raw).toLocaleString()}`:'' } } 
+          },
+          scales:{ 
+            x:{grid:{display:false}, ticks:{maxTicksLimit:10}}, 
+            y:{ticks:{callback:v=>'KES '+(v>=1000?(v/1000).toFixed(0)+'k':v)}} 
+          } 
+        }
+      });
+    }
+
+    // ── 2. Daily/Hourly Orders Bar Chart (FIXED ID) ──────────────────────────
+    const hourlyCanvas = document.getElementById('hourlyChart');
+    if (hourlyCanvas && hourlyData) {
+      const ctx = hourlyCanvas.getContext('2d');
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: hourlyData.map(h => `${h.hour}:00`),
+          datasets: [{ 
+            label:'Revenue', 
+            data: hourlyData.map(h => h.revenue),
+            backgroundColor: hourlyData.map(h => h.revenue > 0 ? 'rgba(201,168,76,0.7)' : 'rgba(255,255,255,0.05)'),
+            borderRadius: 4, 
+            borderSkipped: false 
+          }]
+        },
+        options: { 
+          responsive:true, 
+          maintainAspectRatio:false, 
+          plugins:{legend:{display:false}},
+          scales: { 
+            x:{ grid:{display:false}, ticks:{maxTicksLimit:8, font:{size:10}} },
+            y:{ grid:{color:'rgba(255,255,255,0.04)'}, ticks:{callback:v=>v===0?'0':`${(v/1000).toFixed(0)}k`, font:{size:10}} } 
+          } 
+        }
+      });
+    }
+
+    // ── 3. Orders by Status Donut Chart (ADDED) ──────────────────────────────
+    const statusCanvas = document.getElementById('orderStatusChart');
+    if (statusCanvas && orderStatus) {
+      new Chart(statusCanvas.getContext('2d'), {
+        type: 'doughnut',
+        data: {
+          labels: Object.keys(orderStatus),
+          datasets: [{
+            data: Object.values(orderStatus),
+            backgroundColor: ['#10B981', '#00D4FF', '#C9A84C', '#EF4444'],
+            borderWidth: 2, borderColor: '#13131e'
+          }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { position: 'bottom', labels: { boxWidth: 8, font: { size: 9 } } } } }
+      });
+    }
+
+    // ── 4. User Growth Line Chart (ADDED) ────────────────────────────────────
+    const userCanvas = document.getElementById('userGrowthChart');
+    if (userCanvas && userGrowth) {
+      new Chart(userCanvas.getContext('2d'), {
+        type: 'line',
+        data: {
+          labels: userGrowth.labels || [],
+          datasets: [{ label: 'Users', data: userGrowth.counts || [], borderColor: '#10B981', tension: 0.3, fill: false, pointRadius: 2 }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false } } } }
+      });
+    }
+
+    // ── 5. Review Sentiment Chart (ADDED) ────────────────────────────────────
+    const sentimentCanvas = document.getElementById('sentimentChart');
+    if (sentimentCanvas && sentimentData) {
+      new Chart(sentimentCanvas.getContext('2d'), {
+        type: 'polarArea',
+        data: {
+          labels: ['Positive', 'Neutral', 'Negative'],
+          datasets: [{ data: [sentimentData.pos || 0, sentimentData.neu || 0, sentimentData.neg || 0], backgroundColor: ['rgba(16,185,129,0.2)', 'rgba(201,168,76,0.2)', 'rgba(239,68,68,0.2)'], borderColor: ['#10B981', '#C9A84C', '#EF4444'], borderWidth: 1 }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, scales: { r: { grid: { color: 'rgba(255,255,255,0.05)' }, angleLines: { display: false }, ticks: { display: false } } }, plugins: { legend: { position: 'bottom', labels: { boxWidth: 8, font: { size: 9 } } } } }
+      });
+    }
+
+    // ── 6. Fraud Risk Levels Bar Chart (ADDED) ───────────────────────────────
+    const fraudCanvas = document.getElementById('fraudRiskChart');
+    if (fraudCanvas && fraudBuckets) {
+      new Chart(fraudCanvas.getContext('2d'), {
+        type: 'bar',
+        data: {
+          labels: ['Low', 'Medium', 'High'],
+          datasets: [{ data: [fraudBuckets.low || 0, fraudBuckets.med || 0, fraudBuckets.high || 0], backgroundColor: ['#10B981', '#EAB308', '#EF4444'], borderRadius: 4 }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false } }, y: { grid: { color: 'rgba(255,255,255,0.04)' } } } }
+      });
+    }
+
+    // ── 7. Revenue by Category Donut Chart ───────────────────────────────────
+    const categoryCanvas = document.getElementById('categoryChart');
+    if (categoryCanvas) {
+      if (categoryData && categoryData.length) {
+        const ctx = categoryCanvas.getContext('2d');
+        new Chart(ctx, {
+          type: 'doughnut',
+          data: {
+            labels: categoryData.map(c => c.category__name || 'Other'),
+            datasets: [{ 
+              data: categoryData.map(c => c.total),
+              backgroundColor: ['#C9A84C','#00D4FF','#7C3AED','#10B981','#F97316','#EF4444','#8B5CF6','#06B6D4'],
+              borderWidth:2, 
+              borderColor:'#13131e' 
+            }]
+          },
+          options: { 
+            responsive:true, 
+            maintainAspectRatio:false, 
+            cutout:'60%',
+            plugins:{ 
+              legend:{position:'bottom', labels:{boxWidth:10,padding:8,font:{size:9}}},
+              tooltip:{ callbacks:{ label:c=>` KES ${Math.round(c.raw).toLocaleString()}` } } 
+            } 
+          }
+        });
+      } else {
+        categoryCanvas.parentElement.innerHTML += '<div style="text-align:center;color:var(--text-muted);font-size:.8rem;padding:2rem 0;">No category sales yet</div>';
+      }
+    }
+
+  });
+</script>
+{% endblock %}

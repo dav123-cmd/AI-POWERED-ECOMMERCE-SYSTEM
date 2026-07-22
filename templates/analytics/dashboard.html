@@ -1,0 +1,498 @@
+{% extends 'base.html' %} 
+{% load static %} 
+
+{% block title %}Analytics Dashboard{% endblock %} 
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/main.css' %}" />
+{% endblock %} 
+
+{% block content %}
+<div class="container" style="padding-top: 2.5rem; padding-bottom: 5rem">
+  <div style="display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <div style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.3rem 0.875rem; background: linear-gradient(135deg, rgba(124, 58, 237, 0.12), rgba(0, 212, 255, 0.06)); border: 1px solid rgba(124, 58, 237, 0.25); border-radius: 20px; font-size: 0.75rem; color: var(--accent-cyan); font-family: var(--font-mono); margin-bottom: 0.75rem;">
+        <i class="fa-solid fa-chart-line"></i> PYTORCH LSTM FORECASTING · LIVE ANALYTICS
+      </div>
+      <h1 style="font-family: var(--font-display); font-size: 2rem; font-weight: 800;">
+        Analytics Dashboard
+      </h1>
+      <p style="color: var(--text-muted); font-size: 0.875rem; margin-top: 0.25rem;">
+        {{ stats.period_start }} → {{ stats.period_end }}
+      </p>
+    </div>
+    <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap">
+      <div class="period-selector">
+        {% if days == 7 %}
+          <a href="?days=7" class="is-active">7D</a>
+        {% else %}
+          <a href="?days=7">7D</a>
+        {% endif %}
+        
+        {% if days == 30 %}
+          <a href="?days=30" class="is-active">30D</a>
+        {% else %}
+          <a href="?days=30">30D</a>
+        {% endif %}
+        
+        {% if days == 90 %}
+          <a href="?days=90" class="is-active">90D</a>
+        {% else %}
+          <a href="?days=90">90D</a>
+        {% endif %}
+        
+        {% if days == 365 %}
+          <a href="?days=365" class="is-active">1Y</a>
+        {% else %}
+          <a href="?days=365">1Y</a>
+        {% endif %}
+      </div>
+      <button onclick="runForecast()" class="btn btn-secondary btn-sm">
+        <i class="fa-solid fa-wand-magic-sparkles"></i> Run Forecast
+      </button>
+      <a href="{% url 'analytics:export' %}?days={{ days }}" class="btn btn-ghost btn-sm">
+        <i class="fa-solid fa-download"></i> Export CSV
+      </a>
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.25rem; margin-bottom: 2rem;">
+    <div class="kpi-card">
+      <div class="kpi-label">
+        <i class="fa-solid fa-coins" style="color: var(--accent-gold)"></i> Revenue
+      </div>
+      <div class="kpi-value" style="color: var(--accent-gold)">
+        KES {{ stats.revenue|floatformat:"0" }}
+      </div>
+      {% if stats.revenue_change is not None %}
+        {% if stats.revenue_change >= 0 %}
+          <div style="margin-top: 0.5rem" class="change-up">
+            <i class="fa-solid fa-arrow-up"></i> +{{ stats.revenue_change|floatformat:"1" }}% vs prev period
+          </div>
+        {% else %}
+          <div style="margin-top: 0.5rem" class="change-down">
+            <i class="fa-solid fa-arrow-down"></i> {{ stats.revenue_change|floatformat:"1" }}% vs prev period
+          </div>
+        {% endif %}
+      {% endif %}
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-label">
+        <i class="fa-solid fa-bag-shopping" style="color: var(--accent-cyan)"></i> Orders
+      </div>
+      <div class="kpi-value">{{ stats.orders }}</div>
+      {% if stats.orders_change is not None %}
+        {% if stats.orders_change >= 0 %}
+          <div style="margin-top: 0.5rem" class="change-up">
+            <i class="fa-solid fa-arrow-up"></i> +{{ stats.orders_change|floatformat:"1" }}% vs prev period
+          </div>
+        {% else %}
+          <div style="margin-top: 0.5rem" class="change-down">
+            <i class="fa-solid fa-arrow-down"></i> {{ stats.orders_change|floatformat:"1" }}% vs prev period
+          </div>
+        {% endif %}
+      {% endif %}
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-label">
+        <i class="fa-solid fa-users" style="color: var(--accent-purple)"></i> New Customers
+      </div>
+      <div class="kpi-value">{{ stats.new_customers }}</div>
+      {% if stats.cust_change is not None %}
+        {% if stats.cust_change >= 0 %}
+          <div style="margin-top: 0.5rem" class="change-up">
+            <i class="fa-solid fa-arrow-up"></i> +{{ stats.cust_change|floatformat:"1" }}%
+          </div>
+        {% else %}
+          <div style="margin-top: 0.5rem" class="change-down">
+            <i class="fa-solid fa-arrow-down"></i> {{ stats.cust_change|floatformat:"1" }}%
+          </div>
+        {% endif %}
+      {% endif %}
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-label">
+        <i class="fa-solid fa-chart-pie" style="color: var(--accent-green)"></i> Avg Order Value
+      </div>
+      <div class="kpi-value">KES {{ stats.avg_order_val|floatformat:"0" }}</div>
+      {% if stats.aov_change is not None %}
+        {% if stats.aov_change >= 0 %}
+          <div style="margin-top: 0.5rem" class="change-up">
+            <i class="fa-solid fa-arrow-up"></i> +{{ stats.aov_change|floatformat:"1" }}%
+          </div>
+        {% else %}
+          <div style="margin-top: 0.5rem" class="change-down">
+            <i class="fa-solid fa-arrow-down"></i> {{ stats.aov_change|floatformat:"1" }}%
+          </div>
+        {% endif %}
+      {% endif %}
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 2rem;">
+    <div class="kpi-card" style="display: flex; align-items: center; gap: 1rem; padding: 1.25rem">
+      <div class="kpi-icon-chip is-units">
+        <i class="fa-solid fa-box"></i>
+      </div>
+      <div>
+        <div style="font-size: 0.75rem; color: var(--text-muted)">Units Sold</div>
+        <div style="font-family: var(--font-display); font-weight: 700; font-size: 1.25rem;">
+          {{ stats.units_sold }}
+        </div>
+      </div>
+    </div>
+
+    {% if low_stock|length > 0 %}
+      <div class="kpi-card" style="display: flex; align-items: center; gap: 1rem; padding: 1.25rem; border-color: rgba(234,179,8,.3);">
+        <div class="kpi-icon-chip is-warning">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+        </div>
+        <div>
+          <div style="font-size: 0.75rem; color: var(--text-muted)">Low Stock</div>
+          <div style="font-family: var(--font-display); font-weight: 700; font-size: 1.25rem; color: #eab308;">
+            {{ low_stock|length }}
+          </div>
+          {% if out_stock > 0 %}
+          <div style="font-size: 0.75rem; color: var(--accent-red)">
+            {{ out_stock }} out of stock
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    {% else %}
+      <div class="kpi-card" style="display: flex; align-items: center; gap: 1rem; padding: 1.25rem;">
+        <div class="kpi-icon-chip is-warning">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+        </div>
+        <div>
+          <div style="font-size: 0.75rem; color: var(--text-muted)">Low Stock</div>
+          <div style="font-family: var(--font-display); font-weight: 700; font-size: 1.25rem; color: var(--text-primary);">
+            0
+          </div>
+        </div>
+      </div>
+    {% endif %}
+
+    <div class="kpi-card" style="display: flex; align-items: center; gap: 1rem; padding: 1.25rem">
+      <div class="kpi-icon-chip is-pending">
+        <i class="fa-solid fa-clock"></i>
+      </div>
+      <div>
+        <div style="font-size: 0.75rem; color: var(--text-muted)">Pending Orders</div>
+        <div style="font-family: var(--font-display); font-weight: 700; font-size: 1.25rem;">
+          {{ stats.pending_orders }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+    <div class="chart-card">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem;">
+        <h3 class="section-title-sm" style="margin: 0">
+          <i class="fa-solid fa-chart-area" style="color: var(--accent-gold)"></i> Revenue & LSTM Forecast
+        </h3>
+        <div style="display: flex; gap: 0.75rem; font-size: 0.75rem; align-items: center;">
+          <span style="display: flex; align-items: center; gap: 0.375rem">
+            <span style="width: 12px; height: 2px; background: var(--accent-gold); display: inline-block; border-radius: 2px;"></span>Actual
+          </span>
+          <span style="display: flex; align-items: center; gap: 0.375rem">
+            <span style="width: 12px; height: 2px; background: var(--accent-cyan); display: inline-block; border-radius: 2px; border-top: 2px dashed var(--accent-cyan);"></span>Forecast
+          </span>
+        </div>
+      </div>
+      <div style="position: relative; height: 220px;">
+        <canvas id="revenueChart"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <h3 class="section-title-sm">
+        <i class="fa-solid fa-chart-pie" style="color: var(--accent-purple)"></i> Revenue by Category
+      </h3>
+      <div style="position: relative; height: 220px;">
+        <canvas id="categoryChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="chart-card" style="margin-bottom: 1.5rem">
+    <h3 class="section-title-sm">
+      <i class="fa-solid fa-chart-bar" style="color: var(--accent-cyan)"></i> Daily Orders
+    </h3>
+    <div style="position: relative; height: 120px;">
+      <canvas id="ordersChart"></canvas>
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem">
+    <div class="chart-card">
+      <h3 class="section-title-sm">
+        <i class="fa-solid fa-trophy" style="color: var(--accent-gold)"></i> Top Products
+      </h3>
+      {% if top_products %} 
+        {% for p in top_products %}
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.625rem 0; border-bottom: 1px solid var(--border);">
+          <div style="flex: 1; min-width: 0">
+            <div style="font-size: 0.85rem; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+              {{ p.product_name }}
+            </div>
+            <div style="font-size: 0.75rem; color: var(--text-muted)">
+              {{ p.total_units }} units
+            </div>
+          </div>
+          <div style="font-family: var(--font-display); font-weight: 700; font-size: 0.9rem; color: var(--accent-gold); flex-shrink: 0; margin-left: 0.5rem;">
+            KES {{ p.total_revenue|floatformat:"0" }}
+          </div>
+        </div>
+        {% endfor %} 
+      {% else %}
+        <p style="color: var(--text-muted); font-size: 0.875rem">No data yet</p>
+      {% endif %}
+    </div>
+
+    <div class="chart-card">
+      <h3 class="section-title-sm">
+        <i class="fa-solid fa-triangle-exclamation" style="color: #eab308"></i> Low Stock Alerts
+      </h3>
+      {% if low_stock %} 
+        {% for p in low_stock %}
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.625rem 0; border-bottom: 1px solid var(--border);">
+          <div style="flex: 1; min-width: 0">
+            <div style="font-size: 0.85rem; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+              {{ p.name }}
+            </div>
+            <div style="font-size: 0.75rem; color: var(--text-muted)">
+              SKU: {{ p.sku }}
+            </div>
+          </div>
+          <div style="flex-shrink: 0; margin-left: 0.5rem">
+            {% if p.stock == 0 %}
+              <span style="padding: .2rem .6rem; border-radius: 12px; font-size: .75rem; font-weight: 700; font-family: var(--font-mono); background: rgba(239,68,68,.15); color: var(--accent-red);">
+                0 left
+              </span>
+            {% elif p.stock <= 3 %}
+              <span style="padding: .2rem .6rem; border-radius: 12px; font-size: .75rem; font-weight: 700; font-family: var(--font-mono); background: rgba(249,115,22,.15); color: #f97316;">
+                {{ p.stock }} left
+              </span>
+            {% else %}
+              <span style="padding: .2rem .6rem; border-radius: 12px; font-size: .75rem; font-weight: 700; font-family: var(--font-mono); background: rgba(234,179,8,.15); color: #eab308;">
+                {{ p.stock }} left
+              </span>
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %} 
+      {% else %}
+        <div style="text-align: center; padding: 2rem; color: var(--accent-green)">
+          <i class="fa-solid fa-circle-check" style="font-size: 1.5rem; display: block; margin-bottom: 0.5rem"></i>
+          All products well-stocked
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="chart-card">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem;">
+        <h3 class="section-title-sm" style="margin: 0">
+          <i class="fa-solid fa-wand-magic-sparkles" style="color: var(--accent-cyan)"></i> 7-Day Forecast
+        </h3>
+        <span style="font-size: 0.65rem; font-family: var(--font-mono); color: var(--accent-cyan); padding: 0.2rem 0.5rem; background: rgba(0, 212, 255, 0.08); border-radius: 10px;">
+          LSTM
+        </span>
+      </div>
+      {% if forecasts %} 
+        {% for f in forecasts|slice:":7" %}
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid var(--border);">
+          <div>
+            <div style="font-size: 0.8rem; font-weight: 600">
+              {{ f.forecast_date|date:"D, M d" }}
+            </div>
+            <div style="font-size: 0.7rem; color: var(--text-muted)">
+              Engine Estimate
+            </div>
+          </div>
+          <div style="text-align: right">
+            <div style="font-family: var(--font-display); font-weight: 700; font-size: 0.9rem; color: var(--accent-gold);">
+              KES {{ f.predicted_revenue|floatformat:"0" }}
+            </div>
+            <div style="font-size: 0.65rem; color: var(--text-muted)">
+              {{ f.lower_bound|floatformat:"0" }} – {{ f.upper_bound|floatformat:"0" }}
+            </div>
+          </div>
+        </div>
+        {% endfor %} 
+      {% else %}
+        <div style="text-align: center; padding: 2rem">
+          <button onclick="runForecast()" class="btn btn-primary btn-sm">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> Generate Forecast
+          </button>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %} 
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+  window.dashboardChartData = {{ chart|safe }};
+  window.dashboardCategoryData = {{ categories|safe }};
+  window.dashboardForecastUrl = "{% url 'analytics:forecast_data' %}";
+(function () {
+  // ── Chart.js defaults ─────────────────────────────────────
+  Chart.defaults.color = '#9996A0';
+  Chart.defaults.borderColor = 'rgba(255,255,255,0.07)';
+  Chart.defaults.font.family = "'DM Sans', sans-serif";
+
+  const chartData = window.dashboardChartData;
+  const catData = window.dashboardCategoryData;
+
+  // ── Revenue + Forecast Chart ──────────────────────────────
+  const revCanvas = document.getElementById('revenueChart');
+  if (revCanvas) {
+    const revCtx = revCanvas.getContext('2d');
+
+    const revGrad = revCtx.createLinearGradient(0, 0, 0, 300);
+    revGrad.addColorStop(0, 'rgba(201,168,76,0.3)');
+    revGrad.addColorStop(1, 'rgba(201,168,76,0.0)');
+
+    const fcastGrad = revCtx.createLinearGradient(0, 0, 0, 300);
+    fcastGrad.addColorStop(0, 'rgba(0,212,255,0.15)');
+    fcastGrad.addColorStop(1, 'rgba(0,212,255,0.0)');
+
+    new Chart(revCtx, {
+      type: 'line',
+      data: {
+        labels: [...chartData.labels, ...chartData.forecast_labels],
+        datasets: [
+          {
+            label: 'Actual Revenue',
+            data: [...chartData.revenues, ...Array(chartData.forecast_labels.length).fill(null)],
+            borderColor: '#C9A84C',
+            backgroundColor: revGrad,
+            fill: true,
+            tension: 0.4,
+            pointRadius: 3,
+            pointBackgroundColor: '#C9A84C',
+            borderWidth: 2,
+          },
+          {
+            label: 'AI Forecast',
+            data: [...Array(chartData.labels.length).fill(null), ...chartData.forecast_revenues],
+            borderColor: '#00D4FF',
+            backgroundColor: fcastGrad,
+            fill: true,
+            tension: 0.4,
+            borderDash: [6, 3],
+            pointRadius: 3,
+            pointBackgroundColor: '#00D4FF',
+            borderWidth: 2,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#13131e',
+            borderColor: 'rgba(255,255,255,0.1)',
+            borderWidth: 1,
+            callbacks: {
+              label: ctx => (ctx.raw !== null ? ` KES ${Math.round(ctx.raw).toLocaleString()}` : ''),
+            },
+          },
+        },
+        scales: {
+          x: { grid: { display: false }, ticks: { maxTicksLimit: 10 } },
+          y: {
+            ticks: { callback: v => 'KES ' + (v >= 1000 ? (v / 1000).toFixed(0) + 'k' : v) },
+          },
+        },
+      },
+    });
+  }
+
+  // ── Orders Bar Chart ──────────────────────────────────────
+  const ordersCanvas = document.getElementById('ordersChart');
+  if (ordersCanvas) {
+    new Chart(ordersCanvas.getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: chartData.labels,
+        datasets: [{
+          label: 'Orders',
+          data: chartData.orders,
+          backgroundColor: 'rgba(0,212,255,0.5)',
+          borderColor: 'rgba(0,212,255,0.8)',
+          borderWidth: 1,
+          borderRadius: 4,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { display: false }, ticks: { maxTicksLimit: 12 } },
+          y: { beginAtZero: true, ticks: { stepSize: 1 } },
+        },
+      },
+    });
+  }
+
+  // ── Category Pie Chart ────────────────────────────────────
+  const categoryCanvas = document.getElementById('categoryChart');
+  if (categoryCanvas && catData.length) {
+    new Chart(categoryCanvas.getContext('2d'), {
+      type: 'doughnut',
+      data: {
+        labels: catData.map(c => c.category__name || 'Other'),
+        datasets: [{
+          data: catData.map(c => c.total),
+          backgroundColor: ['#C9A84C', '#00D4FF', '#7C3AED', '#10B981', '#F97316', '#EF4444', '#8B5CF6', '#06B6D4'],
+          borderWidth: 2,
+          borderColor: '#13131e',
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'bottom', labels: { boxWidth: 12, padding: 12, font: { size: 11 } } },
+          tooltip: {
+            callbacks: {
+              label: ctx => ` KES ${Math.round(ctx.raw).toLocaleString()}`,
+            },
+          },
+        },
+        cutout: '65%',
+      },
+    });
+  }
+
+  // ── Actions ───────────────────────────────────────────────
+  window.runForecast = async function runForecast() {
+    showToast('<i class="fa-solid fa-brain"></i> Running LSTM forecast...', 'info');
+    const res = await fetch(window.dashboardForecastUrl, {
+      method: 'POST',
+      headers: { 'X-CSRFToken': getCookie('csrftoken') },
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast(`<i class="fa-solid fa-circle-check"></i> ${data.message}`, 'success');
+      setTimeout(() => window.location.reload(), 1500);
+    } else {
+      showToast(`<i class="fa-solid fa-circle-xmark"></i> ${data.error}`, 'error');
+    }
+  };
+})();
+</script>
+<script src="{% static 'js/main.js' %}"></script>
+{% endblock %}

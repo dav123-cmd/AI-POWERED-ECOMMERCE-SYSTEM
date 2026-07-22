@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div style="display:flex;min-height:calc(100vh - var(--nav-height));">
+
+  <!-- ── Sidebar ────────────────────────────────────────── -->
+  <aside id="dashSidebar" style="width:240px;background:var(--bg-secondary);border-right:1px solid var(--border);display:flex;flex-direction:column;position:sticky;top:var(--nav-height);height:calc(100vh - var(--nav-height));overflow-y:auto;flex-shrink:0;transition:var(--transition);">
+
+    <!-- Brand -->
+    <div style="padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);">
+      <div style="font-family:var(--font-display);font-weight:800;font-size:1rem;">Shop<span style="color:var(--accent-gold);">AI</span> <span style="font-size:.65rem;color:var(--text-muted);font-family:var(--font-mono);">ADMIN</span></div>
+      <div style="font-size:.75rem;color:var(--text-muted);margin-top:.2rem;">{{ request.user.get_full_name }}</div>
+    </div>
+
+    <!-- Nav Links -->
+    <nav style="padding:.75rem 0;flex:1;">
+      {% for icon, label, url_name, perm in 'fa-gauge,Overview,dashboard:home,any|fa-bag-shopping,Orders,dashboard:orders,orders|fa-box,Products,dashboard:products,products|fa-users,Users,dashboard:users,users|fa-microchip,AI Models,dashboard:ai_models,ai_models|fa-chart-line,Analytics,analytics:dashboard,analytics|fa-shield-halved,Fraud,payments:fraud_dashboard,fraud|fa-star,Reviews,reviews:moderation,reviews|fa-triangle-exclamation,Inventory,analytics:inventory,analytics|fa-list,Activity Log,dashboard:activity,any'|split:'|' %}
+      {% endfor %}
+      {% with items='fa-gauge,Overview,dashboard:home|fa-bag-shopping,Orders,dashboard:orders|fa-box,Products,dashboard:products|fa-users,Users,dashboard:users|fa-microchip,AI Models,dashboard:ai_models|fa-chart-line,Analytics,analytics:dashboard|fa-shield-halved,Fraud,payments:fraud_dashboard|fa-star,Reviews,reviews:moderation|fa-triangle-exclamation,Inventory,analytics:inventory|fa-list,Activity Log,dashboard:activity' %}
+      {% for item in items|split:'|' %}
+      {% with parts=item|split:',' %}
+      <a href="{% url parts.1 %}" style="display:flex;align-items:center;gap:.75rem;padding:.625rem 1.5rem;font-size:.875rem;color:var(--text-secondary);transition:var(--transition);{% if request.resolver_match.namespace == parts.1|split:':'|first and request.resolver_match.url_name == parts.1|split:':'|last %}background:var(--bg-elevated);color:var(--accent-gold);border-right:2px solid var(--accent-gold);{% endif %}" onmouseover="if(!this.style.color.includes('gold'))this.style.background='var(--bg-hover)'" onmouseout="if(!this.style.color.includes('gold'))this.style.background=''">
+        <i class="fa-solid {{ parts.0 }}" style="width:16px;text-align:center;"></i>
+        {{ parts.1|split:','|last }}
+      </a>
+      {% endwith %}
+      {% endfor %}
+      {% endwith %}
+    </nav>
+
+    <!-- Bottom -->
+    <div style="padding:.875rem 1.5rem;border-top:1px solid var(--border);">
+      <a href="/" style="display:flex;align-items:center;gap:.5rem;font-size:.8rem;color:var(--text-muted);">
+        <i class="fa-solid fa-arrow-left-from-bracket"></i> Back to Store
+      </a>
+    </div>
+  </aside>
+
+  <!-- ── Main Content ───────────────────────────────────── -->
+  <main style="flex:1;overflow-x:hidden;min-width:0;">
+    <div style="padding:2rem;">
+      {% block dashboard_content %}{% endblock %}
+    </div>
+  </main>
+
+</div>
+{% endblock %}

@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Users Management{% endblock %}
+{% block content %}
+<div class="dash-layout">
+  {% include 'dashboard/partials/sidebar.html' with active='users' %}
+  <main class="dash-main">
+
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem;">
+      <h1 style="font-family:var(--font-display);font-size:1.75rem;font-weight:800;">Users</h1>
+      <div style="display:flex;gap:.625rem;">
+        <span style="padding:.375rem .875rem;background:var(--bg-elevated);border-radius:12px;font-size:.8rem;color:var(--text-secondary);">{{ total_users }} Total</span>
+        <span style="padding:.375rem .875rem;background:rgba(16,185,129,.1);border-radius:12px;font-size:.8rem;color:var(--accent-green);">{{ verified }} Verified</span>
+        <span style="padding:.375rem .875rem;background:rgba(201,168,76,.1);border-radius:12px;font-size:.8rem;color:var(--accent-gold);">{{ staff }} Staff</span>
+      </div>
+    </div>
+
+    <!-- Search -->
+    <form method="get" style="display:flex;gap:.75rem;margin-bottom:1.5rem;flex-wrap:wrap;">
+      <input type="text" name="q" value="{{ search }}" class="form-input" placeholder="Search name or email..." style="width:280px;" />
+      <button type="submit" class="btn btn-secondary btn-sm">Search</button>
+      <a href="{% url 'dashboard:users' %}" class="btn btn-ghost btn-sm">Clear</a>
+    </form>
+
+    <!-- Table -->
+    <div class="dash-panel">
+      <div style="overflow-x:auto;">
+        <table class="dash-table">
+          <thead><tr style="background:var(--bg-secondary);">
+            <th>User</th>
+            <th>Contact</th>
+            <th>Orders</th>
+            <th>Total Spent</th>
+            <th>Verified</th>
+            <th>Role</th>
+            <th>Joined</th>
+            <th>Action</th>
+          </tr></thead>
+          <tbody>
+            {% for u in users %}
+            <tr id="user-row-{{ u.id }}">
+              <td>
+                <div style="display:flex;align-items:center;gap:.75rem;">
+                  <img src="{{ u.avatar_url }}" style="width:34px;height:34px;border-radius:50%;object-fit:cover;flex-shrink:0;" />
+                  <div style="min-width:0;">
+                    <div style="font-size:.85rem;font-weight:600;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ u.get_full_name }}</div>
+                    <div style="font-size:.7rem;color:var(--text-muted);font-family:var(--font-mono);">{{ u.id|truncatechars:13 }}</div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div style="font-size:.8rem;">{{ u.email }}</div>
+                {% if u.phone %}<div style="font-size:.7rem;color:var(--text-muted);">{{ u.phone }}</div>{% endif %}
+              </td>
+              <td style="text-align:center;font-size:.85rem;">{{ u.order_count|default:"0" }}</td>
+              <td style="font-family:var(--font-display);font-weight:700;font-size:.85rem;white-space:nowrap;">
+                {% if u.total_spent %}KES {{ u.total_spent|floatformat:"0" }}{% else %}—{% endif %}
+              </td>
+              <td>
+                {% if u.is_verified %}
+                <span style="color:var(--accent-green);font-size:.85rem;"><i class="fa-solid fa-circle-check"></i></span>
+                {% else %}
+                <span style="color:var(--text-muted);font-size:.85rem;"><i class="fa-regular fa-circle"></i></span>
+                {% endif %}
+              </td>
+              <td>
+                {% if u.is_superuser %}
+                <span style="padding:.2rem .625rem;border-radius:10px;font-size:.7rem;font-family:var(--font-mono);background:rgba(124,58,237,.15);color:#a78bfa;">Super Admin</span>
+                {% elif u.is_staff %}
+                <span style="padding:.2rem .625rem;border-radius:10px;font-size:.7rem;font-family:var(--font-mono);background:rgba(201,168,76,.15);color:var(--accent-gold);">Staff</span>
+                {% else %}
+                <span style="padding:.2rem .625rem;border-radius:10px;font-size:.7rem;font-family:var(--font-mono);background:var(--bg-elevated);color:var(--text-muted);">Customer</span>
+                {% endif %}
+              </td>
+              <td style="font-size:.8rem;color:var(--text-muted);white-space:nowrap;">{{ u.date_joined|date:"M d, Y" }}</td>
+              <td>
+                {% if request.user.is_superuser and u.id != request.user.id %}
+                <button onclick="toggleStaff('{{ u.id }}', this)" style="font-size:.75rem;color:var(--accent-cyan);background:none;border:none;cursor:pointer;">
+                  {% if u.is_staff %}Revoke Staff{% else %}Make Staff{% endif %}
+                </button>
+                {% else %}
+                <span style="font-size:.75rem;color:var(--text-muted);">—</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="8" style="padding:3rem;text-align:center;color:var(--text-muted);">No users found</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <!-- Pagination -->
+      {% if page_obj.has_other_pages %}
+      <div style="display:flex;justify-content:center;gap:.5rem;padding:1rem;border-top:1px solid var(--border);">
+        {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}&q={{ search }}" class="btn btn-ghost btn-sm">←</a>{% endif %}
+        <span style="padding:.5rem 1rem;font-size:.8rem;color:var(--text-muted);">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}&q={{ search }}" class="btn btn-ghost btn-sm">→</a>{% endif %}
+      </div>
+      {% endif %}
+    </div>
+
+  </main>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+async function toggleStaff(userId, btn) {
+  if (!confirm('Change this user\'s staff access?')) return;
+  btn.disabled = true;
+  const res  = await fetch(`/dashboard/users/${userId}/toggle-staff/`, {
+    method:'POST', headers:{'X-CSRFToken':getCookie('csrftoken')}
+  });
+  const data = await res.json();
+  btn.disabled = false;
+  if (data.success) {
+    showToast(`Staff access ${data.is_staff ? 'granted' : 'revoked'}`, 'success');
+    setTimeout(() => window.location.reload(), 700);
+  } else {
+    showToast(data.error || 'Action failed', 'error');
+  }
+}
+</script>
+{% endblock %}

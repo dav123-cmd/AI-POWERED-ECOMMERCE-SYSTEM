@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Review Moderation{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top:2.5rem;padding-bottom:5rem;">
+
+  <div style="margin-bottom:2rem;">
+    <div style="display:inline-flex;align-items:center;gap:.5rem;padding:.3rem .875rem;background:linear-gradient(135deg,rgba(124,58,237,.12),rgba(0,212,255,.06));border:1px solid rgba(124,58,237,.25);border-radius:20px;font-size:.75rem;color:var(--accent-cyan);font-family:var(--font-mono);margin-bottom:.75rem;">
+      <i class="fa-solid fa-microchip"></i> PYTORCH GRU SENTIMENT · FAKE DETECTION
+    </div>
+    <h1 style="font-family:var(--font-display);font-size:2rem;font-weight:800;">Review Moderation</h1>
+  </div>
+
+  <!-- Stats -->
+  <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:1rem;margin-bottom:2.5rem;">
+    {% for item in stats.items %}
+    <div class="card" style="padding:1rem;text-align:center;">
+      <div style="font-size:.65rem;color:var(--text-muted);font-family:var(--font-mono);text-transform:uppercase;margin-bottom:.375rem;">{{ item.0 }}</div>
+      <div style="font-family:var(--font-display);font-size:1.5rem;font-weight:800;">{{ item.1 }}</div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Pending Reviews -->
+  {% if pending %}
+  <div style="margin-bottom:2.5rem;">
+    <h2 style="font-family:var(--font-display);font-weight:700;font-size:1.25rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:.5rem;">
+      <span style="width:24px;height:24px;background:var(--accent-gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:800;color:var(--bg-primary);">{{ pending.count }}</span>
+      Pending Approval
+    </h2>
+    {% for review in pending %}
+    <div class="card" style="padding:1.5rem;margin-bottom:1rem;" id="review-{{ review.id }}">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
+        <div style="flex:1;">
+          <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.75rem;flex-wrap:wrap;">
+            <img src="{{ review.user.avatar_url }}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;" />
+            <div>
+              <div style="font-weight:600;font-size:.9rem;">{{ review.user.get_full_name }}</div>
+              <div style="font-size:.75rem;color:var(--text-muted);">{{ review.created_at|date:"M d, Y H:i" }}</div>
+            </div>
+            <div style="color:var(--accent-gold);">{{ review.rating }} <i class="fa-solid fa-star"></i></div>
+            <a href="{{ review.product.get_absolute_url }}" style="font-size:.8rem;color:var(--accent-cyan);">{{ review.product.name }}</a>
+            {% if review.sentiment %}
+            <span style="padding:.2rem .5rem;border-radius:10px;font-size:.7rem;font-family:var(--font-mono);
+              {% if review.sentiment == 'positive' %}background:rgba(16,185,129,.15);color:var(--accent-green);
+              {% elif review.sentiment == 'negative' %}background:rgba(239,68,68,.15);color:var(--accent-red);
+              {% else %}background:rgba(148,163,184,.15);color:var(--text-muted);{% endif %}">
+              {{ review.sentiment }}
+            </span>
+            {% endif %}
+            <span style="padding:.2rem .5rem;border-radius:10px;font-size:.7rem;font-family:var(--font-mono);background:rgba(201,168,76,.1);color:var(--accent-gold);">
+              fake: {{ review.fake_probability|floatformat:"2" }}
+            </span>
+          </div>
+          {% if review.title %}<div style="font-weight:600;margin-bottom:.375rem;">{{ review.title }}</div>{% endif %}
+          <p style="color:var(--text-secondary);font-size:.9rem;line-height:1.6;">{{ review.comment }}</p>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:.5rem;flex-shrink:0;">
+          <button onclick="moderate('{{ review.id }}','approve')" class="btn btn-success btn-sm">
+            <i class="fa-solid fa-check"></i> Approve
+          </button>
+          <button onclick="moderate('{{ review.id }}','flag')" class="btn btn-sm" style="background:rgba(249,115,22,.15);color:#f97316;border:1px solid rgba(249,115,22,.3);">
+            <i class="fa-solid fa-flag"></i> Flag
+          </button>
+          <button onclick="moderate('{{ review.id }}','reject')" class="btn btn-sm" style="background:rgba(239,68,68,.1);color:var(--accent-red);border:1px solid rgba(239,68,68,.3);">
+            <i class="fa-solid fa-trash"></i> Delete
+          </button>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- Flagged Reviews -->
+  {% if flagged %}
+  <div style="margin-bottom:2.5rem;">
+    <h2 style="font-family:var(--font-display);font-weight:700;font-size:1.25rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:.5rem;">
+      <i class="fa-solid fa-flag" style="color:#f97316;"></i> Flagged by AI
+      <span style="font-size:.8rem;color:var(--text-muted);font-family:var(--font-mono);">({{ flagged.count }})</span>
+    </h2>
+    {% for review in flagged %}
+    <div class="card" style="padding:1.5rem;margin-bottom:1rem;border-color:rgba(249,115,22,.3);" id="review-{{ review.id }}">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;flex-wrap:wrap;">
+        <div style="flex:1;">
+          <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.5rem;flex-wrap:wrap;">
+            <img src="{{ review.user.avatar_url }}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;" />
+            <span style="font-weight:600;">{{ review.user.get_full_name }}</span>
+            <span style="color:var(--accent-gold);">{{ review.rating }} <i class="fa-solid fa-star"></i></span>
+            <span style="padding:.2rem .5rem;background:rgba(239,68,68,.15);color:var(--accent-red);border-radius:10px;font-size:.7rem;font-family:var(--font-mono);"><i class="fa-solid fa-triangle-exclamation"></i> Fake: {{ review.fake_probability|floatformat:"2" }}</span>
+          </div>
+          <p style="color:var(--text-secondary);font-size:.875rem;">{{ review.comment|truncatewords:30 }}</p>
+        </div>
+        <div style="display:flex;gap:.5rem;">
+          <button onclick="moderate('{{ review.id }}','approve')" class="btn btn-success btn-sm">Approve</button>
+          <button onclick="moderate('{{ review.id }}','reject')" class="btn btn-sm" style="background:rgba(239,68,68,.1);color:var(--accent-red);border:1px solid rgba(239,68,68,.3);">Delete</button>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if not pending and not flagged %}
+  <div style="text-align:center;padding:5rem;">
+    <div style="font-size:3rem;margin-bottom:1rem;color:var(--accent-green);"><i class="fa-solid fa-circle-check"></i></div>
+    <h2 style="font-family:var(--font-display);font-weight:700;margin-bottom:.5rem;">All clear!</h2>
+    <p style="color:var(--text-muted);">No reviews pending moderation.</p>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+async function moderate(id, action) {
+  if (action === 'reject' && !confirm('Delete this review permanently?')) return;
+  const res  = await fetch(`/reviews/moderation/${id}/`, {
+    method:'POST',
+    headers:{'Content-Type':'application/x-www-form-urlencoded','X-CSRFToken':getCookie('csrftoken')},
+    body:`action=${action}`
+  });
+  const data = await res.json();
+  if (data.success) {
+    document.getElementById(`review-${id}`)?.remove();
+    showToast(data.message, 'success');
+  } else {
+    showToast(data.error || 'Error', 'error');
+  }
+}
+</script>
+{% endblock %}

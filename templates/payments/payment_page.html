@@ -1,0 +1,282 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Complete Payment — {{ order.order_number }}{% endblock %}
+{% block extra_css %}
+<style>
+.pay-grid{display:grid;grid-template-columns:1fr 360px;gap:2rem;align-items:start;}
+.method-tab{padding:.75rem 1.5rem;background:var(--bg-elevated);border:2px solid var(--border);border-radius:var(--radius-sm);font-weight:600;font-size:.875rem;cursor:pointer;transition:var(--transition);font-family:var(--font-display);}
+.method-tab.active{border-color:var(--accent-gold);color:var(--accent-gold);background:rgba(201,168,76,.08);}
+.pay-panel{display:none;}.pay-panel.active{display:block;}
+#card-element{background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-sm);padding:.875rem 1rem;}
+#card-element.StripeElement--focus{border-color:var(--accent-gold);box-shadow:0 0 0 3px rgba(201,168,76,.1);}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top:2.5rem;padding-bottom:5rem;">
+  <h1 style="font-family:var(--font-display);font-size:2rem;font-weight:800;margin-bottom:.5rem;">
+    <i class="fa-solid fa-lock" style="color:var(--accent-gold);"></i> Complete Payment
+  </h1>
+  <p style="color:var(--text-muted);margin-bottom:2rem;">Order <span style="font-family:var(--font-mono);color:var(--accent-gold);">{{ order.order_number }}</span></p>
+
+  <div class="pay-grid">
+    <!-- Payment Form -->
+    <div>
+      <!-- Method Tabs -->
+      <div style="display:flex;gap:.75rem;margin-bottom:1.5rem;flex-wrap:wrap;">
+        <button class="method-tab {% if order.payment_method == 'stripe' or not order.payment_method %}active{% endif %}" onclick="switchMethod('stripe',this)">
+          <i class="fa-brands fa-stripe"></i> Card
+        </button>
+        <button class="method-tab {% if order.payment_method == 'paypal' %}active{% endif %}" onclick="switchMethod('paypal',this)">
+          <i class="fa-brands fa-paypal"></i> PayPal
+        </button>
+        <button class="method-tab {% if order.payment_method == 'mpesa' %}active{% endif %}" onclick="switchMethod('mpesa',this)">
+          📱 M-Pesa
+        </button>
+      </div>
+
+      <!-- ── Stripe Panel ── -->
+      <div id="panel-stripe" class="pay-panel card {% if order.payment_method == 'stripe' or not order.payment_method %}active{% endif %}" style="padding:2rem;">
+        <h3 style="font-family:var(--font-display);font-weight:700;margin-bottom:1.5rem;display:flex;align-items:center;gap:.5rem;">
+          <i class="fa-brands fa-stripe" style="color:#635bff;font-size:1.5rem;"></i> Pay with Card
+        </h3>
+        <div id="stripeError" style="display:none;margin-bottom:1rem;padding:.75rem;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:var(--radius-sm);color:var(--accent-red);font-size:.875rem;"></div>
+        <div class="form-group">
+          <label class="form-label">Cardholder Name</label>
+          <input type="text" id="cardName" class="form-input" placeholder="John Doe" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Card Details</label>
+          <div id="card-element"></div>
+          <div id="card-errors" style="color:var(--accent-red);font-size:.8rem;margin-top:.375rem;"></div>
+        </div>
+        <!-- Saved cards hint -->
+        <div style="display:flex;gap:.75rem;margin-bottom:1.5rem;padding:.875rem;background:var(--bg-elevated);border-radius:var(--radius-sm);">
+          <i class="fa-solid fa-shield-halved" style="color:var(--accent-green);margin-top:.1rem;"></i>
+          <span style="font-size:.8rem;color:var(--text-muted);">Your payment is secured by Stripe. We never store your card details.</span>
+        </div>
+        <button id="stripePayBtn" onclick="payWithStripe()" class="btn btn-primary" style="width:100%;justify-content:center;padding:.875rem;font-size:1rem;">
+          <i class="fa-solid fa-lock"></i> Pay KES {{ order.total|floatformat:"0" }}
+        </button>
+        <!-- Test card hint (remove in production) -->
+        <div style="margin-top:1rem;padding:.75rem;background:rgba(201,168,76,.06);border-radius:var(--radius-sm);font-size:.75rem;color:var(--text-muted);font-family:var(--font-mono);">
+          🧪 Test card: 4242 4242 4242 4242 · Any future date · Any CVV
+        </div>
+      </div>
+
+      <!-- ── PayPal Panel ── -->
+      <div id="panel-paypal" class="pay-panel card {% if order.payment_method == 'paypal' %}active{% endif %}" style="padding:2rem;text-align:center;">
+        <div style="font-size:4rem;margin-bottom:1rem;">🅿</div>
+        <h3 style="font-family:var(--font-display);font-weight:700;margin-bottom:.75rem;">Pay with PayPal</h3>
+        <p style="color:var(--text-muted);font-size:.875rem;margin-bottom:1.5rem;">You will be redirected to PayPal to complete your payment securely.</p>
+        <div style="background:var(--bg-elevated);border-radius:var(--radius-md);padding:1rem;margin-bottom:1.5rem;font-size:.875rem;">
+          <div style="display:flex;justify-content:space-between;"><span style="color:var(--text-muted);">Amount (KES)</span><span>KES {{ order.total|floatformat:"0" }}</span></div>
+          <div style="display:flex;justify-content:space-between;margin-top:.5rem;"><span style="color:var(--text-muted);">Approx. (USD)</span><span>≈ ${{ order.total|floatformat:"0"|add:"0" }}</span></div>
+        </div>
+        <a href="/payments/{{ order.order_number }}/?method=paypal" class="btn btn-primary" style="width:100%;justify-content:center;padding:.875rem;background:linear-gradient(135deg,#003087,#009cde);">
+          <i class="fa-brands fa-paypal"></i> Continue to PayPal
+        </a>
+      </div>
+
+      <!-- ── M-Pesa Panel ── -->
+      <div id="panel-mpesa" class="pay-panel card {% if order.payment_method == 'mpesa' %}active{% endif %}" style="padding:2rem;">
+        <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;">
+          <div style="width:56px;height:56px;background:linear-gradient(135deg,#00A651,#007A3D);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;">📱</div>
+          <div>
+            <h3 style="font-family:var(--font-display);font-weight:700;">Lipa Na M-Pesa</h3>
+            <p style="color:var(--text-muted);font-size:.8rem;">Enter your Safaricom number to receive STK Push</p>
+          </div>
+        </div>
+        <div id="mpesaStep1">
+          <div class="form-group">
+            <label class="form-label">Safaricom Phone Number</label>
+            <div style="position:relative;">
+              <span style="position:absolute;left:1rem;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:.875rem;">🇰🇪 +254</span>
+              <input type="tel" id="mpesaPhone" class="form-input" placeholder="712 345 678" style="padding-left:5.5rem;font-family:var(--font-mono);" />
+            </div>
+          </div>
+          <div style="background:rgba(0,166,81,.08);border:1px solid rgba(0,166,81,.2);border-radius:var(--radius-md);padding:1rem;margin-bottom:1.5rem;font-size:.85rem;">
+            <strong style="color:#00A651;">How it works:</strong>
+            <ol style="color:var(--text-muted);margin:.5rem 0 0 1rem;line-height:1.8;">
+              <li>Enter your M-Pesa number and click Pay</li>
+              <li>You'll receive an STK Push on your phone</li>
+              <li>Enter your M-Pesa PIN to confirm payment</li>
+              <li>Your order is confirmed instantly ✓</li>
+            </ol>
+          </div>
+          <div id="mpesaError" style="display:none;color:var(--accent-red);font-size:.875rem;margin-bottom:1rem;"></div>
+          <button onclick="initiateMpesa()" class="btn btn-primary" style="width:100%;justify-content:center;padding:.875rem;background:linear-gradient(135deg,#00A651,#007A3D);">
+            <i class="fa-solid fa-paper-plane"></i> Send M-Pesa Request — KES {{ order.total|floatformat:"0" }}
+          </button>
+        </div>
+        <div id="mpesaStep2" style="display:none;text-align:center;padding:1rem 0;">
+          <div style="font-size:3rem;margin-bottom:1rem;animation:pulse 2s infinite;">📳</div>
+          <h3 style="font-family:var(--font-display);font-weight:700;margin-bottom:.5rem;">Check Your Phone!</h3>
+          <p style="color:var(--text-muted);font-size:.875rem;margin-bottom:1.5rem;">Enter your M-Pesa PIN on the prompt sent to your phone.</p>
+          <div style="background:var(--bg-elevated);border-radius:var(--radius-md);padding:1rem;margin-bottom:1.5rem;">
+            <div style="font-size:.8rem;color:var(--text-muted);">Checkout ID</div>
+            <div id="checkoutIdDisplay" style="font-family:var(--font-mono);font-size:.85rem;word-break:break-all;"></div>
+          </div>
+          <div style="display:flex;gap:.75rem;justify-content:center;">
+            <button onclick="pollMpesa()" class="btn btn-secondary">
+              <i class="fa-solid fa-rotate"></i> Check Status
+            </button>
+            <button onclick="document.getElementById('mpesaStep1').style.display='block';document.getElementById('mpesaStep2').style.display='none';" class="btn btn-ghost btn-sm">Try Again</button>
+          </div>
+          <div id="mpesaStatus" style="margin-top:1rem;font-size:.875rem;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Order Summary Sidebar -->
+    <div style="position:sticky;top:calc(var(--nav-height)+1rem);">
+      <div class="card" style="padding:1.75rem;">
+        <h3 style="font-family:var(--font-display);font-weight:700;margin-bottom:1.25rem;">Order Summary</h3>
+        <div style="display:flex;flex-direction:column;gap:.75rem;margin-bottom:1.25rem;">
+          {% for item in order.items.all %}
+          <div style="display:flex;gap:.75rem;align-items:center;">
+            <div style="width:44px;height:44px;background:var(--bg-secondary);border-radius:8px;flex-shrink:0;overflow:hidden;">
+              {% if item.product and item.product.primary_image %}<img src="{{ item.product.primary_image.image.url }}" style="width:100%;height:100%;object-fit:cover;" />{% else %}<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;">🛍️</div>{% endif %}
+            </div>
+            <div style="flex:1;font-size:.85rem;">
+              <div style="font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:160px;">{{ item.product_name }}</div>
+              <div style="color:var(--text-muted);font-size:.75rem;">× {{ item.quantity }}</div>
+            </div>
+            <div style="font-size:.875rem;font-weight:600;">KES {{ item.total_price|floatformat:"0" }}</div>
+          </div>
+          {% endfor %}
+        </div>
+        <div style="border-top:1px solid var(--border);padding-top:1rem;display:flex;flex-direction:column;gap:.5rem;font-size:.875rem;">
+          <div style="display:flex;justify-content:space-between;"><span style="color:var(--text-muted);">Subtotal</span><span>KES {{ order.subtotal|floatformat:"0" }}</span></div>
+          {% if order.discount_amount %}<div style="display:flex;justify-content:space-between;"><span style="color:var(--accent-green);">Discount</span><span style="color:var(--accent-green);">−KES {{ order.discount_amount|floatformat:"0" }}</span></div>{% endif %}
+          <div style="display:flex;justify-content:space-between;"><span style="color:var(--text-muted);">Shipping</span><span>{% if order.shipping_fee == 0 %}<span style="color:var(--accent-green);">FREE</span>{% else %}KES {{ order.shipping_fee|floatformat:"0" }}{% endif %}</span></div>
+          <div style="display:flex;justify-content:space-between;"><span style="color:var(--text-muted);">VAT</span><span>KES {{ order.tax_amount|floatformat:"0" }}</span></div>
+          <div style="display:flex;justify-content:space-between;padding-top:.625rem;border-top:1px solid var(--border);font-family:var(--font-display);font-weight:700;font-size:1rem;">
+            <span>Total</span>
+            <span style="color:var(--accent-gold);">KES {{ order.total|floatformat:"0" }}</span>
+          </div>
+        </div>
+      </div>
+      <!-- Security badges -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:1rem;">
+        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:.875rem;text-align:center;">
+          <i class="fa-solid fa-shield-halved" style="font-size:1.25rem;color:var(--accent-green);display:block;margin-bottom:.375rem;"></i>
+          <div style="font-size:.7rem;color:var(--text-muted);">256-bit SSL</div>
+        </div>
+        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:.875rem;text-align:center;">
+          <i class="fa-solid fa-lock" style="font-size:1.25rem;color:var(--accent-cyan);display:block;margin-bottom:.375rem;"></i>
+          <div style="font-size:.7rem;color:var(--text-muted);">PCI Compliant</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+// Method tabs
+function switchMethod(method, btn) {
+  document.querySelectorAll('.method-tab').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.pay-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(`panel-${method}`).classList.add('active');
+}
+
+// ── Stripe ────────────────────────────────────────────────
+const stripe   = Stripe('{{ stripe_public_key }}');
+const elements = stripe.elements();
+const cardEl   = elements.create('card', {
+  style: {
+    base: {
+      color: '#f0ede8', fontFamily: '"DM Sans", sans-serif',
+      fontSize: '16px', '::placeholder': { color: '#5a5870' },
+    },
+    invalid: { color: '#ef4444' },
+  }
+});
+cardEl.mount('#card-element');
+cardEl.on('change', e => {
+  document.getElementById('card-errors').textContent = e.error ? e.error.message : '';
+});
+
+async function payWithStripe() {
+  const btn    = document.getElementById('stripePayBtn');
+  const errDiv = document.getElementById('stripeError');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processing...';
+  errDiv.style.display = 'none';
+
+  const { error, paymentIntent } = await stripe.confirmCardPayment(
+    '{{ client_secret }}',
+    { payment_method: { card: cardEl, billing_details: { name: document.getElementById('cardName').value } } }
+  );
+
+  if (error) {
+    errDiv.textContent   = error.message;
+    errDiv.style.display = 'block';
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fa-solid fa-lock"></i> Pay KES {{ order.total|floatformat:"0" }}';
+  } else if (paymentIntent.status === 'succeeded') {
+    btn.innerHTML = '✓ Payment Successful! Redirecting...';
+    const res = await fetch('/payments/stripe/confirm/', {
+      method:'POST', headers:{'Content-Type':'application/json','X-CSRFToken':getCookie('csrftoken')},
+      body: JSON.stringify({payment_intent_id: paymentIntent.id})
+    });
+    const data = await res.json();
+    if (data.redirect) window.location.href = data.redirect;
+  }
+}
+
+// ── M-Pesa ────────────────────────────────────────────────
+let mpesaCheckoutId = '';
+
+async function initiateMpesa() {
+  let phone = document.getElementById('mpesaPhone').value.trim().replace(/\s/g,'');
+  if (phone.startsWith('0')) phone = '254' + phone.slice(1);
+  const errDiv = document.getElementById('mpesaError');
+  errDiv.style.display = 'none';
+
+  const res  = await fetch('/payments/mpesa/initiate/{{ order.order_number }}/', {
+    method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded','X-CSRFToken':getCookie('csrftoken')},
+    body: `mpesa_phone=${encodeURIComponent(phone)}`
+  });
+  const data = await res.json();
+
+  if (data.success) {
+    mpesaCheckoutId = data.checkout_id;
+    document.getElementById('checkoutIdDisplay').textContent = data.checkout_id;
+    document.getElementById('mpesaStep1').style.display = 'none';
+    document.getElementById('mpesaStep2').style.display = 'block';
+    // Auto-poll every 5 seconds
+    let polls = 0;
+    const interval = setInterval(async () => {
+      await pollMpesa();
+      polls++;
+      if (polls > 12) clearInterval(interval); // stop after 60s
+    }, 5000);
+  } else {
+    errDiv.textContent = data.error;
+    errDiv.style.display = 'block';
+  }
+}
+
+async function pollMpesa() {
+  const statusDiv = document.getElementById('mpesaStatus');
+  const res = await fetch('/payments/mpesa/query/', {
+    method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded','X-CSRFToken':getCookie('csrftoken')},
+    body: `checkout_id=${encodeURIComponent(mpesaCheckoutId)}`
+  });
+  const data = await res.json();
+  if (data.status === 'completed') {
+    statusDiv.innerHTML = '<span style="color:var(--accent-green);">✅ Payment confirmed! Redirecting...</span>';
+    setTimeout(() => window.location.href = data.redirect, 1500);
+  } else if (data.status === 'failed') {
+    statusDiv.innerHTML = '<span style="color:var(--accent-red);">❌ Payment failed. Please try again.</span>';
+  } else {
+    statusDiv.innerHTML = '<span style="color:var(--text-muted);">⏳ Waiting for payment confirmation...</span>';
+  }
+}
+</script>
+{% endblock %}

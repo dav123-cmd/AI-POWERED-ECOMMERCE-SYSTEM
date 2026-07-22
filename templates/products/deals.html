@@ -1,0 +1,44 @@
+{% extends 'base.html' %} {% block title %}Hot Deals {% endblock %}<!---->
+{% block content %}
+<div
+  style="
+    background: linear-gradient(
+      135deg,
+      rgba(239, 68, 68, 0.15),
+      rgba(249, 115, 22, 0.1)
+    );
+    border-bottom: 1px solid rgba(239, 68, 68, 0.2);
+    padding: 3rem 0;
+    text-align: center;
+    margin-bottom: 0;
+  "
+>
+  <div class="section-label" style="color: var(--accent-red)">Limited Time</div>
+  <h1
+    style="font-family: var(--font-display); font-size: 3rem; font-weight: 800"
+  >
+    Hot Deals
+  </h1>
+  <p style="color: var(--text-muted); margin-top: 0.5rem">
+    AI-curated discounts updated daily
+  </p>
+</div>
+<div class="container" style="padding-top: 3rem; padding-bottom: 5rem">
+  {% if products %}
+  <div class="grid-products">
+    {% for product in products %}<!---->
+    {% include 'products/partials/product_card.html' %}{% endfor %}
+  </div>
+  {% else %}
+  <div style="text-align: center; padding: 5rem">
+    <div style="font-size: 4rem; margin-bottom: 1rem"></div>
+    <h2 style="font-family: var(--font-display); font-weight: 700">
+      No deals right now
+    </h2>
+    <p style="color: var(--text-muted)">
+      Check back soon — AI is hunting for discounts!
+    </p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

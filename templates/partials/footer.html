@@ -1,0 +1,284 @@
+{% load static %}
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer__grid">
+
+      <!-- Brand Column -->
+      <div>
+        <div class="navbar__logo" style="margin-bottom:0;">
+          <div class="navbar__logo-icon"> <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <defs>
+    <!-- Deep space gradient background -->
+    <radialGradient id="bgGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#0d1b2a"/>
+      <stop offset="100%" stop-color="#050d15"/>
+    </radialGradient>
+
+    <!-- Brain/neural glow -->
+    <radialGradient id="nodeGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#00e5ff" stop-opacity="1"/>
+      <stop offset="100%" stop-color="#0077b6" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Cart gradient -->
+    <linearGradient id="cartGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00e5ff"/>
+      <stop offset="100%" stop-color="#7b2ff7"/>
+    </linearGradient>
+
+    <!-- Pulse glow filter -->
+    <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="2.5" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <filter id="softGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="1.2" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Clip circle -->
+    <clipPath id="circleClip">
+      <circle cx="60" cy="60" r="54"/>
+    </clipPath>
+  </defs>
+
+  <!-- Background circle -->
+  <circle cx="60" cy="60" r="58" fill="url(#bgGrad)" stroke="#00e5ff" stroke-width="0.8" stroke-opacity="0.4"/>
+
+  <!-- Subtle grid lines -->
+  <g clip-path="url(#circleClip)" opacity="0.06" stroke="#00e5ff" stroke-width="0.4">
+    <line x1="0" y1="30" x2="120" y2="30"/>
+    <line x1="0" y1="50" x2="120" y2="50"/>
+    <line x1="0" y1="70" x2="120" y2="70"/>
+    <line x1="0" y1="90" x2="120" y2="90"/>
+    <line x1="20" y1="0" x2="20" y2="120"/>
+    <line x1="40" y1="0" x2="40" y2="120"/>
+    <line x1="60" y1="0" x2="60" y2="120"/>
+    <line x1="80" y1="0" x2="80" y2="120"/>
+    <line x1="100" y1="0" x2="100" y2="120"/>
+  </g>
+
+  <!-- === NEURAL NETWORK SYNAPSES (connections) === -->
+  <g filter="url(#softGlow)" stroke-linecap="round">
+
+    <!-- Left layer → Middle layer connections -->
+    <line x1="26" y1="36" x2="52" y2="28" stroke="#00e5ff" stroke-width="0.9" opacity="0.55"/>
+    <line x1="26" y1="36" x2="52" y2="50" stroke="#00e5ff" stroke-width="0.9" opacity="0.45"/>
+    <line x1="26" y1="60" x2="52" y2="28" stroke="#7b2ff7" stroke-width="0.9" opacity="0.4"/>
+    <line x1="26" y1="60" x2="52" y2="50" stroke="#00e5ff" stroke-width="0.9" opacity="0.55"/>
+    <line x1="26" y1="60" x2="52" y2="72" stroke="#00e5ff" stroke-width="0.9" opacity="0.4"/>
+    <line x1="26" y1="84" x2="52" y2="50" stroke="#7b2ff7" stroke-width="0.9" opacity="0.35"/>
+    <line x1="26" y1="84" x2="52" y2="72" stroke="#00e5ff" stroke-width="0.9" opacity="0.55"/>
+
+    <!-- Middle layer → Right layer connections -->
+    <line x1="52" y1="28" x2="78" y2="36" stroke="#00e5ff" stroke-width="0.9" opacity="0.5"/>
+    <line x1="52" y1="28" x2="78" y2="60" stroke="#7b2ff7" stroke-width="0.9" opacity="0.35"/>
+    <line x1="52" y1="50" x2="78" y2="36" stroke="#00e5ff" stroke-width="0.9" opacity="0.55"/>
+    <line x1="52" y1="50" x2="78" y2="60" stroke="#00e5ff" stroke-width="0.9" opacity="0.45"/>
+    <line x1="52" y1="72" x2="78" y2="60" stroke="#00e5ff" stroke-width="0.9" opacity="0.55"/>
+    <line x1="52" y1="72" x2="78" y2="84" stroke="#7b2ff7" stroke-width="0.9" opacity="0.4"/>
+
+    <!-- Right layer → Output -->
+    <line x1="78" y1="36" x2="96" y2="50" stroke="#00e5ff" stroke-width="0.9" opacity="0.5"/>
+    <line x1="78" y1="60" x2="96" y2="50" stroke="#00e5ff" stroke-width="0.9" opacity="0.55"/>
+    <line x1="78" y1="84" x2="96" y2="72" stroke="#7b2ff7" stroke-width="0.9" opacity="0.4"/>
+    <line x1="78" y1="60" x2="96" y2="72" stroke="#00e5ff" stroke-width="0.9" opacity="0.45"/>
+  </g>
+
+  <!-- === NEURAL NODES === -->
+  <g filter="url(#glow)">
+
+    <!-- Input layer (left) -->
+    <circle cx="26" cy="36" r="4.5" fill="#0d1b2a" stroke="#00e5ff" stroke-width="1.6"/>
+    <circle cx="26" cy="36" r="2" fill="#00e5ff"/>
+    <circle cx="26" cy="60" r="4.5" fill="#0d1b2a" stroke="#00e5ff" stroke-width="1.6"/>
+    <circle cx="26" cy="60" r="2" fill="#00e5ff"/>
+    <circle cx="26" cy="84" r="4.5" fill="#0d1b2a" stroke="#7b2ff7" stroke-width="1.6"/>
+    <circle cx="26" cy="84" r="2" fill="#7b2ff7"/>
+
+    <!-- Hidden layer (middle) -->
+    <circle cx="52" cy="28" r="4.5" fill="#0d1b2a" stroke="#00e5ff" stroke-width="1.6"/>
+    <circle cx="52" cy="28" r="2" fill="#00e5ff"/>
+    <circle cx="52" cy="50" r="5.5" fill="#0d1b2a" stroke="#00e5ff" stroke-width="2"/>
+    <circle cx="52" cy="50" r="2.5" fill="#00e5ff"/>
+    <circle cx="52" cy="72" r="4.5" fill="#0d1b2a" stroke="#7b2ff7" stroke-width="1.6"/>
+    <circle cx="52" cy="72" r="2" fill="#7b2ff7"/>
+
+    <!-- Hidden layer 2 (right-mid) -->
+    <circle cx="78" cy="36" r="4.5" fill="#0d1b2a" stroke="#00e5ff" stroke-width="1.6"/>
+    <circle cx="78" cy="36" r="2" fill="#00e5ff"/>
+    <circle cx="78" cy="60" r="4.5" fill="#0d1b2a" stroke="#00e5ff" stroke-width="1.6"/>
+    <circle cx="78" cy="60" r="2" fill="#00e5ff"/>
+    <circle cx="78" cy="84" r="4.5" fill="#0d1b2a" stroke="#7b2ff7" stroke-width="1.6"/>
+    <circle cx="78" cy="84" r="2" fill="#7b2ff7"/>
+
+    <!-- Output nodes -->
+    <circle cx="96" cy="50" r="5" fill="#0d1b2a" stroke="#00e5ff" stroke-width="2"/>
+    <circle cx="96" cy="50" r="2.5" fill="#00e5ff"/>
+    <circle cx="96" cy="72" r="5" fill="#0d1b2a" stroke="#7b2ff7" stroke-width="2"/>
+    <circle cx="96" cy="72" r="2.5" fill="#7b2ff7"/>
+  </g>
+
+  <!-- === SHOPPING CART (bottom-right, embedded in the neural layer) === -->
+  <g transform="translate(62, 72)" filter="url(#softGlow)">
+    <!-- Cart body -->
+    <path d="M0,0 L3,-8 L18,-8 L15,2 L3,2 Z" fill="none" stroke="url(#cartGrad)" stroke-width="1.8" stroke-linejoin="round"/>
+    <!-- Cart handle -->
+    <path d="M-4,-8 L0,-8" stroke="url(#cartGrad)" stroke-width="1.8" stroke-linecap="round"/>
+    <!-- Cart wheels -->
+    <circle cx="5" cy="5" r="1.8" fill="#00e5ff"/>
+    <circle cx="13" cy="5" r="1.8" fill="#7b2ff7"/>
+  </g>
+
+  <!-- Outer ring accent -->
+  <circle cx="60" cy="60" r="57" fill="none" stroke="#7b2ff7" stroke-width="0.5" stroke-opacity="0.3" stroke-dasharray="4 6"/>
+</svg> </i></div>
+          <span class="navbar__logo-text">Neural<span>Mart</span></span>
+        </div>
+        <p class="footer__brand-desc">
+          The future of e-commerce — powered by artificial intelligence. 
+          Personalized shopping experiences that learn and adapt to you.
+        </p>
+        <div class="footer__socials">
+          <a href="#" class="footer__social-link" aria-label="Twitter/X">
+            <i class="fa-brands fa-x-twitter"></i>
+          </a>
+          <a href="#" class="footer__social-link" aria-label="Instagram">
+            <i class="fa-brands fa-instagram"></i>
+          </a>
+          <a href="#" class="footer__social-link" aria-label="TikTok">
+            <i class="fa-brands fa-tiktok"></i>
+          </a>
+          <a href="#" class="footer__social-link" aria-label="YouTube">
+            <i class="fa-brands fa-youtube"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- Shop Column -->
+      <div>
+        <h4 class="footer__heading">Shop</h4>
+        <div class="footer__links">
+          <a href="{% url 'products:list' %}" class="footer__link">All Products</a>
+          <a href="{% url 'products:categories' %}" class="footer__link">Categories</a>
+          <a href="{% url 'products:deals' %}" class="footer__link">Deals & Offers</a>
+          <a href="{% url 'ai_search:visual' %}" class="footer__link">Visual Search</a>
+          <a href="{% url 'products:new_arrivals' %}" class="footer__link">New Arrivals</a>
+          <a href="{% url 'products:bestsellers' %}" class="footer__link">Best Sellers</a>
+        </div>
+      </div>
+
+      <!-- Account Column -->
+      <div>
+        <h4 class="footer__heading">Account</h4>
+        <div class="footer__links">
+          {% if user.is_authenticated %}
+          <a href="{% url 'users:profile' %}" class="footer__link">My Profile</a>
+          <a href="{% url 'orders:history' %}" class="footer__link">Order History</a>
+          <a href="{% url 'wishlist:index' %}" class="footer__link">Wishlist</a>
+          {% else %}
+          <a href="{% url 'users:register' %}" class="footer__link">Create Account</a>
+          <a href="{% url 'users:login' %}" class="footer__link">Sign In</a>
+          {% endif %}
+          <a href="{% url 'orders:track' %}" class="footer__link">Track Order</a>
+          <a href="#" class="footer__link">Returns & Refunds</a>
+        </div>
+      </div>
+
+      <!-- Info Column -->
+      <div>
+        <h4 class="footer__heading">Info</h4>
+        <div class="footer__links">
+          <a href="#" class="footer__link">About ShopAI</a>
+          <a href="#" class="footer__link">How AI Works</a>
+          <a href="#" class="footer__link">Privacy Policy</a>
+          <a href="#" class="footer__link">Terms of Service</a>
+          <a href="#" class="footer__link">Contact Us</a>
+          <a href="#" class="footer__link">Blog</a>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Newsletter -->
+    <div style="
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 2rem;
+      margin-bottom: 2.5rem;
+      flex-wrap: wrap;
+    ">
+      <div>
+        <div class="section-label">Newsletter</div>
+        <div style="font-family: var(--font-display); font-size: 1.25rem; font-weight: 700;">
+          Get AI-curated deals just for you
+        </div>
+        <div style="color: var(--text-muted); font-size: 0.875rem; margin-top: 0.25rem;">
+          Join 50,000+ smart shoppers. Unsubscribe anytime.
+        </div>
+      </div>
+      <div style="display: flex; gap: 0.75rem; flex-shrink: 0;">
+        <input
+          type="email"
+          placeholder="your@email.com"
+          class="form-input"
+          style="width: 260px; max-width: 100%;"
+          id="newsletterEmail"
+        />
+        <button class="btn btn-primary" onclick="subscribeNewsletter()">
+          Subscribe
+        </button>
+      </div>
+    </div>
+
+    <!-- Bottom Bar -->
+    <div class="footer__bottom">
+      <span>© {% now "Y" %} NeuralMart. All rights reserved.</span>
+      <div class="footer__ai-badge">
+        <i class="fa-solid fa-microchip"></i>
+        Powered by PyTorch AI
+      </div>
+      <div style="display:flex; gap: 1rem;">
+        <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/stripe.svg"
+             style="height:20px; opacity:0.4; filter:invert(1);" alt="Stripe" />
+        <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/paypal.svg"
+             style="height:20px; opacity:0.4; filter:invert(1);" alt="PayPal" />
+      </div>
+    </div>
+
+  </div>
+</footer>
+
+<script>
+function subscribeNewsletter() {
+  const email = document.getElementById('newsletterEmail').value;
+  if (!email || !email.includes('@')) {
+    showToast('Please enter a valid email address.', 'error');
+    return;
+  }
+  fetch('/api/v1/newsletter/', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+    body: JSON.stringify({ email })
+  })
+  .then(r => r.json())
+  .then(() => {
+    showToast('You\'re subscribed! Check your inbox.', 'success');
+    document.getElementById('newsletterEmail').value = '';
+  })
+  .catch(() => showToast('Something went wrong. Try again.', 'error'));
+}
+</script>

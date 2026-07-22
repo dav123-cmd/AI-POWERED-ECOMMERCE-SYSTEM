@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}For You — AI Picks{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top:2.5rem;padding-bottom:5rem;">
+
+  <!-- Header -->
+  <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:2.5rem;flex-wrap:wrap;gap:1rem;">
+    <div>
+      <div style="display:inline-flex;align-items:center;gap:.5rem;padding:.3rem .875rem;background:linear-gradient(135deg,rgba(124,58,237,.15),rgba(0,212,255,.08));border:1px solid rgba(124,58,237,.3);border-radius:20px;font-size:.75rem;color:var(--accent-cyan);font-family:var(--font-mono);margin-bottom:.875rem;">
+        <i class="fa-solid fa-microchip"></i> NEURAL COLLABORATIVE FILTERING
+      </div>
+      <h1 style="font-family:var(--font-display);font-size:2.25rem;font-weight:800;line-height:1.1;">
+        {% if is_personalised %}
+          Picked Just For You, {{ request.user.get_short_name }} 🎯
+        {% else %}
+          Trending Right Now 🔥
+        {% endif %}
+      </h1>
+      <p style="color:var(--text-muted);margin-top:.5rem;font-size:.9rem;">
+        {% if is_personalised %}
+          AI-powered recommendations based on your shopping behaviour
+        {% else %}
+          <a href="{% url 'users:login' %}" style="color:var(--accent-gold);">Sign in</a> to unlock personalised picks
+        {% endif %}
+      </p>
+    </div>
+    <div style="display:flex;gap:.75rem;">
+      <button onclick="refreshRecs()" class="btn btn-secondary btn-sm" id="refreshBtn">
+        <i class="fa-solid fa-rotate"></i> Refresh
+      </button>
+      <a href="{% url 'products:list' %}" class="btn btn-ghost btn-sm">Browse All</a>
+    </div>
+  </div>
+
+  <!-- AI explainability card -->
+  {% if is_personalised %}
+  <div style="background:linear-gradient(135deg,rgba(124,58,237,.08),rgba(0,212,255,.04));border:1px solid rgba(124,58,237,.2);border-radius:var(--radius-lg);padding:1.25rem 1.5rem;margin-bottom:2.5rem;display:flex;align-items:center;gap:1.25rem;flex-wrap:wrap;">
+    <div style="width:44px;height:44px;background:linear-gradient(135deg,#7c3aed,#00d4ff);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;">🧠</div>
+    <div>
+      <div style="font-weight:700;margin-bottom:.25rem;">How we picked these for you</div>
+      <div style="font-size:.8rem;color:var(--text-muted);">
+        Our Neural Collaborative Filtering model analysed your views, wishlist, and purchase history,
+        then found patterns with similar shoppers to surface products you're most likely to love.
+      </div>
+    </div>
+    <div style="margin-left:auto;display:flex;gap:1.5rem;flex-shrink:0;">
+      <div style="text-align:center;">
+        <div style="font-family:var(--font-mono);font-size:1.1rem;font-weight:700;color:var(--accent-cyan);">NCF</div>
+        <div style="font-size:.7rem;color:var(--text-muted);">Model</div>
+      </div>
+      <div style="text-align:center;">
+        <div style="font-family:var(--font-mono);font-size:1.1rem;font-weight:700;color:var(--accent-gold);">64</div>
+        <div style="font-size:.7rem;color:var(--text-muted);">Embed Dim</div>
+      </div>
+      <div style="text-align:center;">
+        <div style="font-family:var(--font-mono);font-size:1.1rem;font-weight:700;color:var(--accent-green);">24h</div>
+        <div style="font-size:.7rem;color:var(--text-muted);">Refresh</div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Products grid -->
+  {% if products %}
+  <div class="grid-products" id="recsGrid">
+    {% for product in products %}
+    {% include 'products/partials/product_card.html' %}
+    {% endfor %}
+  </div>
+  {% else %}
+  <div style="text-align:center;padding:5rem 2rem;">
+    <div style="font-size:4rem;margin-bottom:1rem;">🛍️</div>
+    <h2 style="font-family:var(--font-display);font-weight:700;margin-bottom:.75rem;">Building your profile...</h2>
+    <p style="color:var(--text-muted);margin-bottom:1.5rem;">Browse and interact with some products so our AI can learn your taste!</p>
+    <a href="{% url 'products:list' %}" class="btn btn-primary">Start Exploring</a>
+  </div>
+  {% endif %}
+
+  <!-- Trending Section (always show) -->
+  <div style="margin-top:4rem;">
+    <div class="section-header">
+      <div>
+        <div class="section-label">Platform-Wide</div>
+        <h2 class="section-title" style="font-size:1.75rem;">What Everyone's Buying 🔥</h2>
+      </div>
+    </div>
+    <div class="grid-products" id="trendingGrid">
+      <!-- Loaded via AJAX -->
+      {% for i in '12345678'|make_list %}
+      <div class="skeleton" style="height:320px;border-radius:var(--radius-lg);"></div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Load trending on page load
+document.addEventListener('DOMContentLoaded', () => loadTrending());
+
+async function loadTrending() {
+  const res  = await fetch('/ai/recommend/trending/?limit=8', {
+    headers: {'X-Requested-With': 'XMLHttpRequest'}
+  });
+  const data = await res.json();
+  renderProductCards(data.products, 'trendingGrid');
+}
+
+async function refreshRecs() {
+  const btn = document.getElementById('refreshBtn');
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Refreshing...';
+  btn.disabled = true;
+  // Invalidate cache and reload page
+  await fetch('/ai/recommend/for-you/?bust=1');
+  window.location.reload();
+}
+
+function renderProductCards(products, containerId) {
+  const grid = document.getElementById(containerId);
+  if (!grid || !products.length) return;
+  grid.innerHTML = products.map(p => `
+    <div class="product-card" data-animate>
+      <div class="product-card__image">
+        ${p.image
+          ? `<img src="${p.image}" alt="${p.name}" loading="lazy" />`
+          : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:4rem;background:var(--bg-secondary);">🛍️</div>`
+        }
+        ${p.discount > 0 ? `<div class="product-card__badges"><span class="badge badge-sale">-${p.discount}%</span></div>` : ''}
+        <div class="product-card__actions">
+          <button class="product-card__action-btn" onclick="toggleWishlist('${p.id}',this)"><i class="fa-regular fa-heart"></i></button>
+        </div>
+      </div>
+      <div class="product-card__body">
+        <div class="product-card__category">${p.category}</div>
+        <a href="${p.url}"><h3 class="product-card__name">${p.name}</h3></a>
+        <div class="product-card__rating">
+          <div class="stars">${Array.from({length:5}, (_,i) => `<i class="fa-${i < Math.round(p.rating) ? 'solid' : 'regular'} fa-star"></i>`).join('')}</div>
+        </div>
+        <div class="product-card__price-row">
+          <span class="product-card__price">KES ${Math.round(p.price).toLocaleString()}</span>
+          <button class="product-card__add-btn" onclick="addToCart('${p.id}',1,this)"><i class="fa-solid fa-plus"></i></button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+</script>
+{% endblock %}

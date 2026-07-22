@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% block title %}Invoice {{ invoice.invoice_number }}{% endblock %}
+{% block content %}
+<div class="container" style="padding-top:2.5rem;padding-bottom:5rem;max-width:760px;">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem;flex-wrap:wrap;gap:1rem;">
+    <div>
+      <h1 style="font-family:var(--font-display);font-size:2rem;font-weight:800;">Invoice</h1>
+      <div style="font-family:var(--font-mono);color:var(--accent-gold);">{{ invoice.invoice_number }}</div>
+    </div>
+    <a href="{% url 'payments:download_invoice' order.order_number %}" class="btn btn-primary">
+      <i class="fa-solid fa-file-pdf"></i> Download PDF
+    </a>
+  </div>
+
+  <div class="card" style="padding:2.5rem;">
+    <!-- Header -->
+    <div style="display:flex;justify-content:space-between;margin-bottom:2.5rem;flex-wrap:wrap;gap:1.5rem;">
+      <div>
+        <div style="font-family:var(--font-display);font-size:1.5rem;font-weight:800;">Shop<span style="color:var(--accent-gold)">AI</span></div>
+        <div style="font-size:.8rem;color:var(--text-muted);">support@shopai.com</div>
+        <div style="font-size:.8rem;color:var(--text-muted);">www.shopai.com</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:.75rem;color:var(--text-muted);">INVOICE NUMBER</div>
+        <div style="font-family:var(--font-mono);font-weight:700;">{{ invoice.invoice_number }}</div>
+        <div style="font-size:.75rem;color:var(--text-muted);margin-top:.5rem;">DATE</div>
+        <div>{{ invoice.created_at|date:"d M Y" }}</div>
+      </div>
+    </div>
+
+    <!-- Bill To -->
+    <div style="background:var(--bg-secondary);border-radius:var(--radius-md);padding:1.25rem;margin-bottom:2rem;">
+      <div style="font-size:.7rem;color:var(--accent-gold);font-family:var(--font-mono);text-transform:uppercase;margin-bottom:.5rem;">BILL TO</div>
+      <div style="font-weight:600;">{{ order.shipping_name }}</div>
+      <div style="font-size:.875rem;color:var(--text-secondary);">{{ order.email }}</div>
+      <div style="font-size:.875rem;color:var(--text-secondary);">{{ order.shipping_line1 }}, {{ order.shipping_city }}, {{ order.shipping_country }}</div>
+    </div>
+
+    <!-- Items Table -->
+    <table style="width:100%;border-collapse:collapse;margin-bottom:1.5rem;">
+      <thead>
+        <tr style="background:var(--bg-secondary);">
+          <th style="padding:.75rem;text-align:left;font-size:.8rem;color:var(--accent-gold);font-family:var(--font-mono);">PRODUCT</th>
+          <th style="padding:.75rem;text-align:center;font-size:.8rem;color:var(--accent-gold);font-family:var(--font-mono);">QTY</th>
+          <th style="padding:.75rem;text-align:right;font-size:.8rem;color:var(--accent-gold);font-family:var(--font-mono);">UNIT PRICE</th>
+          <th style="padding:.75rem;text-align:right;font-size:.8rem;color:var(--accent-gold);font-family:var(--font-mono);">TOTAL</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in order.items.all %}
+        <tr style="border-bottom:1px solid var(--border);">
+          <td style="padding:.875rem .75rem;">
+            <div style="font-weight:500;">{{ item.product_name }}</div>
+            {% if item.variant_info %}<div style="font-size:.75rem;color:var(--text-muted);">{{ item.variant_info }}</div>{% endif %}
+            <div style="font-size:.75rem;color:var(--text-muted);font-family:var(--font-mono);">{{ item.sku }}</div>
+          </td>
+          <td style="padding:.875rem .75rem;text-align:center;">{{ item.quantity }}</td>
+          <td style="padding:.875rem .75rem;text-align:right;">KES {{ item.unit_price|floatformat:"2" }}</td>
+          <td style="padding:.875rem .75rem;text-align:right;font-weight:600;">KES {{ item.total_price|floatformat:"2" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <!-- Totals -->
+    <div style="margin-left:auto;max-width:260px;display:flex;flex-direction:column;gap:.5rem;">
+      <div style="display:flex;justify-content:space-between;font-size:.875rem;"><span style="color:var(--text-muted);">Subtotal</span><span>KES {{ order.subtotal|floatformat:"2" }}</span></div>
+      {% if order.discount_amount %}<div style="display:flex;justify-content:space-between;font-size:.875rem;"><span style="color:var(--accent-green);">Discount</span><span style="color:var(--accent-green);">−KES {{ order.discount_amount|floatformat:"2" }}</span></div>{% endif %}
+      <div style="display:flex;justify-content:space-between;font-size:.875rem;"><span style="color:var(--text-muted);">Shipping</span><span>{% if order.shipping_fee == 0 %}FREE{% else %}KES {{ order.shipping_fee|floatformat:"2" }}{% endif %}</span></div>
+      <div style="display:flex;justify-content:space-between;font-size:.875rem;"><span style="color:var(--text-muted);">VAT (16%)</span><span>KES {{ order.tax_amount|floatformat:"2" }}</span></div>
+      <div style="display:flex;justify-content:space-between;padding:1rem;background:linear-gradient(135deg,var(--accent-gold),#a07830);border-radius:var(--radius-md);margin-top:.5rem;">
+        <span style="font-family:var(--font-display);font-weight:800;color:var(--bg-primary);">TOTAL</span>
+        <span style="font-family:var(--font-display);font-weight:800;color:var(--bg-primary);">KES {{ order.total|floatformat:"2" }}</span>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

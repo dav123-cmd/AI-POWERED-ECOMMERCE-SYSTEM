@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"/><title>Verify your email — NeuralMart</title></head>
+<body style="margin:0;padding:0;background:#0a0a0f;font-family:'DM Sans',Arial,sans-serif;color:#f0ede8;">
+<div style="max-width:560px;margin:40px auto;background:#13131e;border-radius:20px;overflow:hidden;border:1px solid rgba(255,255,255,0.07);">
+  <div style="background:linear-gradient(135deg,#c9a84c,#a07830);padding:2.5rem;text-align:center;">
+    <div style="font-size:2.5rem;margin-bottom:.5rem;"></div>
+    <h1 style="margin:0;font-size:1.5rem;font-weight:800;color:#0a0a0f;">NeuralMart</h1>
+  </div>
+  <div style="padding:2.5rem;">
+    <h2 style="font-size:1.4rem;font-weight:700;margin-bottom:1rem;">Verify your email, {{ user.get_short_name }} </h2>
+    <p style="color:#9996a0;line-height:1.7;margin-bottom:2rem;">
+      Welcome to NeuralMart Click the button below to verify your email and unlock your full AI-powered shopping experience.
+    </p>
+    <a href="{{ verify_url }}" style="display:inline-block;padding:1rem 2rem;background:linear-gradient(135deg,#c9a84c,#a07830);color:#0a0a0f;text-decoration:none;border-radius:10px;font-weight:700;font-size:1rem;">
+       Verify My Email
+    </a>
+    <p style="color:#5a5870;font-size:0.8rem;margin-top:2rem;">
+      This link expires in 24 hours. If you didn't create an account, ignore this email.
+    </p>
+  </div>
+</div>
+</body>
+</html>

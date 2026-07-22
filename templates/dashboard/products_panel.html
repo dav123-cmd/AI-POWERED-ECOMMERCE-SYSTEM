@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Products Management{% endblock %}
+{% block content %}
+<div class="dash-layout">
+  {% include 'dashboard/partials/sidebar.html' with active='products' %}
+  <main class="dash-main">
+
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem;">
+      <h1 style="font-family:var(--font-display);font-size:1.75rem;font-weight:800;">Products</h1>
+      <div style="display:flex;gap:.625rem;">
+        <span style="padding:.375rem .875rem;background:rgba(16,185,129,.1);border-radius:12px;font-size:.8rem;color:var(--accent-green);">{{ active_count }} Active</span>
+        <span style="padding:.375rem .875rem;background:rgba(234,179,8,.1);border-radius:12px;font-size:.8rem;color:#eab308;">{{ low_stock_count }} Low Stock</span>
+        <span style="padding:.375rem .875rem;background:rgba(239,68,68,.1);border-radius:12px;font-size:.8rem;color:var(--accent-red);">{{ out_of_stock_count }} Out of Stock</span>
+        <span style="padding:.375rem .875rem;background:var(--bg-elevated);border-radius:12px;font-size:.8rem;color:var(--text-muted);">{{ total_count }} Total</span>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <form method="get" style="display:flex;gap:.75rem;margin-bottom:1.5rem;flex-wrap:wrap;">
+      <input type="text" name="q" value="{{ search }}" class="form-input" placeholder="Search name or SKU..." style="width:240px;" />
+      <select name="category" class="form-input" style="width:auto;" onchange="this.form.submit()">
+        <option value="">All Categories</option>
+        {% for cat in categories %}
+        <option value="{{ cat.id }}" {% if selected_category == cat.id|stringformat:"s" %}selected{% endif %}>{{ cat.name }}</option>
+        {% endfor %}
+      </select>
+      <select name="sort" class="form-input" style="width:auto;" onchange="this.form.submit()">
+        <option value="-created_at"      {% if sort == '-created_at' %}selected{% endif %}>Newest First</option>
+        <option value="name"             {% if sort == 'name' %}selected{% endif %}>Name A–Z</option>
+        <option value="price"            {% if sort == 'price' %}selected{% endif %}>Price: Low → High</option>
+        <option value="-price"           {% if sort == '-price' %}selected{% endif %}>Price: High → Low</option>
+        <option value="stock"            {% if sort == 'stock' %}selected{% endif %}>Stock: Low → High</option>
+        <option value="-stock"           {% if sort == '-stock' %}selected{% endif %}>Stock: High → Low</option>
+        <option value="-purchase_count"  {% if sort == '-purchase_count' %}selected{% endif %}>Best Selling</option>
+        <option value="-rating_avg"      {% if sort == '-rating_avg' %}selected{% endif %}>Top Rated</option>
+      </select>
+      <label style="display:flex;align-items:center;gap:.5rem;font-size:.85rem;color:var(--text-secondary);background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-sm);padding:0 .875rem;">
+        <input type="checkbox" name="low_stock" value="1" {% if low_stock_filter %}checked{% endif %} onchange="this.form.submit()" style="accent-color:var(--accent-gold);" />
+        Low stock only
+      </label>
+      <button type="submit" class="btn btn-secondary btn-sm">Filter</button>
+      <a href="{% url 'dashboard:products' %}" class="btn btn-ghost btn-sm">Clear</a>
+      <a href="/admin/products/product/add/" class="btn btn-primary btn-sm" style="margin-left:auto;">
+        <i class="fa-solid fa-plus"></i> New Product
+      </a>
+    </form>
+
+    <!-- Table -->
+    <div class="dash-panel">
+      <div style="overflow-x:auto;">
+        <table class="dash-table">
+          <thead><tr style="background:var(--bg-secondary);">
+            <th>Product</th>
+            <th>Category</th>
+            <th>Price</th>
+            <th>AI Price</th>
+            <th>Stock</th>
+            <th>Rating</th>
+            <th>Sold</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr></thead>
+          <tbody>
+            {% for product in products %}
+            <tr id="product-row-{{ product.id }}">
+              <td>
+                <div style="display:flex;align-items:center;gap:.75rem;">
+                  <div style="width:38px;height:38px;border-radius:8px;background:var(--bg-elevated);overflow:hidden;flex-shrink:0;">
+                    {% if product.primary_image %}<img src="{{ product.primary_image.image.url }}" style="width:100%;height:100%;object-fit:cover;" />{% else %}<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:1rem;">🛍️</div>{% endif %}
+                  </div>
+                  <div style="min-width:0;">
+                    <a href="{{ product.get_absolute_url }}" target="_blank" style="font-size:.85rem;font-weight:600;color:var(--text-primary);display:block;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ product.name }}</a>
+                    <div style="font-size:.7rem;color:var(--text-muted);font-family:var(--font-mono);">{{ product.sku }}</div>
+                  </div>
+                </div>
+              </td>
+              <td style="font-size:.8rem;color:var(--text-muted);white-space:nowrap;">{{ product.category.name|default:"—" }}</td>
+              <td style="font-family:var(--font-mono);font-size:.85rem;white-space:nowrap;">KES {{ product.price|floatformat:"0" }}</td>
+              <td style="font-family:var(--font-mono);font-size:.85rem;white-space:nowrap;color:{% if product.ai_price %}var(--accent-gold){% else %}var(--text-muted){% endif %};">
+                {% if product.ai_price %}KES {{ product.ai_price|floatformat:"0" }}{% else %}—{% endif %}
+              </td>
+              <td>
+                <span style="font-family:var(--font-mono);font-weight:700;font-size:.85rem;
+                  {% if product.stock == 0 %}color:var(--accent-red);
+                  {% elif product.stock <= product.low_stock_threshold %}color:#eab308;
+                  {% else %}color:var(--accent-green);{% endif %}">
+                  {{ product.stock }}
+                </span>
+              </td>
+              <td style="font-size:.8rem;white-space:nowrap;"><span style="color:var(--accent-gold);">★</span> {{ product.rating_avg|floatformat:"1" }} <span style="color:var(--text-muted);">({{ product.rating_count }})</span></td>
+              <td style="font-size:.8rem;text-align:center;">{{ product.purchase_count }}</td>
+              <td>
+                <button onclick="toggleProductStatus('{{ product.id }}', this)"
+                        style="padding:.2rem .625rem;border-radius:10px;font-size:.7rem;font-family:var(--font-mono);border:none;cursor:pointer;
+                          {% if product.is_active %}background:rgba(16,185,129,.15);color:var(--accent-green);{% else %}background:rgba(239,68,68,.12);color:var(--accent-red);{% endif %}">
+                  {% if product.is_active %}● Active{% else %}○ Inactive{% endif %}
+                </button>
+              </td>
+              <td>
+                <div style="display:flex;gap:.5rem;">
+                  <a href="/admin/products/product/{{ product.id }}/change/" target="_blank" style="font-size:.8rem;color:var(--accent-cyan);">Edit</a>
+                  <a href="{{ product.get_absolute_url }}" target="_blank" style="font-size:.8rem;color:var(--text-muted);">View</a>
+                </div>
+              </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="9" style="padding:3rem;text-align:center;color:var(--text-muted);">No products found</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <!-- Pagination -->
+      {% if page_obj.has_other_pages %}
+      <div style="display:flex;justify-content:center;gap:.5rem;padding:1rem;border-top:1px solid var(--border);">
+        {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}&q={{ search }}&sort={{ sort }}" class="btn btn-ghost btn-sm">←</a>{% endif %}
+        <span style="padding:.5rem 1rem;font-size:.8rem;color:var(--text-muted);">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}&q={{ search }}&sort={{ sort }}" class="btn btn-ghost btn-sm">→</a>{% endif %}
+      </div>
+      {% endif %}
+    </div>
+
+  </main>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+async function toggleProductStatus(productId, btn) {
+  btn.style.opacity = '.5';
+  const res  = await fetch(`/dashboard/products/${productId}/toggle/`, {
+    method:'POST', headers:{'X-CSRFToken':getCookie('csrftoken')}
+  });
+  const data = await res.json();
+  btn.style.opacity = '1';
+  if (data.success) {
+    btn.textContent = data.is_active ? '● Active' : '○ Inactive';
+    btn.style.background = data.is_active ? 'rgba(16,185,129,.15)' : 'rgba(239,68,68,.12)';
+    btn.style.color      = data.is_active ? 'var(--accent-green)' : 'var(--accent-red)';
+    showToast(`Product ${data.is_active ? 'activated' : 'deactivated'}`, 'success');
+  }
+}
+</script>
+{% endblock %}

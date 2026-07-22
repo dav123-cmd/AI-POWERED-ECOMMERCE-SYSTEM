@@ -1,0 +1,81 @@
+{% comment %}
+"Frequently Bought Together" widget for product detail pages.
+Usage: {% include 'ai_recommendations/partials/bought_together.html' with product=product %}
+{% endcomment %}
+
+<div id="boughtTogetherWidget" data-product-id="{{ product.id }}" style="display:none;">
+  <div style="margin-bottom:1.25rem;">
+    <div style="font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--accent-gold);font-family:var(--font-mono);margin-bottom:.375rem;">
+      Customers Also Buy
+    </div>
+    <h3 style="font-family:var(--font-display);font-weight:700;font-size:1.1rem;">
+      Frequently Bought Together
+    </h3>
+  </div>
+
+  <div id="boughtTogetherGrid" style="display:flex;gap:.875rem;overflow-x:auto;scrollbar-width:none;padding-bottom:.5rem;"></div>
+
+  <div id="boughtTogetherTotal" style="display:none;margin-top:1.25rem;padding:1rem;background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-md);">
+    <div style="display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <div style="font-size:.8rem;color:var(--text-muted);">Bundle Price</div>
+        <div id="bundleTotalPrice" style="font-family:var(--font-display);font-weight:800;font-size:1.25rem;color:var(--accent-gold);"></div>
+      </div>
+      <button onclick="addBundleToCart()" class="btn btn-primary btn-sm">
+        <i class="fa-solid fa-bag-shopping"></i> Add Bundle to Cart
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+(async function loadBoughtTogether() {
+  const widget    = document.getElementById('boughtTogetherWidget');
+  const productId = widget?.dataset.productId;
+  if (!productId) return;
+
+  const res  = await fetch(`/ai/recommend/bought-together/${productId}/`);
+  const data = await res.json();
+  if (!data.success || !data.products.length) return;
+
+  const grid = document.getElementById('boughtTogetherGrid');
+  let bundleTotal = {{ product.effective_price }};
+  const bundleIds = ['{{ product.id }}'];
+
+  grid.innerHTML = data.products.map(p => {
+    bundleTotal += p.price;
+    bundleIds.push(p.id);
+    return `
+    <div style="flex-shrink:0;width:140px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;transition:var(--transition);" onmouseover="this.style.borderColor='var(--border-accent)'" onmouseout="this.style.borderColor='var(--border)'">
+      <a href="${p.url}">
+        <div style="height:110px;background:var(--bg-secondary);overflow:hidden;">
+          ${p.image ? `<img src="${p.image}" style="width:100%;height:100%;object-fit:cover;" />` : '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:2.5rem;">🛍️</div>'}
+        </div>
+        <div style="padding:.625rem;">
+          <div style="font-size:.75rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:.25rem;">${p.name}</div>
+          <div style="font-size:.8rem;color:var(--accent-gold);font-weight:700;">KES ${Math.round(p.price).toLocaleString()}</div>
+        </div>
+      </a>
+    </div>`;
+  }).join('');
+
+  // Show total
+  document.getElementById('bundleTotalPrice').textContent = `KES ${Math.round(bundleTotal).toLocaleString()}`;
+  document.getElementById('boughtTogetherTotal').style.display = 'block';
+  widget.style.display = 'block';
+
+  window._bundleIds = bundleIds;
+})();
+
+async function addBundleToCart() {
+  const ids = window._bundleIds || [];
+  for (const id of ids) {
+    await fetch('/orders/cart/add/', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','X-CSRFToken':getCookie('csrftoken')},
+      body: JSON.stringify({product_id: id, quantity: 1})
+    });
+  }
+  showToast(`Bundle added to cart! 🛍️`, 'success');
+}
+</script>

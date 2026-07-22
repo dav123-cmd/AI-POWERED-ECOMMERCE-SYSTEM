@@ -1,0 +1,128 @@
+
+<style>
+/* Company Values Section Styling */
+.section {
+  padding: 5rem 2rem;
+  background-color: #0d0d0d; /* Matches the sleek dark background */
+  color: #ffffff;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: 4rem;
+}
+
+.section-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  text-transform: uppercase;
+  color: #ffffff;
+  position: relative;
+  display: inline-block;
+}
+
+/* Subtle gold underline accent for the header */
+.section-title::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -10px;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 3px;
+  background-color: var(--accent-gold, #ffd700);
+  border-radius: 2px;
+}
+
+/* Grid Container Adjustments */
+.grid-container {
+  margin-top: 2rem;
+}
+
+/* UI Card Enhancements */
+.ui-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 2.5rem 1.5rem;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  backdrop-filter: blur(10px);
+}
+
+/* Smooth hover effects */
+.ui-card:hover {
+  transform: translateY(-8px);
+  background: rgba(255, 255, 255, 0.05);
+  border-color: var(--accent-gold, #ffd700);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5), 
+              0 0 15px rgba(255, 215, 0, 0.1);
+}
+
+/* Icon Animations */
+.ui-card .fa-2x {
+  transition: transform 0.3s ease;
+}
+
+.ui-card:hover .fa-2x {
+  transform: scale(1.15);
+}
+
+/* Card Content Typography */
+.ui-card__title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-top: 1rem;
+  margin-bottom: 0.75rem;
+  color: #ffffff;
+  letter-spacing: 0.5px;
+}
+
+.ui-card__text {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: #a0a0a0; /* Clean readable gray text */
+}
+
+/* Empty State Styling */
+.ui-card[style*="grid-column: 1 / -1"] {
+  border-style: dashed;
+  background: rgba(255, 255, 255, 0.01);
+  padding: 4rem 2rem;
+}
+</style>
+<section class="section">
+  <div class="container">
+    <div class="section-header">
+      <h1 class="section-title">Company Values</h1>
+    </div>
+
+    <div class="grid-container" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
+      {% for value in values %}
+        <div class="ui-card">
+          <div class="ui-card__body" style="text-align:center;">
+            <i class="{{ value.icon }} fa-2x" style="color:var(--accent-gold); margin-bottom:1rem;"></i>
+            <h3 class="ui-card__title">{{ value.title }}</h3>
+            <p class="ui-card__text">{{ value.description }}</p>
+          </div>
+        </div>
+      {% empty %}
+        <div class="ui-card" style="grid-column: 1 / -1; text-align:center;">
+          <div class="ui-card__body">
+            <h3 class="ui-card__title">No company values yet</h3>
+            <p class="ui-card__text">Add at least one CompanyValue record in the admin panel to show this section.</p>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+
+
+

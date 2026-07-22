@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% block title %}Edit Profile{% endblock %}
+{% block content %}
+<div class="container" style="padding-top:3rem;padding-bottom:5rem;max-width:680px;">
+  <div style="margin-bottom:2rem;">
+    <a href="{% url 'users:profile' %}" style="color:var(--text-muted);font-size:0.875rem;">
+      <i class="fa-solid fa-arrow-left"></i> Back to Profile
+    </a>
+  </div>
+  <h1 style="font-family:var(--font-display);font-size:2rem;font-weight:800;margin-bottom:0.5rem;">Edit Profile</h1>
+  <p style="color:var(--text-muted);margin-bottom:2.5rem;">Update your personal information</p>
+
+  <div class="card" style="padding:2rem;">
+    <!-- Avatar Preview -->
+    <div style="display:flex;align-items:center;gap:1.5rem;margin-bottom:2rem;padding-bottom:2rem;border-bottom:1px solid var(--border);">
+      <img src="{{ user.avatar_url }}" id="avatarPreview" alt="Avatar"
+           style="width:80px;height:80px;border-radius:50%;border:2px solid var(--border-accent);object-fit:cover;" />
+      <div>
+        <label for="id_avatar" style="cursor:pointer;" class="btn btn-secondary btn-sm">
+          <i class="fa-solid fa-camera"></i> Change Photo
+        </label>
+        <p style="color:var(--text-muted);font-size:0.75rem;margin-top:0.5rem;">JPG, PNG or GIF. Max 2MB.</p>
+      </div>
+    </div>
+
+    <form method="post" enctype="multipart/form-data" novalidate>
+      {% csrf_token %}
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+        <div class="form-group">
+          <label class="form-label">First Name</label>
+          <input type="text" name="first_name" class="form-input" value="{{ form.first_name.value|default:user.first_name }}" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Last Name</label>
+          <input type="text" name="last_name" class="form-input" value="{{ form.last_name.value|default:user.last_name }}" required />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Phone Number</label>
+        <input type="tel" name="phone" class="form-input" value="{{ form.phone.value|default:user.phone }}" placeholder="+254 700 000 000" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Bio</label>
+        <textarea name="bio" class="form-input" rows="3" placeholder="Tell us a bit about yourself...">{{ form.bio.value|default:user.bio }}</textarea>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+        <div class="form-group">
+          <label class="form-label">Date of Birth</label>
+          <input type="date" name="date_of_birth" class="form-input" value="{{ user.date_of_birth|date:'Y-m-d'|default:'' }}" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Gender</label>
+          <select name="gender" class="form-input">
+            <option value="">Prefer not to say</option>
+            <option value="M" {% if user.gender == 'M' %}selected{% endif %}>Male</option>
+            <option value="F" {% if user.gender == 'F' %}selected{% endif %}>Female</option>
+            <option value="O" {% if user.gender == 'O' %}selected{% endif %}>Other</option>
+          </select>
+        </div>
+      </div>
+      <!-- Hidden file input -->
+      <input type="file" name="avatar" id="id_avatar" accept="image/*" style="display:none;" onchange="previewAvatar(this)" />
+      <div style="display:flex;gap:1rem;margin-top:0.5rem;">
+        <button type="submit" class="btn btn-primary">
+          <i class="fa-solid fa-floppy-disk"></i> Save Changes
+        </button>
+        <a href="{% url 'users:profile' %}" class="btn btn-ghost">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+function previewAvatar(input){
+  if(input.files&&input.files[0]){
+    const reader=new FileReader();
+    reader.onload=e=>document.getElementById('avatarPreview').src=e.target.result;
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+</script>
+{% endblock %}

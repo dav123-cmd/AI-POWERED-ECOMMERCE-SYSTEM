@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Orders Management{% endblock %}
+{% block content %}
+<div class="dash-layout">
+  {% include 'dashboard/partials/sidebar.html' with active='orders' %}
+  <main class="dash-main">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem;">
+      <h1 style="font-family:var(--font-display);font-size:1.75rem;font-weight:800;">Orders</h1>
+      <div style="display:flex;gap:.625rem;">
+        <span style="padding:.375rem .875rem;background:rgba(201,168,76,.1);border-radius:12px;font-size:.8rem;color:var(--accent-gold);">{{ stats.pending }} Pending</span>
+        <span style="padding:.375rem .875rem;background:rgba(0,212,255,.1);border-radius:12px;font-size:.8rem;color:var(--accent-cyan);">{{ stats.processing }} Processing</span>
+        <span style="padding:.375rem .875rem;background:rgba(124,58,237,.1);border-radius:12px;font-size:.8rem;color:#a78bfa;">{{ stats.shipped }} Shipped</span>
+      </div>
+    </div>
+    <!-- Filters -->
+    <form method="get" style="display:flex;gap:.75rem;margin-bottom:1.5rem;flex-wrap:wrap;">
+      <input type="text" name="q" value="{{ search }}" class="form-input" placeholder="Search order # or customer..." style="width:240px;" />
+      <select name="status" class="form-input" style="width:auto;" onchange="this.form.submit()">
+        <option value="">All Status</option>
+        {% for val, label in status_choices %}
+        <option value="{{ val }}" {% if status_filter == val %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+      <button type="submit" class="btn btn-secondary btn-sm">Filter</button>
+      <a href="{% url 'dashboard:orders' %}" class="btn btn-ghost btn-sm">Clear</a>
+    </form>
+    <!-- Table -->
+    <div class="dash-panel">
+      <div style="overflow-x:auto;">
+        <table class="dash-table">
+          <thead><tr style="background:var(--bg-secondary);">
+            <th>Order #</th>
+            <th>Customer</th>
+            <th>Email</th>
+            <th>Items</th>
+            <th>Total</th>
+            <th>Status</th>
+            <th>Payment</th>
+            <th>Fraud</th>
+            <th>Date</th>
+            <th>Action</th>
+          </tr></thead>
+          <tbody>
+            {% for order in orders %}
+            <tr id="order-row-{{ order.order_number }}">
+              <td><a href="{% url 'orders:order_detail' order.order_number %}" style="font-family:var(--font-mono);font-size:.8rem;color:var(--accent-gold);">{{ order.order_number }}</a></td>
+              <td style="font-size:.85rem;white-space:nowrap;">{{ order.shipping_name|truncatewords:2 }}</td>
+              <td style="font-size:.8rem;color:var(--text-muted);">{{ order.email|truncatechars:22 }}</td>
+              <td style="text-align:center;font-size:.85rem;">{{ order.items.count }}</td>
+              <td style="font-family:var(--font-display);font-weight:700;font-size:.9rem;white-space:nowrap;">KES {{ order.total|floatformat:"0" }}</td>
+              <td>
+                <select onchange="updateStatus('{{ order.order_number }}',this.value)"
+                        style="background:var(--bg-elevated);border:1px solid var(--border);border-radius:6px;padding:.25rem .5rem;font-size:.75rem;color:var(--text-primary);cursor:pointer;">
+                  {% for val, label in status_choices %}
+                  <option value="{{ val }}" {% if order.status == val %}selected{% endif %}>{{ label }}</option>
+                  {% endfor %}
+                </select>
+              </td>
+              <td>
+                <span style="padding:.2rem .5rem;border-radius:8px;font-size:.7rem;font-family:var(--font-mono);
+                  {% if order.payment_status == 'paid' %}background:rgba(16,185,129,.15);color:var(--accent-green);
+                  {% elif order.payment_status == 'refunded' %}background:rgba(239,68,68,.12);color:var(--accent-red);
+                  {% else %}background:rgba(201,168,76,.12);color:var(--accent-gold);{% endif %}">
+                  {{ order.payment_status }}
+                </span>
+              </td>
+              <td>
+                <span style="font-family:var(--font-mono);font-size:.8rem;
+                  {% if order.fraud_score >= 0.18 %}color:var(--accent-red);font-weight:700;
+                  {% elif order.fraud_score >= 0.10 %}color:#f97316;
+                  {% else %}color:var(--text-muted);{% endif %}">
+                  {{ order.fraud_score|floatformat:"3" }}
+                </span>
+              </td>
+              <td style="font-size:.8rem;color:var(--text-muted);white-space:nowrap;">{{ order.created_at|date:"M d, Y" }}</td>
+              <td>
+                <a href="{% url 'orders:order_detail' order.order_number %}" style="font-size:.8rem;color:var(--accent-cyan);">View</a>
+              </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="10" style="padding:3rem;text-align:center;color:var(--text-muted);">No orders found</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <!-- Pagination -->
+      {% if page_obj.has_other_pages %}
+      <div style="display:flex;justify-content:center;gap:.5rem;padding:1rem;border-top:1px solid var(--border);">
+        {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}&status={{ status_filter }}&q={{ search }}" class="btn btn-ghost btn-sm">←</a>{% endif %}
+        <span style="padding:.5rem 1rem;font-size:.8rem;color:var(--text-muted);">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}&status={{ status_filter }}&q={{ search }}" class="btn btn-ghost btn-sm">→</a>{% endif %}
+      </div>
+      {% endif %}
+    </div>
+  </main>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+async function updateStatus(orderNum, status) {
+  const res  = await fetch(`/dashboard/orders/${orderNum}/status/`, {
+    method:'POST',
+    headers:{'Content-Type':'application/x-www-form-urlencoded','X-CSRFToken':getCookie('csrftoken')},
+    body:`status=${status}`
+  });
+  const data = await res.json();
+  if (data.success) showToast(`Order ${orderNum} → ${data.new_status}`, 'success');
+  else showToast(data.error || 'Update failed', 'error');
+}
+</script>
+{% endblock %}

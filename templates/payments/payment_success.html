@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% block title %}Payment Successful 🎉{% endblock %}
+{% block content %}
+<div class="container" style="padding-top:5rem;padding-bottom:6rem;max-width:600px;text-align:center;">
+  <!-- Animated checkmark -->
+  <div style="position:relative;width:120px;height:120px;margin:0 auto 2rem;">
+    <svg viewBox="0 0 120 120" style="width:120px;height:120px;">
+      <circle cx="60" cy="60" r="54" fill="none" stroke="rgba(16,185,129,0.2)" stroke-width="6"/>
+      <circle cx="60" cy="60" r="54" fill="none" stroke="#10B981" stroke-width="6"
+              stroke-dasharray="339" stroke-dashoffset="339"
+              style="animation:drawCircle 0.8s ease forwards;transform-origin:center;transform:rotate(-90deg)"/>
+      <path d="M35 60 L52 77 L85 44" fill="none" stroke="#10B981" stroke-width="6"
+            stroke-linecap="round" stroke-linejoin="round"
+            stroke-dasharray="80" stroke-dashoffset="80"
+            style="animation:drawCheck 0.5s ease 0.7s forwards;"/>
+    </svg>
+  </div>
+
+  <h1 style="font-family:var(--font-display);font-size:2.5rem;font-weight:800;margin-bottom:.75rem;">Payment Successful!</h1>
+  <p style="color:var(--text-muted);font-size:1rem;margin-bottom:.5rem;">
+    Your order has been confirmed and is being processed.
+  </p>
+  <div style="display:inline-block;padding:.5rem 1.5rem;background:rgba(201,168,76,.1);border:1px solid var(--border-accent);border-radius:24px;font-family:var(--font-mono);color:var(--accent-gold);font-weight:700;margin-bottom:2.5rem;">
+    {{ order.order_number }}
+  </div>
+
+  <!-- Order summary card -->
+  <div class="card" style="padding:2rem;text-align:left;margin-bottom:2rem;">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+      <div style="padding:1rem;background:var(--bg-elevated);border-radius:var(--radius-md);">
+        <div style="font-size:.75rem;color:var(--text-muted);margin-bottom:.25rem;">TOTAL PAID</div>
+        <div style="font-family:var(--font-display);font-size:1.25rem;font-weight:800;color:var(--accent-gold);">KES {{ order.total|floatformat:"0" }}</div>
+      </div>
+      <div style="padding:1rem;background:var(--bg-elevated);border-radius:var(--radius-md);">
+        <div style="font-size:.75rem;color:var(--text-muted);margin-bottom:.25rem;">PAYMENT METHOD</div>
+        <div style="font-weight:600;text-transform:capitalize;">{{ order.payment_method|default:"Card" }}</div>
+      </div>
+      <div style="padding:1rem;background:var(--bg-elevated);border-radius:var(--radius-md);">
+        <div style="font-size:.75rem;color:var(--text-muted);margin-bottom:.25rem;">ESTIMATED DELIVERY</div>
+        <div style="font-weight:600;">3–5 Business Days</div>
+      </div>
+      <div style="padding:1rem;background:var(--bg-elevated);border-radius:var(--radius-md);">
+        <div style="font-size:.75rem;color:var(--text-muted);margin-bottom:.25rem;">CONFIRMATION EMAIL</div>
+        <div style="font-weight:600;font-size:.875rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ order.email }}</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:.75rem;padding:1rem;background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2);border-radius:var(--radius-md);">
+      <i class="fa-solid fa-envelope" style="color:var(--accent-green);"></i>
+      <span style="font-size:.875rem;color:var(--text-secondary);">A confirmation email with your invoice has been sent to <strong>{{ order.email }}</strong></span>
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+    {% if user.is_authenticated %}
+    <a href="{% url 'orders:order_detail' order.order_number %}" class="btn btn-secondary">
+      <i class="fa-solid fa-receipt"></i> View Order
+    </a>
+    <a href="{% url 'payments:download_invoice' order.order_number %}" class="btn btn-ghost">
+      <i class="fa-solid fa-file-pdf" style="color:var(--accent-red);"></i> Download Invoice
+    </a>
+    {% endif %}
+    <a href="{% url 'products:home' %}" class="btn btn-primary">
+      <i class="fa-solid fa-bag-shopping"></i> Continue Shopping
+    </a>
+  </div>
+
+  <!-- ARIA recommendation hint -->
+  <div style="margin-top:3rem;padding:1.5rem;background:linear-gradient(135deg,rgba(124,58,237,.1),rgba(0,212,255,.05));border:1px solid rgba(124,58,237,.2);border-radius:var(--radius-lg);">
+    <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.5rem;">
+      <span style="font-size:1.5rem;">🤖</span>
+      <span style="font-family:var(--font-display);font-weight:700;">ARIA found items you might love!</span>
+    </div>
+    <p style="font-size:.875rem;color:var(--text-muted);">Based on your purchase, our AI has new recommendations waiting for you.</p>
+    <a href="{% url 'products:list' %}" style="font-size:.875rem;color:var(--accent-cyan);">See recommendations →</a>
+  </div>
+</div>
+
+<style>
+@keyframes drawCircle{to{stroke-dashoffset:0;}}
+@keyframes drawCheck{to{stroke-dashoffset:0;}}
+</style>
+{% endblock %}

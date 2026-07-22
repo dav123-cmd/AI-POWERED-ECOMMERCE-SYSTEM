@@ -1,0 +1,291 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Dynamic Pricing Dashboard{% endblock %}
+
+{% block content %}
+<div class="dash-layout">
+  {% include 'dashboard/partials/sidebar.html' with active='pricing' %}
+  <main class="dash-main">
+
+  <!-- Header -->
+  <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:2rem;flex-wrap:wrap;gap:1rem;">
+    <div>
+      <div style="display:inline-flex;align-items:center;gap:.5rem;padding:.3rem .875rem;background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.3);border-radius:20px;font-size:.75rem;color:var(--accent-gold);font-family:var(--font-mono);margin-bottom:.75rem;">
+        <i class="fa-solid fa-microchip"></i> PYTORCH PRICING ENGINE
+      </div>
+      <h1 style="font-family:var(--font-display);font-size:1.75rem;font-weight:800;">Dynamic Pricing</h1>
+      <p style="color:var(--text-muted);margin-top:.25rem;font-size:.875rem;">AI-optimised prices based on demand, inventory, and market signals</p>
+    </div>
+    <div style="display:flex;gap:.75rem;flex-wrap:wrap;">
+      <button onclick="trainModel()" class="btn btn-secondary" id="trainBtn">
+        <i class="fa-solid fa-brain"></i> Train Model
+      </button>
+      <button onclick="bulkApply()" class="btn btn-primary">
+        <i class="fa-solid fa-bolt"></i> Apply All Prices
+      </button>
+    </div>
+  </div>
+
+  <!-- Stats row -->
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1.25rem;margin-bottom:2rem;">
+    <div class="kpi kpi-gold">
+      <div style="font-size:.65rem;color:var(--text-muted);font-family:var(--font-mono);text-transform:uppercase;margin-bottom:.375rem;">AI Priced</div>
+      <div style="font-family:var(--font-display);font-size:1.5rem;font-weight:800;" id="stat-priced">{{ ai_priced_count|default:"0" }}</div>
+      <div style="font-size:.75rem;color:var(--accent-gold);margin-top:.375rem;">products</div>
+    </div>
+    <div class="kpi kpi-cyan">
+      <div style="font-size:.65rem;color:var(--text-muted);font-family:var(--font-mono);text-transform:uppercase;margin-bottom:.375rem;">Avg Multiplier</div>
+      <div style="font-family:var(--font-display);font-size:1.5rem;font-weight:800;color:var(--accent-cyan);" id="stat-multiplier">{{ avg_multiplier|default:"—" }}</div>
+      <div style="font-size:.75rem;color:var(--text-muted);margin-top:.375rem;">price factor</div>
+    </div>
+    <div class="kpi kpi-green">
+      <div style="font-size:.65rem;color:var(--text-muted);font-family:var(--font-mono);text-transform:uppercase;margin-bottom:.375rem;">Increased</div>
+      <div style="font-family:var(--font-display);font-size:1.5rem;font-weight:800;color:var(--accent-green);">{{ prices_up|default:"0" }}</div>
+      <div style="font-size:.75rem;color:var(--accent-green);margin-top:.375rem;">↑ prices raised</div>
+    </div>
+    <div class="kpi kpi-gold">
+      <div style="font-size:.65rem;color:var(--text-muted);font-family:var(--font-mono);text-transform:uppercase;margin-bottom:.375rem;">Discounted</div>
+      <div style="font-family:var(--font-display);font-size:1.5rem;font-weight:800;color:var(--accent-gold);">{{ prices_down|default:"0" }}</div>
+      <div style="font-size:.75rem;color:var(--accent-gold);margin-top:.375rem;">↓ prices reduced</div>
+    </div>
+  </div>
+
+  <!-- How it works -->
+  <div class="card" style="padding:2rem;margin-bottom:2rem;background:linear-gradient(135deg,rgba(201,168,76,.06),rgba(0,212,255,.03));">
+    <h3 style="font-family:var(--font-display);font-weight:700;margin-bottom:1.25rem;">
+      <i class="fa-solid fa-brain" style="color:var(--accent-gold);"></i> How the Pricing Engine Works
+    </h3>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;">
+      {% for icon, signal, desc in '📈,Demand Signals,View count + purchases + wishlist saves drive prices up|📦,Inventory Level,Low stock → scarcity premium applied,Product Rating,Higher rated products command premium prices|🕐,Time Patterns,Peak hours and weekend demand factors,Category Rank,Popular categories support higher margins|🤖,Neural Network,10-feature deep regression → 0.70–1.30× multiplier'|split:'|' %}
+      {% endfor %}
+      <div style="display:flex;gap:.75rem;align-items:flex-start;">
+        <span style="font-size:1.5rem;flex-shrink:0;"></span>
+        <div><div style="font-weight:600;font-size:.875rem;margin-bottom:.2rem;">Demand Signals</div><div style="font-size:.8rem;color:var(--text-muted);">Views + purchases + wishlist saves drive prices up</div></div>
+      </div>
+      <div style="display:flex;gap:.75rem;align-items:flex-start;">
+        <span style="font-size:1.5rem;flex-shrink:0;"></span>
+        <div><div style="font-weight:600;font-size:.875rem;margin-bottom:.2rem;">Inventory Level</div><div style="font-size:.8rem;color:var(--text-muted);">Low stock → scarcity premium applied automatically</div></div>
+      </div>
+      <div style="display:flex;gap:.75rem;align-items:flex-start;">
+        <span style="font-size:1.5rem;flex-shrink:0;"></span>
+        <div><div style="font-weight:600;font-size:.875rem;margin-bottom:.2rem;">Time Patterns</div><div style="font-size:.8rem;color:var(--text-muted);">Peak hours and weekend demand factored in</div></div>
+      </div>
+      <div style="display:flex;gap:.75rem;align-items:flex-start;">
+        <span style="font-size:1.5rem;flex-shrink:0;"></span>
+        <div><div style="font-weight:600;font-size:.875rem;margin-bottom:.2rem;">Neural Network</div><div style="font-size:.8rem;color:var(--text-muted);">10-feature deep regression → 0.70–1.30× multiplier</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Product pricing table -->
+  <div class="dash-panel">
+    <div class="dash-panel__header">
+      <h3 style="font-family:var(--font-display);font-weight:700;font-size:.95rem;">Product Price Preview</h3>
+      <input type="text" id="priceSearch" class="form-input" placeholder="Search products..." style="width:220px;font-size:.875rem;" oninput="filterPriceTable(this.value)" />
+    </div>
+
+    <div style="overflow-x:auto;">
+      <table class="dash-table" id="priceTable">
+        <thead>
+          <tr style="background:var(--bg-secondary);">
+            <th>Product</th>
+            <th style="text-align:right;">Base Price</th>
+            <th style="text-align:right;">AI Price</th>
+            <th style="text-align:center;">Multiplier</th>
+            <th style="text-align:center;">Change</th>
+            <th style="text-align:center;">Action</th>
+          </tr>
+        </thead>
+        <tbody id="priceTableBody">
+          {% for product in products %}
+          <tr data-name="{{ product.name|lower }}">
+            <td>
+              <div style="font-weight:600;font-size:.9rem;">{{ product.name|truncatechars:40 }}</div>
+              <div style="font-size:.75rem;color:var(--text-muted);">{{ product.category.name|default:"Uncategorised" }} · Stock: {{ product.stock }}</div>
+            </td>
+            <td style="text-align:right;font-family:var(--font-mono);">KES {{ product.price|floatformat:"0" }}</td>
+            <td style="text-align:right;font-family:var(--font-mono);color:{% if product.ai_price %}var(--accent-gold){% else %}var(--text-muted){% endif %};">
+              {% if product.ai_price %}KES {{ product.ai_price|floatformat:"0" }}{% else %}—{% endif %}
+            </td>
+            <td style="text-align:center;" id="mult-{{ product.id }}">
+              {% if product.price_ratio %}<span style="font-family:var(--font-mono);font-size:.8rem;">×{{ product.price_ratio|floatformat:"3" }}</span>{% else %}—{% endif %}
+            </td>
+            <td style="text-align:center;" id="chg-{{ product.id }}">
+              {% if product.change_pct %}
+              <span style="font-size:.8rem;padding:.2rem .625rem;border-radius:12px;background:{% if product.change_pct > 0 %}rgba(16,185,129,.15){% else %}rgba(201,168,76,.15){% endif %};color:{% if product.change_pct > 0 %}var(--accent-green){% else %}var(--accent-gold){% endif %};">
+                {% if product.change_pct > 0 %}↑{% else %}↓{% endif %} {{ product.change_pct|floatformat:"1" }}%
+              </span>
+              {% else %}<span style="font-size:.8rem;color:var(--text-muted);">Pending</span>{% endif %}
+            </td>
+            <td style="text-align:center;">
+              <div style="display:flex;gap:.375rem;justify-content:center;">
+                <button onclick="previewPrice('{{ product.id }}',this)" class="btn btn-ghost btn-sm" style="font-size:.75rem;">
+                  <i class="fa-solid fa-eye"></i>
+                </button>
+                <button onclick="applyPrice('{{ product.id }}',this)" class="btn btn-secondary btn-sm" style="font-size:.75rem;">
+                  <i class="fa-solid fa-check"></i> Apply
+                </button>
+              </div>
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="6" style="padding:3rem;text-align:center;color:var(--text-muted);">No active products found</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+    <div style="display:flex;justify-content:center;gap:.5rem;padding:1rem;border-top:1px solid var(--border);">
+      {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}&q={{ search }}" class="btn btn-ghost btn-sm">←</a>{% endif %}
+      <span style="padding:.5rem 1rem;font-size:.8rem;color:var(--text-muted);">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+      {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}&q={{ search }}" class="btn btn-ghost btn-sm">→</a>{% endif %}
+    </div>
+    {% endif %}
+  </div>
+
+  </main>
+</div>
+
+<!-- Price Preview Modal -->
+<div id="priceModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);z-index:4000;align-items:center;justify-content:center;padding:1rem;">
+  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-xl);max-width:560px;width:100%;padding:2rem;position:relative;">
+    <button onclick="document.getElementById('priceModal').style.display='none'" style="position:absolute;top:1rem;right:1rem;color:var(--text-muted);">✕</button>
+    <h3 style="font-family:var(--font-display);font-weight:700;margin-bottom:1.5rem;" id="modalProductName">Price Preview</h3>
+    <div id="modalContent"></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+async function previewPrice(productId, btn) {
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+  const res  = await fetch(`/products/pricing/preview/${productId}/`);
+  const data = await res.json();
+  btn.innerHTML = '<i class="fa-solid fa-eye"></i>';
+  if (!data.success) return;
+
+  const sign   = data.change_pct >= 0 ? '+' : '';
+  const color  = data.change_pct >= 0 ? 'var(--accent-green)' : 'var(--accent-gold)';
+  document.getElementById('modalProductName').textContent = data.name;
+  document.getElementById('modalContent').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
+      <div style="padding:1rem;background:var(--bg-elevated);border-radius:var(--radius-md);text-align:center;">
+        <div style="font-size:.7rem;color:var(--text-muted);margin-bottom:.375rem;">BASE PRICE</div>
+        <div style="font-family:var(--font-display);font-weight:700;">KES ${data.base_price.toLocaleString()}</div>
+      </div>
+      <div style="padding:1rem;background:var(--bg-elevated);border-radius:var(--radius-md);text-align:center;border:1px solid var(--border-accent);">
+        <div style="font-size:.7rem;color:var(--accent-gold);margin-bottom:.375rem;">AI PRICE</div>
+        <div style="font-family:var(--font-display);font-weight:800;color:var(--accent-gold);">KES ${data.ai_price.toLocaleString()}</div>
+      </div>
+      <div style="padding:1rem;background:var(--bg-elevated);border-radius:var(--radius-md);text-align:center;">
+        <div style="font-size:.7rem;color:var(--text-muted);margin-bottom:.375rem;">CHANGE</div>
+        <div style="font-family:var(--font-display);font-weight:700;color:${color};">${sign}${data.change_pct}%</div>
+      </div>
+    </div>
+    <h4 style="font-family:var(--font-display);font-weight:600;margin-bottom:.875rem;font-size:.9rem;">Feature Signals</h4>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;">
+      ${Object.entries(data.features).map(([k,v]) => `
+        <div style="display:flex;justify-content:space-between;padding:.5rem .75rem;background:var(--bg-elevated);border-radius:8px;font-size:.8rem;">
+          <span style="color:var(--text-muted);">${k.replace(/_/g,' ')}</span>
+          <span style="font-family:var(--font-mono);font-weight:600;">${v}</span>
+        </div>`).join('')}
+    </div>
+    <button onclick="applyFromModal('${data.product_id}')" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:1.5rem;">
+      <i class="fa-solid fa-bolt"></i> Apply AI Price — KES ${data.ai_price.toLocaleString()}
+    </button>`;
+  document.getElementById('priceModal').style.display = 'flex';
+}
+
+async function applyPrice(productId, btn) {
+  const original = btn.innerHTML;
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+  const res  = await fetch(`/products/pricing/apply/${productId}/`, {
+    method:'POST', headers:{'X-CSRFToken':getCookie('csrftoken')}
+  });
+  const data = await res.json();
+  btn.innerHTML = data.success ? '<i class="fa-solid fa-check"></i> Applied' : original;
+  if (data.success) {
+    showToast(data.message, 'success');
+    updatePriceRow(productId, data.ai_price, data.multiplier);
+    setTimeout(() => { btn.innerHTML = original; }, 2000);
+  } else {
+    showToast(data.error || 'Could not apply price.', 'error');
+  }
+}
+
+function updatePriceRow(productId, aiPrice, multiplier) {
+  const multCell = document.getElementById(`mult-${productId}`);
+  const chgCell  = document.getElementById(`chg-${productId}`);
+  const row      = multCell?.closest('tr');
+  if (!row) return;
+
+  const aiPriceCell = row.children[2];
+  aiPriceCell.style.color = 'var(--accent-gold)';
+  aiPriceCell.textContent = `KES ${Math.round(aiPrice).toLocaleString()}`;
+
+  multCell.innerHTML = `<span style="font-family:var(--font-mono);font-size:.8rem;">×${multiplier.toFixed(3)}</span>`;
+
+  const changePct = (multiplier - 1) * 100;
+  const up        = changePct > 0;
+  chgCell.innerHTML = `<span style="font-size:.8rem;padding:.2rem .625rem;border-radius:12px;background:${up ? 'rgba(16,185,129,.15)' : 'rgba(201,168,76,.15)'};color:${up ? 'var(--accent-green)' : 'var(--accent-gold)'};">${up ? '↑' : '↓'} ${Math.abs(changePct).toFixed(1)}%</span>`;
+}
+
+async function applyFromModal(productId) {
+  const res  = await fetch(`/products/pricing/apply/${productId}/`, {
+    method:'POST', headers:{'X-CSRFToken':getCookie('csrftoken')}
+  });
+  const data = await res.json();
+  document.getElementById('priceModal').style.display = 'none';
+  if (data.success) {
+    updatePriceRow(productId, data.ai_price, data.multiplier);
+    showToast(data.message, 'success');
+  } else {
+    showToast(data.error || 'Could not apply price.', 'error');
+  }
+}
+
+async function bulkApply() {
+  if (!confirm('Apply AI pricing to all products?')) return;
+  const res  = await fetch('/products/pricing/bulk/', {
+    method:'POST', headers:{'Content-Type':'application/json','X-CSRFToken':getCookie('csrftoken')},
+    body: JSON.stringify({})
+  });
+  const data = await res.json();
+  if (data.success) {
+    showToast(`Updated ${data.updated} products! `, 'success');
+    setTimeout(() => window.location.reload(), 1200);
+  } else {
+    showToast(data.error || 'Bulk update failed.', 'error');
+  }
+}
+
+async function trainModel() {
+  const btn = document.getElementById('trainBtn');
+  const original = btn.innerHTML;
+  btn.disabled  = true;
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Training...';
+  showToast('Training pricing model on recent order data...', 'info');
+  try {
+    const res  = await fetch('/dashboard/ai-models/retrain/', {
+      method:'POST',
+      headers:{'Content-Type':'application/x-www-form-urlencoded','X-CSRFToken':getCookie('csrftoken')},
+      body:'model=pricing',
+    });
+    const data = await res.json();
+    showToast(data.success ? data.message : (data.error || 'Training failed'), data.success ? 'success' : 'error');
+  } catch {
+    showToast('Network error during training.', 'error');
+  }
+  btn.disabled  = false;
+  btn.innerHTML = original;
+}
+
+function filterPriceTable(query) {
+  document.querySelectorAll('#priceTable tbody tr').forEach(row => {
+    row.style.display = row.dataset.name?.includes(query.toLowerCase()) ? '' : 'none';
+  });
+}
+</script>
+{% endblock %}

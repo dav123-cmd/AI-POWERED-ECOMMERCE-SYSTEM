@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Recommended For You{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top:2.5rem;padding-bottom:5rem;">
+
+  <!-- Header -->
+  <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:2.5rem;flex-wrap:wrap;gap:1rem;">
+    <div>
+      <div style="display:inline-flex;align-items:center;gap:.5rem;padding:.3rem .875rem;background:linear-gradient(135deg,rgba(124,58,237,.15),rgba(201,168,76,.1));border:1px solid rgba(124,58,237,.3);border-radius:20px;font-size:.75rem;color:var(--accent-cyan);font-family:var(--font-mono);margin-bottom:.875rem;">
+        <i class="fa-solid fa-microchip"></i> COLLABORATIVE FILTERING · PYTORCH
+      </div>
+      <h1 style="font-family:var(--font-display);font-size:2rem;font-weight:800;margin-bottom:.375rem;">
+        Recommended For You
+      </h1>
+      <p style="color:var(--text-muted);font-size:.9rem;">
+        Our AI learns from your browsing, wishlist, and purchase history to surface the most relevant products.
+      </p>
+    </div>
+    <div style="display:flex;gap:.75rem;align-items:center;">
+      <div style="padding:.5rem 1rem;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);font-size:.8rem;color:var(--text-muted);">
+        <i class="fa-solid fa-rotate" style="color:var(--accent-cyan);"></i>
+        Updates every 24h
+      </div>
+      <a href="{% url 'products:list' %}" class="btn btn-ghost btn-sm">Browse All</a>
+    </div>
+  </div>
+
+  <!-- How AI works banner -->
+  <div style="background:linear-gradient(135deg,rgba(124,58,237,.08),rgba(0,212,255,.04));border:1px solid rgba(124,58,237,.2);border-radius:var(--radius-xl);padding:1.5rem 2rem;margin-bottom:2.5rem;display:flex;align-items:center;gap:2rem;flex-wrap:wrap;">
+    <div style="font-size:2.5rem;">🧠</div>
+    <div style="flex:1;">
+      <div style="font-family:var(--font-display);font-weight:700;margin-bottom:.25rem;">How your recommendations are generated</div>
+      <div style="font-size:.85rem;color:var(--text-muted);line-height:1.6;">
+        Our PyTorch collaborative filtering model learns patterns from your <strong style="color:var(--text-secondary);">views</strong>,
+        <strong style="color:var(--text-secondary);">wishlist saves</strong>, <strong style="color:var(--text-secondary);">cart adds</strong>,
+        and <strong style="color:var(--text-secondary);">purchases</strong>. It finds users with similar taste and surfaces products they loved.
+      </div>
+    </div>
+    <div style="display:flex;gap:1.5rem;flex-shrink:0;">
+      {% for label, icon, weight in 'View,👁,1x|Wishlist,❤️,2x|Cart,🛒,3x|Purchase,✅,5x'|split:'|' %}
+      {% endfor %}
+      <div style="text-align:center;">
+        <div style="font-size:1.25rem;">👁️</div>
+        <div style="font-size:.7rem;color:var(--text-muted);font-family:var(--font-mono);">VIEW ×1</div>
+      </div>
+      <div style="text-align:center;">
+        <div style="font-size:1.25rem;">❤️</div>
+        <div style="font-size:.7rem;color:var(--text-muted);font-family:var(--font-mono);">SAVE ×2</div>
+      </div>
+      <div style="text-align:center;">
+        <div style="font-size:1.25rem;">🛒</div>
+        <div style="font-size:.7rem;color:var(--text-muted);font-family:var(--font-mono);">CART ×3</div>
+      </div>
+      <div style="text-align:center;">
+        <div style="font-size:1.25rem;">✅</div>
+        <div style="font-size:.7rem;color:var(--accent-gold);font-family:var(--font-mono);">BUY ×5</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Products Grid -->
+  {% if products %}
+  <div class="grid-products">
+    {% for product in products %}
+    {% include 'products/partials/product_card.html' %}
+    {% endfor %}
+  </div>
+  {% else %}
+  <!-- Cold start state -->
+  <div style="text-align:center;padding:5rem 2rem;">
+    <div style="font-size:5rem;margin-bottom:1.5rem;">🌱</div>
+    <h2 style="font-family:var(--font-display);font-size:1.75rem;font-weight:800;margin-bottom:.75rem;">Building your taste profile</h2>
+    <p style="color:var(--text-muted);max-width:440px;margin:0 auto 2rem;line-height:1.7;">
+      Browse, save, and shop to help our AI learn your preferences. The more you interact, the smarter your recommendations get!
+    </p>
+    <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+      <a href="{% url 'products:list' %}" class="btn btn-primary">
+        <i class="fa-solid fa-bag-shopping"></i> Start Browsing
+      </a>
+      <a href="{% url 'ai_search:results' %}" class="btn btn-secondary">
+        <i class="fa-solid fa-magnifying-glass"></i> Search Products
+      </a>
+    </div>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Track when user views this page
+document.querySelectorAll('.product-card').forEach(card => {
+  const productId = card.querySelector('[data-product-id]')?.dataset.productId;
+  if (productId) {
+    fetch(`/ai/recommend/track/${productId}/view/`, { method:'GET' });
+  }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends 'base.html' %} {% block title %}Add Address{% endblock %} {% block content %}
+<div class="container" style="padding-top: 3rem; padding-bottom: 5rem; max-width: 680px">
+  <div style="margin-bottom: 2rem">
+    <a href="{% url 'users:profile' %}" style="color: var(--text-muted); font-size: 0.875rem">
+      <i class="fa-solid fa-arrow-left"></i> Back to Profile
+    </a>
+  </div>
+  <h1 style="font-family: var(--font-display); font-size: 2rem; font-weight: 800; margin-bottom: 0.5rem;">
+    Add Address
+  </h1>
+  <p style="color: var(--text-muted); margin-bottom: 2.5rem">
+    Add a new shipping address
+  </p>
+
+  <div class="card" style="padding: 2rem">
+    <form method="post" novalidate>
+      {% csrf_token %}
+      
+      {% if form.errors %}
+        <div style="background-color: #fee2e2; border: 1px solid #ef4444; padding: 1rem; margin-bottom: 1.5rem; border-radius: 0.375rem;">
+          <strong style="color: #991b1b;">Please correct the errors below:</strong>
+          <ul style="color: #b91c1c; margin-top: 0.5rem; padding-left: 1.25rem;">
+            {% for field, errors in form.errors.items %}
+              <li><strong>{{ field }}:</strong> {{ errors|striptags }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+      {% endif %}
+
+      <!-- Non-field validation errors if any exist -->
+      {% if form.non_field_errors %}
+        <div style="color: red; margin-bottom: 1rem;">{{ form.non_field_errors }}</div>
+      {% endif %}
+
+      {{ form.as_p }}
+
+      <button type="submit" class="btn btn-primary" style="margin-top: 1.5rem">Add Address</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

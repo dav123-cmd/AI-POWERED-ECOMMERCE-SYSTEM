@@ -1,0 +1,500 @@
+{% extends 'base.html' %} {% load static %}<!---->
+{% block title %}My Cart{% endblock %} {% block content %}
+<div class="container" style="padding-top: 2.5rem; padding-bottom: 5rem">
+  <h1
+    style="
+      font-family: var(--font-display);
+      font-size: 2rem;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+    "
+  >
+    <i class="fa-solid fa-bag-shopping" style="color: var(--accent-gold)"></i>
+    My Cart
+  </h1>
+  <p style="color: var(--text-muted); margin-bottom: 2.5rem">
+    {{ items.count }} item{{ items.count|pluralize }} in your cart
+  </p>
+
+  {% if items %}
+  <div
+    style="
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 2rem;
+      align-items: start;
+    "
+  >
+    <!-- Items -->
+    <div
+      id="cartItems"
+      style="display: flex; flex-direction: column; gap: 1rem"
+    >
+      {% for item in items %}
+      <div
+        class="card"
+        style="padding: 1.5rem; display: flex; gap: 1.5rem; align-items: center"
+        id="cartItem-{{ item.id }}"
+      >
+        <!-- Image -->
+        <a href="{{ item.product.get_absolute_url }}" style="flex-shrink: 0">
+          <div
+            style="
+              width: 90px;
+              height: 90px;
+              background: var(--bg-secondary);
+              border-radius: var(--radius-md);
+              overflow: hidden;
+            "
+          >
+            {% if item.product.primary_image %}
+            <img
+              src="{{ item.product.primary_image.image.url }}"
+              style="width: 100%; height: 100%; object-fit: cover"
+            />
+            {% else %}
+            <div
+              style="
+                width: 100%;
+                height: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 2.5rem;
+              "
+            >
+              <i class="fas fa-shopping-bag"></i>
+            </div>
+            {% endif %}
+          </div>
+        </a>
+        <!-- Info -->
+        <div style="flex: 1; min-width: 0">
+          {% if item.product.category %}
+          <div
+            style="
+              font-size: 0.7rem;
+              color: var(--accent-gold);
+              font-family: var(--font-mono);
+              text-transform: uppercase;
+              margin-bottom: 0.25rem;
+            "
+          >
+            {{ item.product.category.name }}
+          </div>
+          {% endif %}
+          <a
+            href="{{ item.product.get_absolute_url }}"
+            style="
+              font-family: var(--font-display);
+              font-weight: 700;
+              font-size: 1rem;
+              display: block;
+              margin-bottom: 0.25rem;
+            "
+            >{{ item.product.name }}</a
+          >
+          {% if item.variant %}
+          <div style="font-size: 0.8rem; color: var(--text-muted)">
+            {{ item.variant.name }}: {{ item.variant.value }}
+          </div>
+          {% endif %}
+          <div style="font-size: 0.8rem; color: var(--text-muted)">
+            Unit price: KES {{ item.unit_price|floatformat:"0" }}
+          </div>
+        </div>
+        <!-- Qty -->
+        <div
+          style="
+            display: flex;
+            align-items: center;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+          "
+        >
+          <button
+            onclick="updateCartItem({{ item.id }}, {{ item.quantity|add:'-1' }})"
+            style="
+              width: 36px;
+              height: 36px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              color: var(--text-secondary);
+              font-size: 1rem;
+              transition: var(--transition);
+            "
+            onmouseover="this.style.background = 'var(--bg-hover)'"
+            onmouseout="this.style.background = ''"
+          >
+            −
+          </button>
+          <span
+            id="qty-{{ item.id }}"
+            style="
+              width: 40px;
+              text-align: center;
+              font-family: var(--font-mono);
+              font-weight: 600;
+              font-size: 0.9rem;
+            "
+            >{{ item.quantity }}</span
+          >
+          <button
+            onclick="updateCartItem({{ item.id }}, {{ item.quantity|add:'1' }})"
+            style="
+              width: 36px;
+              height: 36px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              color: var(--text-secondary);
+              font-size: 1rem;
+              transition: var(--transition);
+            "
+            onmouseover="this.style.background = 'var(--bg-hover)'"
+            onmouseout="this.style.background = ''"
+          >
+            +
+          </button>
+        </div>
+        <!-- Line total -->
+        <div style="text-align: right; min-width: 100px">
+          <div
+            id="lineTotal-{{ item.id }}"
+            style="
+              font-family: var(--font-display);
+              font-weight: 700;
+              font-size: 1.1rem;
+            "
+          >
+            KES {{ item.line_total|floatformat:"0" }}
+          </div>
+          <button
+            onclick="removeCartItem({{ item.id }})"
+            style="
+              font-size: 0.75rem;
+              color: var(--accent-red);
+              margin-top: 0.375rem;
+            "
+          >
+            <i class="fa-solid fa-trash-can"></i> Remove
+          </button>
+        </div>
+      </div>
+      {% endfor %}
+
+      <!-- Continue Shopping -->
+      <a
+        href="{% url 'products:list' %}"
+        style="
+          display: inline-flex;
+          align-items: center;
+          gap: 0.5rem;
+          color: var(--text-muted);
+          font-size: 0.875rem;
+          margin-top: 0.5rem;
+        "
+      >
+        <i class="fa-solid fa-arrow-left"></i> Continue Shopping
+      </a>
+    </div>
+
+    <!-- Order Summary -->
+    <div style="position: sticky; top: calc(var(--nav-height)+1rem)">
+      <div class="card" style="padding: 1.75rem">
+        <h2
+          style="
+            font-family: var(--font-display);
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+          "
+        >
+          Order Summary
+        </h2>
+
+        <!-- Coupon -->
+        <div style="margin-bottom: 1.5rem">
+          <form onsubmit="applyCoupon(event)">
+            <div style="display: flex; gap: 0.5rem">
+              <input
+                type="text"
+                id="couponInput"
+                class="form-input"
+                placeholder="Coupon code"
+                style="flex: 1; font-size: 0.875rem"
+              />
+              <button type="submit" class="btn btn-secondary btn-sm">
+                Apply
+              </button>
+            </div>
+            <div
+              id="couponMsg"
+              style="font-size: 0.8rem; margin-top: 0.5rem"
+            ></div>
+          </form>
+        </div>
+
+        <!-- Totals -->
+        <div
+          style="
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
+          "
+        >
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              font-size: 0.9rem;
+            "
+          >
+            <span style="color: var(--text-muted)">Subtotal</span>
+            <span id="subtotalDisplay"
+              >KES {{ cart.subtotal|floatformat:"0" }}</span
+            >
+          </div>
+          {% if cart.discount_amount %}
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              font-size: 0.9rem;
+            "
+          >
+            <span style="color: var(--accent-green)"
+              >Discount ({{ cart.coupon.code }})</span
+            >
+            <span style="color: var(--accent-green)" id="discountDisplay"
+              >−KES {{ cart.discount_amount|floatformat:"0" }}</span
+            >
+          </div>
+          {% endif %}
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              font-size: 0.9rem;
+            "
+          >
+            <span style="color: var(--text-muted)">Shipping</span>
+            <span
+              >{% if shipping_fee == 0 %}<span
+                style="color: var(--accent-green)"
+                >FREE</span
+              >{% else %}KES {{ shipping_fee|floatformat:"0" }}{% endif %}</span
+            >
+          </div>
+          {% if cart.total < shipping_threshold %}
+          <div
+            style="
+              font-size: 0.75rem;
+              color: var(--accent-gold);
+              background: rgba(201, 168, 76, 0.1);
+              padding: 0.5rem 0.75rem;
+              border-radius: 8px;
+            "
+          >
+            Add KES {{ shipping_threshold|add:"-0"|floatformat:"0" }} more for
+            free shipping!
+          </div>
+          {% endif %}
+        </div>
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+          "
+        >
+          <span
+            style="
+              font-family: var(--font-display);
+              font-weight: 700;
+              font-size: 1.1rem;
+            "
+            >Total</span
+          >
+          <span
+            id="totalDisplay"
+            style="
+              font-family: var(--font-display);
+              font-weight: 800;
+              font-size: 1.25rem;
+              color: var(--accent-gold);
+            "
+            >KES {{ cart.total|floatformat:"0" }}</span
+          >
+        </div>
+        <a
+          href="{% url 'orders:checkout' %}"
+          class="btn btn-primary"
+          style="
+            width: 100%;
+            justify-content: center;
+            padding: 0.875rem;
+            font-size: 1rem;
+          "
+        >
+          <i class="fa-solid fa-lock"></i> Proceed to Checkout
+        </a>
+
+        <!-- Trust badges -->
+        <div
+          style="
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-top: 1.25rem;
+          "
+        >
+          <div
+            style="
+              text-align: center;
+              font-size: 0.7rem;
+              color: var(--text-muted);
+            "
+          >
+            <i
+              class="fa-solid fa-shield-halved"
+              style="
+                display: block;
+                font-size: 1.25rem;
+                color: var(--accent-green);
+                margin-bottom: 0.25rem;
+              "
+            ></i
+            >Secure
+          </div>
+          <div
+            style="
+              text-align: center;
+              font-size: 0.7rem;
+              color: var(--text-muted);
+            "
+          >
+            <i
+              class="fa-solid fa-truck"
+              style="
+                display: block;
+                font-size: 1.25rem;
+                color: var(--accent-cyan);
+                margin-bottom: 0.25rem;
+              "
+            ></i
+            >Fast Ship
+          </div>
+          <div
+            style="
+              text-align: center;
+              font-size: 0.7rem;
+              color: var(--text-muted);
+            "
+          >
+            <i
+              class="fa-solid fa-rotate-left"
+              style="
+                display: block;
+                font-size: 1.25rem;
+                color: var(--accent-gold);
+                margin-bottom: 0.25rem;
+              "
+            ></i
+            >Returns
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% else %}
+  <div style="text-align: center; padding: 6rem 2rem">
+    <div style="font-size: 5rem; margin-bottom: 1.5rem">
+      <i class="fas fa-shopping-bag"></i>
+    </div>
+    <h2
+      style="
+        font-family: var(--font-display);
+        font-size: 1.75rem;
+        font-weight: 800;
+        margin-bottom: 0.75rem;
+      "
+    >
+      Your cart is empty
+    </h2>
+    <p style="color: var(--text-muted); margin-bottom: 2rem">
+      Discover thousands of products curated by AI just for you.
+    </p>
+    <a href="{% url 'products:list' %}" class="btn btn-primary btn-lg">
+      <i class="fa-solid fa-bag-shopping"></i> Start Shopping
+    </a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %} {% block extra_js %}
+<script>
+  async function updateCartItem(id, qty) {
+    const res = await fetch("/orders/cart/update/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": getCookie("csrftoken"),
+      },
+      body: JSON.stringify({ item_id: id, quantity: qty }),
+    });
+    const data = await res.json();
+    if (data.success) {
+      if (qty <= 0) {
+        document.getElementById(`cartItem-${id}`)?.remove();
+      } else {
+        document.getElementById(`qty-${id}`).textContent = qty;
+        document.getElementById(`lineTotal-${id}`).textContent =
+          `KES ${Math.round(data.item_total).toLocaleString()}`;
+      }
+      document.getElementById("totalDisplay").textContent =
+        `KES ${Math.round(data.cart_total).toLocaleString()}`;
+      document.getElementById("subtotalDisplay").textContent =
+        `KES ${Math.round(data.subtotal).toLocaleString()}`;
+      showToast(data.message, "success");
+    }
+  }
+  async function removeCartItem(id) {
+    const res = await fetch(`/orders/cart/remove/${id}/`, {
+      method: "POST",
+      headers: { "X-CSRFToken": getCookie("csrftoken") },
+    });
+    const data = await res.json();
+    if (data.success) {
+      document.getElementById(`cartItem-${id}`)?.remove();
+      showToast("Item removed", "info");
+    }
+  }
+  async function applyCoupon(e) {
+    e.preventDefault();
+    const code = document.getElementById("couponInput").value.trim();
+    const msg = document.getElementById("couponMsg");
+    const res = await fetch("/orders/cart/coupon/apply/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "X-CSRFToken": getCookie("csrftoken"),
+      },
+      body: `coupon_code=${encodeURIComponent(code)}`,
+    });
+    const data = await res.json();
+    msg.style.color = data.success
+      ? "var(--accent-green)"
+      : "var(--accent-red)";
+    msg.textContent = data.message || data.error;
+    if (data.success)
+      document.getElementById("totalDisplay").textContent =
+        `KES ${Math.round(data.new_total).toLocaleString()}`;
+  }
+</script>
+{% endblock %}

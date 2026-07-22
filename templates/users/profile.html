@@ -1,0 +1,356 @@
+{% extends 'base.html' %} {% load static %}
+<!---->
+{% block title %}My Profile{% endblock %} {% block content %}
+<div class="container" style="padding-top: 3rem; padding-bottom: 5rem">
+  <!-- Header -->
+  <div
+    style="
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      margin-bottom: 3rem;
+      flex-wrap: wrap;
+    "
+  >
+    <div style="position: relative">
+      <img
+        src="{{ user.avatar_url }}"
+        alt="{{ user.get_full_name }}"
+        style="
+          width: 100px;
+          height: 100px;
+          border-radius: 50%;
+          border: 3px solid var(--border-accent);
+          object-fit: cover;
+        "
+      />
+      {% if not user.is_verified %}
+      <span
+        style="
+          position: absolute;
+          bottom: 0;
+          right: 0;
+          width: 24px;
+          height: 24px;
+          background: var(--accent-red);
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 0.7rem;
+          border: 2px solid var(--bg-primary);
+        "
+        title="Email not verified"
+      >
+        <i class="fa-solid fa-exclamation" style="color: white"></i>
+      </span>
+      {% else %}
+      <span
+        style="
+          position: absolute;
+          bottom: 0;
+          right: 0;
+          width: 24px;
+          height: 24px;
+          background: var(--accent-green);
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 0.7rem;
+          border: 2px solid var(--bg-primary);
+        "
+      >
+        <i class="fa-solid fa-check" style="color: white"></i>
+      </span>
+      {% endif %}
+    </div>
+    <div>
+      <h1
+        style="
+          font-family: var(--font-display);
+          font-size: 1.75rem;
+          font-weight: 800;
+        "
+      >
+        {{ user.get_full_name }}
+      </h1>
+      <p style="color: var(--text-muted); margin: 0.25rem 0">
+        {{ user.email }}
+      </p>
+      {% if not user.is_verified %}
+      <div
+        style="
+          margin-top: 0.5rem;
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+        "
+      >
+        <span style="font-size: 0.8rem; color: var(--accent-red)"
+          ><i class="fa-triangle-exclamation"></i> Email not verified</span
+        >
+        <a
+          href="{% url 'users:resend_verification' %}"
+          style="font-size: 0.8rem; color: var(--accent-gold)"
+          >Resend link</a
+        >
+      </div>
+      {% endif %}
+    </div>
+    <div
+      style="margin-left: auto; display: flex; gap: 0.75rem; flex-wrap: wrap"
+    >
+      <a href="{% url 'users:edit_profile' %}" class="btn btn-secondary btn-sm">
+        <i class="fa-regular fa-pen-to-square"></i> Edit Profile
+      </a>
+      <a href="{% url 'users:change_password' %}" class="btn btn-ghost btn-sm">
+        <i class="fa-solid fa-lock"></i> Change Password
+      </a>
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem">
+    <!-- Account Info -->
+    <div class="card" style="padding: 1.75rem">
+      <h2
+        style="
+          font-family: var(--font-display);
+          font-size: 1.1rem;
+          font-weight: 700;
+          margin-bottom: 1.5rem;
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+        "
+      >
+        <i class="fa-regular fa-user" style="color: var(--accent-gold)"></i>
+        Account Info
+      </h2>
+      <div style="display: flex; flex-direction: column; gap: 1rem">
+        {% for label, value in profile_fields %}
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--border);
+          "
+        >
+          <span style="color: var(--text-muted); font-size: 0.875rem"
+            >{{ label }}</span
+          >
+          <span style="font-size: 0.875rem; font-weight: 500"
+            >{{ value|default:"—" }}</span
+          >
+        </div>
+        {% empty %}
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--border);
+          "
+        >
+          <span style="color: var(--text-muted); font-size: 0.875rem"
+            >Phone</span
+          >
+          <span style="font-size: 0.875rem">{{ user.phone|default:"—" }}</span>
+        </div>
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--border);
+          "
+        >
+          <span style="color: var(--text-muted); font-size: 0.875rem"
+            >Joined</span
+          >
+          <span style="font-size: 0.875rem"
+            >{{ user.date_joined|date:"M d, Y" }}</span
+          >
+        </div>
+        <div style="display: flex; justify-content: space-between">
+          <span style="color: var(--text-muted); font-size: 0.875rem"
+            >Status</span
+          >
+          <span
+            style="font-size:.875rem;color:{% if user.is_verified %}var(--accent-green){% else %}var(--accent-red){% endif %};"
+          >
+            {% if user.is_verified %}Verified{% else %}Unverified{% endif %}
+          </span>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- AI Profile -->
+    <div
+      class="card"
+      style="
+        padding: 1.75rem;
+        background: linear-gradient(
+          135deg,
+          rgba(124, 58, 237, 0.08),
+          rgba(0, 212, 255, 0.05)
+        );
+      "
+    >
+      <h2
+        style="
+          font-family: var(--font-display);
+          font-size: 1.1rem;
+          font-weight: 700;
+          margin-bottom: 1.5rem;
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+        "
+      >
+        <i class="fa-solid fa-microchip" style="color: var(--accent-cyan)"></i>
+        AI Shopping Profile
+      </h2>
+      <p
+        style="
+          color: var(--text-muted);
+          font-size: 0.875rem;
+          margin-bottom: 1.25rem;
+        "
+      >
+        NeuralMart learns your preferences to deliver personalized recommendations.
+      </p>
+      <div style="display: flex; flex-wrap: wrap; gap: 0.5rem">
+        {% for cat in user.preferred_categories %}
+        <span
+          style="
+            padding: 0.3rem 0.75rem;
+            background: rgba(201, 168, 76, 0.15);
+            border: 1px solid var(--border-accent);
+            border-radius: 20px;
+            font-size: 0.75rem;
+            color: var(--accent-gold-lt);
+          "
+        >
+          {{ cat }}
+        </span>
+        {% empty %}
+        <span style="color: var(--text-muted); font-size: 0.875rem"
+          >Shop more to unlock AI recommendations!</span
+        >
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Addresses -->
+  <div style="margin-top: 2rem">
+    <div class="section-header">
+      <div>
+        <div class="section-label">Saved Locations</div>
+        <h2 class="section-title" style="font-size: 1.5rem">My Addresses</h2>
+      </div>
+      <a href="{% url 'users:add_address' %}" class="btn btn-primary btn-sm">
+        <i class="fa-solid fa-plus"></i> Add Address
+      </a>
+    </div>
+
+    {% if addresses %}
+    <div
+      style="
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1.25rem;
+      "
+    >
+      {% for addr in addresses %}
+      <div class="card" style="padding: 1.5rem; position: relative">
+        {% if addr.is_default %}
+        <span
+          class="badge badge-new"
+          style="position: absolute; top: 1rem; right: 1rem"
+          >Default</span
+        >
+        {% endif %}
+        <div
+          style="
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+          "
+        >
+          <i
+            class="fa-solid fa-location-dot"
+            style="color: var(--accent-gold)"
+          ></i>
+          <span style="font-family: var(--font-display); font-weight: 700"
+            >{{ addr.label }}</span
+          >
+          <span
+            style="
+              font-size: 0.7rem;
+              color: var(--text-muted);
+              text-transform: uppercase;
+              font-family: var(--font-mono);
+            "
+            >{{ addr.address_type }}</span
+          >
+        </div>
+        <p
+          style="
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+          "
+        >
+          {{ addr.full_name }}<br />
+          {{ addr.address_line1 }}{% if addr.address_line2 %}, {{
+          addr.address_line2 }}{% endif %}<br />
+          {{ addr.city }}, {{ addr.state }}<br />
+          {{ addr.country }} {{ addr.postal_code }}
+        </p>
+        <div style="display: flex; gap: 0.5rem; margin-top: 1rem">
+          <a
+            href="{% url 'users:edit_address' addr.pk %}"
+            class="btn btn-ghost btn-sm"
+            >Edit</a
+          >
+          <form
+            method="post"
+            action="{% url 'users:delete_address' addr.pk %}"
+            onsubmit="return confirm('Delete this address?');"
+            style="display: inline"
+          >
+            {% csrf_token %}
+            <button
+              type="submit"
+              class="btn btn-ghost btn-sm"
+              style="color: var(--accent-red)"
+            >
+              Delete
+            </button>
+          </form>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="card" style="padding: 3rem; text-align: center">
+      <div style="font-size: 3rem; margin-bottom: 1rem"></div>
+      <p style="color: var(--text-muted)">
+        No addresses saved yet. Add one for faster checkout!
+      </p>
+      <a
+        href="{% url 'users:add_address' %}"
+        class="btn btn-primary"
+        style="margin-top: 1rem"
+        >Add Your First Address</a
+      >
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Activity Log{% endblock %}
+{% block content %}
+<div class="dash-layout">
+  {% include 'dashboard/partials/sidebar.html' with active='activity' %}
+  <main class="dash-main">
+
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem;">
+      <h1 style="font-family:var(--font-display);font-size:1.75rem;font-weight:800;">Activity Log</h1>
+      <p style="color:var(--text-muted);font-size:.875rem;">Full audit trail of staff actions across the platform</p>
+    </div>
+
+    <!-- Filters -->
+    <form method="get" style="display:flex;gap:.75rem;margin-bottom:1.5rem;flex-wrap:wrap;">
+      <select name="action" class="form-input" style="width:auto;" onchange="this.form.submit()">
+        <option value="">All Actions</option>
+        {% for val, label in action_choices %}
+        <option value="{{ val }}" {% if action_filter == val %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+      <button type="submit" class="btn btn-secondary btn-sm">Filter</button>
+      <a href="{% url 'dashboard:activity' %}" class="btn btn-ghost btn-sm">Clear</a>
+    </form>
+
+    <!-- Table -->
+    <div class="dash-panel">
+      <div style="overflow-x:auto;">
+        <table class="dash-table">
+          <thead><tr style="background:var(--bg-secondary);">
+            <th>Action</th>
+            <th>Object</th>
+            <th>Staff Member</th>
+            <th>Details</th>
+            <th>IP Address</th>
+            <th>When</th>
+          </tr></thead>
+          <tbody>
+            {% for log in logs %}
+            <tr>
+              <td>
+                <span style="display:inline-flex;align-items:center;gap:.4rem;padding:.25rem .625rem;border-radius:10px;font-size:.72rem;font-family:var(--font-mono);text-transform:uppercase;
+                  {% if log.action == 'create' %}background:rgba(16,185,129,.12);color:var(--accent-green);
+                  {% elif log.action == 'update' %}background:rgba(0,212,255,.12);color:var(--accent-cyan);
+                  {% elif log.action == 'delete' %}background:rgba(239,68,68,.12);color:var(--accent-red);
+                  {% elif log.action == 'approve' %}background:rgba(16,185,129,.12);color:var(--accent-green);
+                  {% elif log.action == 'reject' %}background:rgba(239,68,68,.12);color:var(--accent-red);
+                  {% elif log.action == 'export' %}background:rgba(124,58,237,.12);color:#a78bfa;
+                  {% elif log.action == 'train' %}background:rgba(201,168,76,.12);color:var(--accent-gold);
+                  {% else %}background:var(--bg-elevated);color:var(--text-muted);{% endif %}">
+                  {% if log.action == 'create' %}{% elif log.action == 'update' %}{% elif log.action == 'delete' %}{% elif log.action == 'approve' %}{% elif log.action == 'reject' %}{% elif log.action == 'export' %}{% elif log.action == 'login' %}{% elif log.action == 'train' %}{% else %}{% endif %}
+                  {{ log.get_action_display }}
+                </span>
+              </td>
+              <td>
+                <div style="font-size:.85rem;font-weight:500;">{{ log.model_name|default:"—" }}</div>
+                {% if log.object_repr %}<div style="font-size:.75rem;color:var(--text-muted);max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ log.object_repr }}</div>{% endif %}
+              </td>
+              <td style="font-size:.85rem;white-space:nowrap;">{{ log.user.get_full_name|default:"System" }}</td>
+              <td>
+                {% if log.details %}
+                <div style="font-size:.72rem;color:var(--text-muted);font-family:var(--font-mono);max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="{{ log.details }}">{{ log.details }}</div>
+                {% else %}<span style="color:var(--text-muted);">—</span>{% endif %}
+              </td>
+              <td style="font-size:.75rem;color:var(--text-muted);font-family:var(--font-mono);">{{ log.ip_address|default:"—" }}</td>
+              <td style="font-size:.8rem;color:var(--text-muted);white-space:nowrap;" title="{{ log.created_at }}">{{ log.created_at|timesince }} ago</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6" style="padding:3rem;text-align:center;color:var(--text-muted);">No activity recorded yet</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <!-- Pagination -->
+      {% if page_obj.has_other_pages %}
+      <div style="display:flex;justify-content:center;gap:.5rem;padding:1rem;border-top:1px solid var(--border);">
+        {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}&action={{ action_filter }}" class="btn btn-ghost btn-sm">←</a>{% endif %}
+        <span style="padding:.5rem 1rem;font-size:.8rem;color:var(--text-muted);">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}&action={{ action_filter }}" class="btn btn-ghost btn-sm">→</a>{% endif %}
+      </div>
+      {% endif %}
+    </div>
+
+  </main>
+</div>
+{% endblock %}

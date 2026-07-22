@@ -1,0 +1,180 @@
+{% comment %}
+Review list partial with sentiment analysis display.
+Usage: {% include 'reviews/review_list.html' with product=product %}
+{% endcomment %}
+
+<div id="reviewsSection" data-product-id="{{ product.id }}">
+
+  <!-- Sentiment Overview -->
+  <div id="sentimentOverview" style="margin-bottom:2rem;display:none;">
+    <div class="card" style="padding:1.5rem;">
+      <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:1.25rem;">
+        <i class="fa-solid fa-microchip" style="color:var(--accent-cyan);"></i>
+        <h4 style="font-family:var(--font-display);font-weight:700;font-size:.95rem;">AI Sentiment Analysis</h4>
+        <span style="font-size:.65rem;padding:.2rem .5rem;background:linear-gradient(135deg,rgba(124,58,237,.15),rgba(0,212,255,.08));border:1px solid rgba(124,58,237,.2);border-radius:10px;color:var(--accent-cyan);font-family:var(--font-mono);">PyTorch GRU</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div style="text-align:center;padding:.875rem;background:rgba(16,185,129,.08);border-radius:var(--radius-md);">
+          <div id="posCount" style="font-family:var(--font-display);font-size:1.5rem;font-weight:800;color:var(--accent-green);"></div>
+          <div style="font-size:.75rem;color:var(--text-muted);"><i class="fa-solid fa-face-smile"></i> Positive</div>
+        </div>
+        <div style="text-align:center;padding:.875rem;background:rgba(148,163,184,.08);border-radius:var(--radius-md);">
+          <div id="neuCount" style="font-family:var(--font-display);font-size:1.5rem;font-weight:800;color:var(--text-secondary);"></div>
+          <div style="font-size:.75rem;color:var(--text-muted);"><i class="fa-solid fa-face-meh"></i> Neutral</div>
+        </div>
+        <div style="text-align:center;padding:.875rem;background:rgba(239,68,68,.08);border-radius:var(--radius-md);">
+          <div id="negCount" style="font-family:var(--font-display);font-size:1.5rem;font-weight:800;color:var(--accent-red);"></div>
+          <div style="font-size:.75rem;color:var(--text-muted);"><i class="fa-solid fa-face-frown"></i> Negative</div>
+        </div>
+      </div>
+      <!-- Sentiment bar -->
+      <div style="height:8px;background:var(--bg-elevated);border-radius:4px;overflow:hidden;margin-bottom:.875rem;">
+        <div id="sentimentBar" style="height:100%;border-radius:4px;background:linear-gradient(90deg,var(--accent-green),var(--accent-gold));transition:width .6s ease;width:0%;"></div>
+      </div>
+      <div id="sentimentLabel" style="font-size:.8rem;color:var(--text-muted);text-align:center;"></div>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div style="display:flex;gap:.625rem;margin-bottom:1.5rem;flex-wrap:wrap;align-items:center;">
+    <span style="font-size:.875rem;color:var(--text-muted);">Filter:</span>
+    <button class="review-filter-btn active" data-sentiment="" onclick="filterReviews('','',this)">All</button>
+    <button class="review-filter-btn" data-sentiment="positive" onclick="filterReviews('positive','',this)" style="color:var(--accent-green);"><i class="fa-solid fa-face-smile"></i> Positive</button>
+    <button class="review-filter-btn" data-sentiment="neutral"  onclick="filterReviews('neutral','',this)" style="color:var(--text-muted);"><i class="fa-solid fa-face-meh"></i> Neutral</button>
+    <button class="review-filter-btn" data-sentiment="negative" onclick="filterReviews('negative','',this)" style="color:var(--accent-red);"><i class="fa-solid fa-face-frown"></i> Negative</button>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:.5rem;">
+      <label style="font-size:.8rem;color:var(--text-muted);">Sort:</label>
+      <select id="reviewSort" class="form-input" style="width:auto;font-size:.8rem;padding:.4rem .75rem;" onchange="loadReviews()">
+        <option value="-helpful_count">Most Helpful</option>
+        <option value="-created_at">Newest First</option>
+        <option value="-rating">Highest Rated</option>
+        <option value="rating">Lowest Rated</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Reviews List -->
+  <div id="reviewsList" style="display:flex;flex-direction:column;gap:1.25rem;"></div>
+  <div id="reviewsEmpty" style="display:none;text-align:center;padding:3rem;">
+    <div style="font-size:3rem;margin-bottom:1rem;color:var(--text-muted);"><i class="fa-regular fa-comment"></i></div>
+    <p style="color:var(--text-muted);">No reviews yet. Be the first to review!</p>
+  </div>
+  <div id="reviewsLoading" style="text-align:center;padding:2rem;">
+    <div style="font-size:1.5rem;animation:spin 1s linear infinite;">⟳</div>
+  </div>
+</div>
+
+<style>
+.review-filter-btn{padding:.375rem .875rem;background:var(--bg-elevated);border:1px solid var(--border);border-radius:20px;font-size:.8rem;cursor:pointer;transition:var(--transition);font-family:var(--font-body);}
+.review-filter-btn.active,.review-filter-btn:hover{border-color:var(--border-accent);background:var(--bg-hover);}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+</style>
+
+<script>
+let activeSentiment = '', activeRating = '';
+const productId = document.getElementById('reviewsSection').dataset.productId;
+
+async function loadReviews() {
+  const sort   = document.getElementById('reviewSort').value;
+  const params = new URLSearchParams({sort});
+  if (activeSentiment) params.append('sentiment', activeSentiment);
+  if (activeRating)    params.append('rating',    activeRating);
+
+  document.getElementById('reviewsLoading').style.display = 'block';
+  document.getElementById('reviewsList').style.display    = 'none';
+
+  try {
+    const res  = await fetch(`/reviews/product/${productId}/?${params}`);
+    const data = await res.json();
+    renderReviews(data.reviews || []);
+  } catch(e) {
+    document.getElementById('reviewsLoading').style.display = 'none';
+  }
+}
+
+async function loadSentiment() {
+  try {
+    const res  = await fetch(`/reviews/sentiment/${productId}/`);
+    const data = await res.json();
+    if (!data.success) return;
+
+    document.getElementById('posCount').textContent = data.positive_count;
+    document.getElementById('neuCount').textContent = data.neutral_count;
+    document.getElementById('negCount').textContent = data.negative_count;
+    document.getElementById('sentimentBar').style.width = data.positive_pct + '%';
+    document.getElementById('sentimentLabel').textContent =
+      `${data.positive_pct}% positive sentiment out of ${data.total} reviews`;
+    document.getElementById('sentimentOverview').style.display = 'block';
+  } catch(e) {}
+}
+
+function filterReviews(sentiment, rating, btn) {
+  activeSentiment = sentiment;
+  activeRating    = rating;
+  document.querySelectorAll('.review-filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  loadReviews();
+}
+
+function renderReviews(reviews) {
+  document.getElementById('reviewsLoading').style.display = 'none';
+  const list = document.getElementById('reviewsList');
+
+  if (!reviews.length) {
+    document.getElementById('reviewsEmpty').style.display = 'block';
+    list.style.display = 'none';
+    return;
+  }
+
+  document.getElementById('reviewsEmpty').style.display = 'none';
+  list.style.display = 'flex';
+  list.innerHTML = reviews.map(r => `
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.5rem;" data-review-id="${r.id}">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1rem;gap:.75rem;flex-wrap:wrap;">
+        <div style="display:flex;align-items:center;gap:.875rem;">
+          <img src="${r.avatar}" alt="${r.user}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid var(--border);" />
+          <div>
+            <div style="font-weight:600;font-size:.9rem;">${r.user}</div>
+            <div style="font-size:.75rem;color:var(--text-muted);">${r.created_at}</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:.75rem;">
+          <div style="color:var(--accent-gold);font-size:1rem;">${Array.from({length:5}, (_,i) => `<i class="fa-${i < r.rating ? 'solid' : 'regular'} fa-star"></i>`).join('')}</div>
+          ${r.has_purchased ? '<span style="font-size:.7rem;padding:.2rem .5rem;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.2);border-radius:10px;color:var(--accent-green);"><i class="fa-solid fa-circle-check"></i> Verified Purchase</span>' : ''}
+          ${r.sentiment ? `<span style="font-size:.7rem;padding:.2rem .5rem;background:rgba(124,58,237,.1);border-radius:10px;color:var(--accent-cyan);font-family:var(--font-mono);">AI: ${r.sentiment}</span>` : ''}
+        </div>
+      </div>
+      ${r.title ? `<div style="font-family:var(--font-display);font-weight:700;margin-bottom:.5rem;">${r.title}</div>` : ''}
+      <p style="color:var(--text-secondary);line-height:1.7;font-size:.9rem;">${r.comment}</p>
+      <div style="display:flex;align-items:center;gap:1rem;margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border);">
+        <span style="font-size:.8rem;color:var(--text-muted);">Helpful?</span>
+        <button onclick="voteReview('${r.id}',1,this)" style="display:flex;align-items:center;gap:.375rem;font-size:.8rem;color:var(--text-secondary);background:var(--bg-elevated);border:1px solid var(--border);border-radius:20px;padding:.25rem .75rem;cursor:pointer;transition:var(--transition);" onmouseover="this.style.borderColor='var(--border-accent)'" onmouseout="this.style.borderColor='var(--border)'">
+          <i class="fa-regular fa-thumbs-up"></i> <span class="helpful-count">${r.helpful_count}</span>
+        </button>
+        <button onclick="voteReview('${r.id}',0,this)" style="display:flex;align-items:center;gap:.375rem;font-size:.8rem;color:var(--text-secondary);background:var(--bg-elevated);border:1px solid var(--border);border-radius:20px;padding:.25rem .75rem;cursor:pointer;transition:var(--transition);" onmouseover="this.style.borderColor='var(--border-accent)'" onmouseout="this.style.borderColor='var(--border)'">
+          <i class="fa-regular fa-thumbs-down"></i>
+        </button>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function voteReview(id, helpful, btn) {
+  const res  = await fetch(`/reviews/vote/${id}/`, {
+    method:'POST',
+    headers:{'Content-Type':'application/x-www-form-urlencoded','X-CSRFToken':getCookie('csrftoken')},
+    body: `helpful=${helpful}`
+  });
+  const data = await res.json();
+  if (data.success) {
+    btn.querySelector('.helpful-count')?.textContent !== undefined
+      ? (btn.querySelector('.helpful-count').textContent = data.helpful_count)
+      : null;
+    showToast('Thanks for your feedback!', 'success');
+  }
+}
+
+// Load on page ready
+loadReviews();
+loadSentiment();
+</script>

@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% block title %}My Orders{% endblock %}
+{% block content %}
+<div class="container" style="padding-top:2.5rem;padding-bottom:5rem;">
+  <h1 style="font-family:var(--font-display);font-size:2rem;font-weight:800;margin-bottom:2rem;">
+    <i class="fa-regular fa-bag-shopping" style="color:var(--accent-gold);"></i> My Orders
+  </h1>
+  {% if orders %}
+  <div style="display:flex;flex-direction:column;gap:1.25rem;">
+    {% for order in orders %}
+    <div class="card" style="padding:1.75rem;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;flex-wrap:wrap;gap:.75rem;">
+        <div>
+          <div style="font-family:var(--font-mono);font-size:.8rem;color:var(--text-muted);margin-bottom:.25rem;">ORDER</div>
+          <div style="font-family:var(--font-display);font-weight:700;font-size:1rem;">{{ order.order_number }}</div>
+        </div>
+        <div style="text-align:center;">
+          <div style="font-size:.75rem;color:var(--text-muted);margin-bottom:.25rem;">Placed</div>
+          <div style="font-size:.875rem;">{{ order.created_at|date:"M d, Y" }}</div>
+        </div>
+        <div style="text-align:center;">
+          <div style="font-size:.75rem;color:var(--text-muted);margin-bottom:.25rem;">Total</div>
+          <div style="font-family:var(--font-display);font-weight:700;color:var(--accent-gold);">KES {{ order.total|floatformat:"0" }}</div>
+        </div>
+        <div>
+          <span style="padding:.35rem .875rem;border-radius:20px;font-size:.75rem;font-weight:700;font-family:var(--font-mono);text-transform:uppercase;
+            {% if order.status == 'delivered' %}background:rgba(16,185,129,.15);color:var(--accent-green);
+            {% elif order.status == 'shipped' %}background:rgba(0,212,255,.15);color:var(--accent-cyan);
+            {% elif order.status == 'cancelled' %}background:rgba(239,68,68,.15);color:var(--accent-red);
+            {% else %}background:rgba(201,168,76,.15);color:var(--accent-gold);{% endif %}">
+            {{ order.get_status_display }}
+          </span>
+        </div>
+        <a href="{% url 'orders:order_detail' order.order_number %}" class="btn btn-secondary btn-sm">View Details</a>
+      </div>
+      <!-- Items preview -->
+      <div style="display:flex;gap:.625rem;overflow-x:auto;scrollbar-width:none;">
+        {% for item in order.items.all|slice:":5" %}
+        <div style="width:52px;height:52px;background:var(--bg-secondary);border-radius:8px;flex-shrink:0;overflow:hidden;">
+          {% if item.product and item.product.primary_image %}<img src="{{ item.product.primary_image.image.url }}" style="width:100%;height:100%;object-fit:cover;" />{% else %}<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:1.5rem;"><i class='fas fa-shopping-bag'></i></div>{% endif %}
+        </div>
+        {% endfor %}
+        {% if order.items.count > 5 %}<div style="width:52px;height:52px;background:var(--bg-elevated);border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.75rem;color:var(--text-muted);">+{{ order.items.count|add:"-5" }}</div>{% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div style="text-align:center;padding:6rem 2rem;">
+    <div style="font-size:5rem;margin-bottom:1.5rem;"><i class='fas fa-box'></i></div>
+    <h2 style="font-family:var(--font-display);font-size:1.75rem;font-weight:800;margin-bottom:.75rem;">No orders yet</h2>
+    <p style="color:var(--text-muted);margin-bottom:2rem;">Your order history will appear here once you make a purchase.</p>
+    <a href="{% url 'products:list' %}" class="btn btn-primary btn-lg">
+      <i class="fa-solid fa-bag-shopping"></i> Shop Now
+    </a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

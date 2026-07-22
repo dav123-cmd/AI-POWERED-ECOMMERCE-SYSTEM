@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}{{ page_title|default:"Shop All Products" }}{% endblock %}
+{% block content %}
+<div class="container" style="padding-top:2.5rem;padding-bottom:5rem;">
+
+  <!-- Header -->
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem;flex-wrap:wrap;gap:1rem;">
+    <div>
+      <h1 style="font-family:var(--font-display);font-size:2rem;font-weight:800;">
+        {% if current_category %}{{ current_category.name }}
+        {% elif current_filters.q %}Results for "{{ current_filters.q }}"
+        {% else %}{{ page_title|default:"All Products" }}{% endif %}
+      </h1>
+      <p style="color:var(--text-muted);font-size:0.875rem;margin-top:0.25rem;">{{ total_count }} products found</p>
+    </div>
+    <!-- Sort -->
+    <select id="sortSelect" class="form-input" style="width:auto;" onchange="applySort(this.value)">
+      <option value="-created_at" {% if current_filters.sort == '-created_at' %}selected{% endif %}>Newest First</option>
+      <option value="price"       {% if current_filters.sort == 'price'       %}selected{% endif %}>Price: Low → High</option>
+      <option value="-price"      {% if current_filters.sort == '-price'      %}selected{% endif %}>Price: High → Low</option>
+      <option value="-rating_avg" {% if current_filters.sort == '-rating_avg' %}selected{% endif %}>Top Rated</option>
+      <option value="-purchase_count" {% if current_filters.sort == '-purchase_count' %}selected{% endif %}>Best Selling</option>
+    </select>
+  </div>
+
+  <div style="display:grid;grid-template-columns:240px 1fr;gap:2rem;">
+
+    <!-- Sidebar Filters -->
+    <aside>
+      <div class="card" style="padding:1.5rem;position:sticky;top:calc(var(--nav-height)+1rem);">
+        <form method="get" id="filterForm">
+          <h3 style="font-family:var(--font-display);font-weight:700;margin-bottom:1.25rem;font-size:1rem;">
+            <i class="fa-solid fa-sliders" style="color:var(--accent-gold);margin-right:.5rem;"></i>Filters
+          </h3>
+
+          <!-- Search -->
+          <div style="margin-bottom:1.5rem;">
+            <label class="form-label">Search</label>
+            <div style="position:relative;">
+              <input type="text" name="q" value="{{ current_filters.q }}" class="form-input" placeholder="Search products..." style="padding-left:2.5rem;" />
+              <i class="fa-solid fa-magnifying-glass" style="position:absolute;left:.875rem;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:.875rem;"></i>
+            </div>
+          </div>
+
+          <!-- Categories -->
+          {% if categories %}
+          <div style="margin-bottom:1.5rem;">
+            <label class="form-label">Category</label>
+            <div style="display:flex;flex-direction:column;gap:.5rem;max-height:200px;overflow-y:auto;">
+              <label style="display:flex;align-items:center;gap:.625rem;cursor:pointer;font-size:.875rem;color:var(--text-secondary);">
+                <input type="radio" name="category" value="" {% if not current_filters.category %}checked{% endif %} style="accent-color:var(--accent-gold);" /> All Categories
+              </label>
+              {% for cat in categories %}
+              <label style="display:flex;align-items:center;gap:.625rem;cursor:pointer;font-size:.875rem;color:var(--text-secondary);">
+                <input type="radio" name="category" value="{{ cat.slug }}" {% if current_filters.category == cat.slug %}checked{% endif %} style="accent-color:var(--accent-gold);" />
+                {{ cat.name }} <span style="color:var(--text-muted);font-size:.75rem;">({{ cat.cnt|default:0 }})</span>
+              </label>
+              {% endfor %}
+            </div>
+          </div>
+          {% endif %}
+
+          <!-- Price Range -->
+          <div style="margin-bottom:1.5rem;">
+            <label class="form-label">Price Range (KES)</label>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;">
+              <input type="number" name="min_price" value="{{ current_filters.min_price }}" class="form-input" placeholder="Min" style="font-size:.8rem;padding:.5rem .75rem;" />
+              <input type="number" name="max_price" value="{{ current_filters.max_price }}" class="form-input" placeholder="Max" style="font-size:.8rem;padding:.5rem .75rem;" />
+            </div>
+          </div>
+
+          <!-- Checkboxes -->
+          <div style="margin-bottom:1.5rem;display:flex;flex-direction:column;gap:.625rem;">
+            <label style="display:flex;align-items:center;gap:.625rem;cursor:pointer;font-size:.875rem;color:var(--text-secondary);">
+              <input type="checkbox" name="sale" value="1" {% if current_filters.sale %}checked{% endif %} style="accent-color:var(--accent-gold);" />
+              On Sale Only <i class='fas fa-fire'></i>
+            </label>
+            <label style="display:flex;align-items:center;gap:.625rem;cursor:pointer;font-size:.875rem;color:var(--text-secondary);">
+              <input type="checkbox" name="in_stock" value="1" {% if current_filters.in_stock %}checked{% endif %} style="accent-color:var(--accent-gold);" />
+              In Stock Only
+            </label>
+          </div>
+
+          <input type="hidden" name="sort" id="sortInput" value="{{ current_filters.sort|default:'-created_at' }}" />
+          <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;">Apply Filters</button>
+          <a href="{% url 'products:list' %}" class="btn btn-ghost btn-sm" style="width:100%;justify-content:center;margin-top:.5rem;">Clear All</a>
+        </form>
+      </div>
+    </aside>
+
+    <!-- Product Grid -->
+    <div>
+      {% if products %}
+      <div class="grid-products">
+        {% for product in products %}{% include 'products/partials/product_card.html' %}{% endfor %}
+      </div>
+      <!-- Pagination -->
+      {% if page_obj.has_other_pages %}
+      <div style="display:flex;justify-content:center;gap:.5rem;margin-top:3rem;">
+        {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}&{% for k,v in request.GET.items %}{% if k != 'page' %}{{ k }}={{ v }}&{% endif %}{% endfor %}" class="btn btn-ghost btn-sm">← Prev</a>
+        {% endif %}
+        {% for num in page_obj.paginator.page_range %}
+          {% if num == page_obj.number %}
+          <span class="btn btn-primary btn-sm">{{ num }}</span>
+          {% elif num|add:"-2" <= page_obj.number and num <= page_obj.number|add:"2" %}
+          <a href="?page={{ num }}&{% for k,v in request.GET.items %}{% if k != 'page' %}{{ k }}={{ v }}&{% endif %}{% endfor %}" class="btn btn-ghost btn-sm">{{ num }}</a>
+          {% endif %}
+        {% endfor %}
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}&{% for k,v in request.GET.items %}{% if k != 'page' %}{{ k }}={{ v }}&{% endif %}{% endfor %}" class="btn btn-ghost btn-sm">Next →</a>
+        {% endif %}
+      </div>
+      {% endif %}
+      {% else %}
+      <div style="text-align:center;padding:5rem 2rem;">
+        <div style="font-size:4rem;margin-bottom:1rem;">🔍</div>
+        <h2 style="font-family:var(--font-display);font-weight:700;margin-bottom:.5rem;">No products found</h2>
+        <p style="color:var(--text-muted);margin-bottom:1.5rem;">Try adjusting your filters or search terms</p>
+        <a href="{% url 'products:list' %}" class="btn btn-primary">Clear Filters</a>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{% block extra_js %}
+<script>
+function applySort(val){
+  document.getElementById('sortInput').value = val;
+  document.getElementById('filterForm').submit();
+}
+</script>
+{% endblock %}
+{% endblock %}

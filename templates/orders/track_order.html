@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block title %}Track Order{% endblock %}
+{% block content %}
+<div class="container" style="padding-top:3rem;padding-bottom:5rem;max-width:560px;">
+  <div style="text-align:center;margin-bottom:2.5rem;">
+    <div style="font-size:3rem;margin-bottom:1rem;">📦</div>
+    <h1 style="font-family:var(--font-display);font-size:2rem;font-weight:800;">Track Your Order</h1>
+    <p style="color:var(--text-muted);margin-top:.5rem;">Enter your order number and email to check status</p>
+  </div>
+  <div class="card" style="padding:2rem;margin-bottom:2rem;">
+    <form method="post" novalidate>
+      {% csrf_token %}
+      <div class="form-group">
+        <label class="form-label">Order Number</label>
+        <input type="text" name="order_number" class="form-input" placeholder="SAI-240101-XXXX" required style="font-family:var(--font-mono);" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email Address</label>
+        <input type="email" name="email" class="form-input" placeholder="Email used at checkout" required />
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;">
+        <i class="fa-solid fa-magnifying-glass"></i> Track Order
+      </button>
+    </form>
+  </div>
+  {% if order %}
+  <div class="card" style="padding:2rem;border-color:var(--border-accent);">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;">
+      <div>
+        <div style="font-size:.75rem;color:var(--text-muted);">ORDER NUMBER</div>
+        <div style="font-family:var(--font-mono);font-weight:700;color:var(--accent-gold);">{{ order.order_number }}</div>
+      </div>
+      <span style="padding:.4rem 1rem;border-radius:20px;font-size:.8rem;font-weight:700;text-transform:uppercase;background:rgba(201,168,76,.15);color:var(--accent-gold);">{{ order.get_status_display }}</span>
+    </div>
+    {% if order.tracking_number %}
+    <div style="font-size:.875rem;"><span style="color:var(--text-muted);">Tracking #: </span><span style="font-family:var(--font-mono);">{{ order.tracking_number }}</span></div>
+    {% endif %}
+    <div style="font-size:.875rem;color:var(--text-muted);margin-top:.5rem;">Placed: {{ order.created_at|date:"M d, Y" }} · Total: <strong>KES {{ order.total|floatformat:"0" }}</strong></div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
