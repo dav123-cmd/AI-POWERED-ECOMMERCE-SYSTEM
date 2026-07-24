@@ -14713,3 +14713,101 @@ Traceback (most recent call last):
     raise ConnectionError(self._error_message(e))
 redis.exceptions.ConnectionError: Error 10061 connecting to localhost:6379. No connection could be made because the target machine actively refused it.
 [ERROR] 2026-07-22 15:56:26,052 basehttp "POST /accounts/login/ HTTP/1.1" 500 210259
+[ERROR] 2026-07-24 18:55:52,253 log Internal Server Error: /accounts/login/
+Traceback (most recent call last):
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\redis\connection.py", line 276, in connect
+    sock = self.retry.call_with_retry(
+        lambda: self._connect(), lambda error: self.disconnect(error)
+    )
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\redis\retry.py", line 46, in call_with_retry
+    return do()
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\redis\connection.py", line 277, in <lambda>
+    lambda: self._connect(), lambda error: self.disconnect(error)
+            ~~~~~~~~~~~~~^^
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\redis\connection.py", line 639, in _connect
+    raise err
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\redis\connection.py", line 627, in _connect
+    sock.connect(socket_address)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+ConnectionRefusedError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\django\utils\decorators.py", line 48, in _wrapper
+    return bound_method(*args, **kwargs)
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\django\views\decorators\debug.py", line 143, in sensitive_post_parameters_wrapper
+    return view(request, *args, **kwargs)
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\django\utils\decorators.py", line 48, in _wrapper
+    return bound_method(*args, **kwargs)
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\django\views\decorators\cache.py", line 80, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\allauth\account\views.py", line 168, in dispatch
+    return super(LoginView, self).dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\allauth\account\views.py", line 95, in dispatch
+    response = super(RedirectAuthenticatedUserMixin, self).dispatch(
+        request, *args, **kwargs
+    )
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\django\views\generic\base.py", line 143, in dispatch
+    return handler(request, *args, **kwargs)
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\allauth\account\views.py", line 122, in post
+    if form.is_valid():
+       ~~~~~~~~~~~~~^^
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\django\forms\forms.py", line 197, in is_valid
+    return self.is_bound and not self.errors
+                                 ^^^^^^^^^^^
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\django\forms\forms.py", line 192, in errors
+    self.full_clean()
+    ~~~~~~~~~~~~~~~^^
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\django\forms\forms.py", line 328, in full_clean
+    self._clean_form()
+    ~~~~~~~~~~~~~~~~^^
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\django\forms\forms.py", line 349, in _clean_form
+    cleaned_data = self.clean()
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\allauth\account\forms.py", line 186, in clean
+    user = get_adapter(self.request).authenticate(self.request, **credentials)
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\allauth\account\adapter.py", line 671, in authenticate
+    self.pre_authenticate(request, **credentials)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\allauth\account\adapter.py", line 660, in pre_authenticate
+    if not ratelimit.consume(
+           ~~~~~~~~~~~~~~~~~^
+        request,
+        ^^^^^^^^
+        action="login_failed",
+        ^^^^^^^^^^^^^^^^^^^^^^
+        key=cache_key,
+        ^^^^^^^^^^^^^^
+    ):
+    ^
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\allauth\core\ratelimit.py", line 100, in consume
+    if not _consume_rate(request, action=action, rate=rate, key=key, user=user):
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\allauth\core\ratelimit.py", line 107, in _consume_rate
+    history = cache.get(cache_key, [])
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\django\core\cache\backends\redis.py", line 187, in get
+    return self._cache.get(key, default)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\django\core\cache\backends\redis.py", line 99, in get
+    value = client.get(key)
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\redis\commands\core.py", line 1830, in get
+    return self.execute_command("GET", name)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\redis\client.py", line 540, in execute_command
+    conn = self.connection or pool.get_connection(command_name, **options)
+                              ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\redis\connection.py", line 1104, in get_connection
+    connection.connect()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\redis\connection.py", line 282, in connect
+    raise ConnectionError(self._error_message(e))
+redis.exceptions.ConnectionError: Error 10061 connecting to localhost:6379. No connection could be made because the target machine actively refused it.
+[ERROR] 2026-07-24 18:55:52,353 basehttp "POST /accounts/login/ HTTP/1.1" 500 210530

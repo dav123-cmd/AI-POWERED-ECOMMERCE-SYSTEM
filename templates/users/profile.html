@@ -255,11 +255,8 @@
       <a href="{% url 'users:add_address' %}" class="btn btn-primary btn-sm">
         <i class="fa-solid fa-plus"></i> Add Address
       </a>
-    </div>
-
-    {% if addresses %}
-    <div
-      style="
+    </div>{% if addresses %}
+    <div style="
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
         gap: 1.25rem;

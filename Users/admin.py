@@ -34,9 +34,7 @@ class CustomerUserAdmin(BaseUserAdmin):
         ('Dates',       {'fields': ('date_joined','last_login')}),
     )
     
-    add_fieldsets = (
-        (None, {'classes': ('wide',), 'fields': ('email', 'password')}),
-    )
+    add_fieldsets = ( (None, {'classes': ('wide',), 'fields': ('email', 'password')}),)
     
     filter_horizontal = ('groups', 'user_permissions')
 
