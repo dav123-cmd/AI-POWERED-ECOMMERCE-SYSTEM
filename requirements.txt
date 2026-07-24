@@ -161,3 +161,5 @@ zopfli==0.4.3
 dj-database-url
 gunicorn
 python-dotenv
+whitenoise
+Brotli
