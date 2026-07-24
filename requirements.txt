@@ -139,9 +139,9 @@ text-unidecode==1.3
 threadpoolctl==3.6.0
 tinycss2==1.5.1
 tokenizers==0.22.2
-torch==2.12.1+cu126
-torchvision==0.27.1+cu126
-tornado==6.5.7
+torch
+torchvision
+tornado
 tqdm==4.68.3
 traitlets==5.15.1
 transformers==4.57.6
