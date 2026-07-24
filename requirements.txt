@@ -125,7 +125,7 @@ rpds-py==2026.5.1
 s3transfer==0.10.4
 safetensors==0.8.0
 scikit-learn==1.9.0
-scipy==1.18.0
+scipy
 sentence-transformers==2.6.1
 setuptools==70.2.0
 shellingham==1.5.4
