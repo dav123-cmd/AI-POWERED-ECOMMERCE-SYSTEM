@@ -160,3 +160,4 @@ whitenoise==6.6.0
 zopfli==0.4.3
 dj-database-url
 gunicorn
+python-dotenv
