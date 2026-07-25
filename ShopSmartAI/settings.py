@@ -9,8 +9,7 @@ https://docs.djangoproject.com/en/6.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/"""
 
-import dj_database_url
-from pathlib import Path
+
 import os
 from decouple import config
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -21,12 +20,34 @@ load_dotenv(BASE_DIR / '.env')
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('SECRET_KEY')
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DEBUG', '0').lower() in ['true', 't', '1']
+import os
+import dj_database_url
+from pathlib import Path
+from dotenv import load_dotenv
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS').split(' ')
+# Load the .env file
+load_dotenv()
+
+# 1. Debug (Converts the string "True" to a Python boolean)
+DEBUG = os.environ.get("DEBUG", "False") == "True"
+
+# 2. Allowed Hosts (Splits the comma-separated string into a list)
+ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "127.0.0.1,localhost").split(",")
+
+# 3. Secret Key
+SECRET_KEY = os.environ.get("SECRET_KEY")
+
+# 4. Database (Automatically parses your Render PostgreSQL URL)
+DATABASES = {
+    'default': dj_database_url.config(
+        default=os.environ.get("DATABASE_URL")
+    )
+}
+
+
+
+
 
 # Application definition
 
@@ -67,11 +88,7 @@ SOCIALACCOUNT_PROVIDERS = {
     }
 }
 
-MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
-    # ...
-]
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -157,7 +174,7 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
 # ─── Authentication ────────────────────────────────────────────────────────────
 AUTH_USER_MODEL = 'users.User'
 #
