@@ -85,6 +85,12 @@ SOCIALACCOUNT_PROVIDERS = {
     }
 }
 
+MIDDLEWARE = [
+    # ...
+    'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware', # Add this right after SecurityMiddleware
+    # ...
+]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -163,13 +169,14 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
-STATIC_URL = 'static/'
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),
-]
+
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
+# Enable WhiteNoise's compressed manifest storage
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 
 # ─── Authentication ────────────────────────────────────────────────────────────
