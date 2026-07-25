@@ -12,10 +12,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/"""
 
 import os
 from decouple import config
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
 from dotenv import load_dotenv
-load_dotenv(BASE_DIR / '.env')
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
@@ -25,10 +22,10 @@ import os
 import dj_database_url
 from pathlib import Path
 from dotenv import load_dotenv
-
+BASE_DIR = Path(__file__).resolve().parent.parent
 # Load the .env file
 load_dotenv()
-
+load_dotenv(BASE_DIR / '.env')
 # 1. Debug (Converts the string "True" to a Python boolean)
 DEBUG = os.environ.get("DEBUG", "False") == "True"
 
