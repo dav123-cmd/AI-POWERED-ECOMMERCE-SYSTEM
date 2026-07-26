@@ -1,6 +1,6 @@
 from django import forms
 from django.forms import inlineformset_factory
-from .models import Product, ProductImage, Category, Brand, Tag
+from .models import Product, ProductImage, Category,Brand, Tag
 
 
 class ProductForm(forms.ModelForm):
