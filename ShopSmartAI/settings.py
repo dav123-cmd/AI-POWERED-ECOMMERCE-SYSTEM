@@ -33,14 +33,19 @@ DEBUG = os.environ.get("DEBUG", "False") == "True"
 ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "127.0.0.1,localhost").split(",")
 
 # 3. Secret Key
-SECRET_KEY = os.environ.get("SECRET_KEY")
+import dj_database_url
+import os
 
-# 4. Database (Automatically parses your Render PostgreSQL URL)
 DATABASES = {
     'default': dj_database_url.config(
-        default=os.environ.get("DATABASE_URL")
+        default=os.environ.get('DATABASE_URL'),
+        conn_max_age=600,
+        ssl_require=True
     )
 }
+SECRET_KEY = os.environ.get("SECRET_KEY")
+
+
 
 
 STORAGES = {
@@ -134,9 +139,8 @@ WSGI_APPLICATION = 'ShopSmartAI.wsgi.application'
 
 
 
-DATABASES = {
-    'default': dj_database_url.parse(os.environ.get('DATABASE_URL'), conn_max_age=600),
-}
+
+
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
 
