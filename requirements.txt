@@ -90,7 +90,7 @@ platformdirs==4.10.0
 pluggy==1.6.0
 prometheus_client==0.25.0
 prompt_toolkit==3.0.52
-psycopg2-binary
+psycopg2-binary>=2.9.0
 pure_eval==0.2.3
 pycodestyle==2.11.1
 pycparser==3.0
