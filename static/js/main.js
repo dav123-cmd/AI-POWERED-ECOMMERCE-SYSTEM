@@ -270,7 +270,7 @@ async function toggleWishlist(productId, btn) {
     const data = await res.json();
     if (data.added) {
       btn.style.color = '#ef4444';
-      showToast('Added to wishlist ❤️', 'success');
+      showToast('Added to wishlist ', 'success');
     } else {
       btn.style.color = '';
       showToast('Removed from wishlist', 'info');

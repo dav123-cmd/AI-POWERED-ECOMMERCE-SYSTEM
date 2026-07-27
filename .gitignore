@@ -5,3 +5,4 @@ Thumbs.db
 /media/
 # Logs
 *.log
+.env
