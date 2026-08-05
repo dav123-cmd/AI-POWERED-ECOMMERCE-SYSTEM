@@ -110,7 +110,7 @@
           </button>
         </div>
         <div id="mpesaStep2" style="display:none;text-align:center;padding:1rem 0;">
-          <div style="font-size:3rem;margin-bottom:1rem;animation:pulse 2s infinite;">📳</div>
+          <div style="font-size:3rem;margin-bottom:1rem;animation:pulse 2s infinite;"></div>
           <h3 style="font-family:var(--font-display);font-weight:700;margin-bottom:.5rem;">Check Your Phone!</h3>
           <p style="color:var(--text-muted);font-size:.875rem;margin-bottom:1.5rem;">Enter your M-Pesa PIN on the prompt sent to your phone.</p>
           <div style="background:var(--bg-elevated);border-radius:var(--radius-md);padding:1rem;margin-bottom:1.5rem;">
@@ -136,7 +136,7 @@
           {% for item in order.items.all %}
           <div style="display:flex;gap:.75rem;align-items:center;">
             <div style="width:44px;height:44px;background:var(--bg-secondary);border-radius:8px;flex-shrink:0;overflow:hidden;">
-              {% if item.product and item.product.primary_image %}<img src="{{ item.product.primary_image.image.url }}" style="width:100%;height:100%;object-fit:cover;" />{% else %}<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;">🛍️</div>{% endif %}
+              {% if item.product and item.product.primary_image %}<img src="{{ item.product.primary_image.image.url }}" style="width:100%;height:100%;object-fit:cover;" />{% else %}<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;"></div>{% endif %}
             </div>
             <div style="flex:1;font-size:.85rem;">
               <div style="font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:160px;">{{ item.product_name }}</div>
@@ -219,7 +219,7 @@ async function payWithStripe() {
     btn.disabled = false;
     btn.innerHTML = '<i class="fa-solid fa-lock"></i> Pay KES {{ order.total|floatformat:"0" }}';
   } else if (paymentIntent.status === 'succeeded') {
-    btn.innerHTML = '✓ Payment Successful! Redirecting...';
+    btn.innerHTML = ' Payment Successful! Redirecting...';
     const res = await fetch('/payments/stripe/confirm/', {
       method:'POST', headers:{'Content-Type':'application/json','X-CSRFToken':getCookie('csrftoken')},
       body: JSON.stringify({payment_intent_id: paymentIntent.id})
@@ -270,12 +270,12 @@ async function pollMpesa() {
   });
   const data = await res.json();
   if (data.status === 'completed') {
-    statusDiv.innerHTML = '<span style="color:var(--accent-green);">✅ Payment confirmed! Redirecting...</span>';
+    statusDiv.innerHTML = '<span style="color:var(--accent-green);"> Payment confirmed! Redirecting...</span>';
     setTimeout(() => window.location.href = data.redirect, 1500);
   } else if (data.status === 'failed') {
-    statusDiv.innerHTML = '<span style="color:var(--accent-red);">❌ Payment failed. Please try again.</span>';
+    statusDiv.innerHTML = '<span style="color:var(--accent-red);"> Payment failed. Please try again.</span>';
   } else {
-    statusDiv.innerHTML = '<span style="color:var(--text-muted);">⏳ Waiting for payment confirmation...</span>';
+    statusDiv.innerHTML = '<span style="color:var(--text-muted);">Waiting for payment confirmation...</span>';
   }
 }
 </script>

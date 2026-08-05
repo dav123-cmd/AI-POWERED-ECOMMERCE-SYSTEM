@@ -233,7 +233,7 @@ async function addToCart(productId, qty = 1, btn = null) {
       const data = await res.json();
 
       if (data.success) {
-        showToast(data.message || 'Added to cart! 🛍️', 'success');
+        showToast(data.message || 'Added to cart! ', 'success');
         // Update cart badge
         document.querySelectorAll('.navbar__badge').forEach(badge => {
           if (badge.closest('.navbar__icon-btn')?.querySelector('.fa-bag-shopping')) {
@@ -270,7 +270,7 @@ async function toggleWishlist(productId, btn) {
     const data = await res.json();
     if (data.added) {
       btn.style.color = '#ef4444';
-      showToast('Added to wishlist ❤️', 'success');
+      showToast('Added to wishlist ', 'success');
     } else {
       btn.style.color = '';
       showToast('Removed from wishlist', 'info');

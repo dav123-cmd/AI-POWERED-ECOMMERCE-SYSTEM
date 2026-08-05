@@ -205,7 +205,7 @@ def _process_checkout(request, cart, shipping_fee, tax_amount, grand_total):
         cart.coupon = None
         cart.save()
         request.session['last_order_id'] = str(order.id)
-        return redirect('orders:order_summary', order_number=order.order_number)
+        return redirect('payments:page', order_number=order.order_number)
     except Exception as e:
         messages.error(request, f'Order failed: {str(e)}')
         return redirect('orders:checkout')

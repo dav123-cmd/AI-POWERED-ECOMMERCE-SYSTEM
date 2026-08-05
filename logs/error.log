@@ -14888,3 +14888,213 @@ Traceback (most recent call last):
   File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\django\http\request.py", line 151, in get_host
     raise DisallowedHost(msg)
 django.core.exceptions.DisallowedHost: Invalid HTTP_HOST header: '127.0.0.1:8000'. You may need to add '127.0.0.1' to ALLOWED_HOSTS.
+[ERROR] 2026-08-06 01:09:03,544 log Internal Server Error: /payments/SAI-2608052208-EB48/
+Traceback (most recent call last):
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\ShopSmartAI\payments\views.py", line 35, in payment_page
+    intent, payment = create_payment_intent(order)
+                      ~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\ShopSmartAI\payments\stripe_service.py", line 15, in create_payment_intent
+    intent = stripe.PaymentIntent.create(
+        amount      = amount_cents,
+    ...<2 lines>...
+        description = f'ShopAI Order {order.order_number}',
+    )
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\stripe\_payment_intent.py", line 9308, in create
+    cls._static_request(
+    ~~~~~~~~~~~~~~~~~~~^
+        "post",
+        ^^^^^^^
+        cls.class_url(),
+        ^^^^^^^^^^^^^^^^
+        params=params,
+        ^^^^^^^^^^^^^^
+    ),
+    ^
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\stripe\_api_resource.py", line 177, in _static_request
+    return _APIRequestor._global_instance().request(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        method_,
+        ^^^^^^^^
+    ...<4 lines>...
+        api_mode=api_mode,
+        ^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\stripe\_api_requestor.py", line 196, in request
+    resp = requestor._interpret_response(rbody, rcode, rheaders)
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\stripe\_api_requestor.py", line 732, in _interpret_response
+    self.handle_error_response(rbody, rcode, resp.data, rheaders)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\stripe\_api_requestor.py", line 321, in handle_error_response
+    raise err
+stripe._error.AuthenticationError: You did not provide an API key. You need to provide your API key in the Authorization header, using Bearer auth (e.g. 'Authorization: Bearer YOUR_SECRET_KEY'). See https://stripe.com/docs/api#authentication for details, or we can help at https://support.stripe.com/.
+[ERROR] 2026-08-06 01:09:03,908 basehttp "GET /payments/SAI-2608052208-EB48/ HTTP/1.1" 500 123274
+[ERROR] 2026-08-06 02:22:55,539 log Internal Server Error: /payments/SAI-2608052322-7D64/
+Traceback (most recent call last):
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\urllib3\connection.py", line 204, in _new_conn
+    sock = connection.create_connection(
+        (self._dns_host, self.port),
+    ...<2 lines>...
+        socket_options=self.socket_options,
+    )
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\urllib3\util\connection.py", line 60, in create_connection
+    for res in socket.getaddrinfo(host, port, family, socket.SOCK_STREAM):
+               ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DAVE JUNIOR\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 977, in getaddrinfo
+    for res in _socket.getaddrinfo(host, port, family, type, proto, flags):
+               ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+socket.gaierror: [Errno 11001] getaddrinfo failed
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\urllib3\connectionpool.py", line 788, in urlopen
+    response = self._make_request(
+        conn,
+    ...<10 lines>...
+        **response_kw,
+    )
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\urllib3\connectionpool.py", line 488, in _make_request
+    raise new_e
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\urllib3\connectionpool.py", line 464, in _make_request
+    self._validate_conn(conn)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\urllib3\connectionpool.py", line 1106, in _validate_conn
+    conn.connect()
+    ~~~~~~~~~~~~^^
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\urllib3\connection.py", line 759, in connect
+    self.sock = sock = self._new_conn()
+                       ~~~~~~~~~~~~~~^^
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\urllib3\connection.py", line 211, in _new_conn
+    raise NameResolutionError(self.host, self, e) from e
+urllib3.exceptions.NameResolutionError: HTTPSConnection(host='api.stripe.com', port=443): Failed to resolve 'api.stripe.com' ([Errno 11001] getaddrinfo failed)
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\requests\adapters.py", line 486, in send
+    resp = conn.urlopen(
+        method=request.method,
+    ...<9 lines>...
+        chunked=chunked,
+    )
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\urllib3\connectionpool.py", line 842, in urlopen
+    retries = retries.increment(
+        method, url, error=new_e, _pool=self, _stacktrace=sys.exc_info()[2]
+    )
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\urllib3\util\retry.py", line 543, in increment
+    raise MaxRetryError(_pool, url, reason) from reason  # type: ignore[arg-type]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+urllib3.exceptions.MaxRetryError: HTTPSConnectionPool(host='api.stripe.com', port=443): Max retries exceeded with url: /v1/payment_intents (Caused by NameResolutionError("HTTPSConnection(host='api.stripe.com', port=443): Failed to resolve 'api.stripe.com' ([Errno 11001] getaddrinfo failed)"))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\stripe\_http_client.py", line 686, in _request_internal
+    result = cast(
+        "RequestsSession", self._thread_local.session
+    ).request(
+        method,
+    ...<4 lines>...
+        **kwargs,
+    )
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\requests\sessions.py", line 589, in request
+    resp = self.send(prep, **send_kwargs)
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\requests\sessions.py", line 703, in send
+    r = adapter.send(request, **kwargs)
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\requests\adapters.py", line 519, in send
+    raise ConnectionError(e, request=request)
+requests.exceptions.ConnectionError: HTTPSConnectionPool(host='api.stripe.com', port=443): Max retries exceeded with url: /v1/payment_intents (Caused by NameResolutionError("HTTPSConnection(host='api.stripe.com', port=443): Failed to resolve 'api.stripe.com' ([Errno 11001] getaddrinfo failed)"))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\ShopSmartAI\payments\views.py", line 35, in payment_page
+    intent, payment = create_payment_intent(order)
+                      ~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\ShopSmartAI\payments\stripe_service.py", line 15, in create_payment_intent
+    intent = stripe.PaymentIntent.create(
+        amount      = amount_cents,
+    ...<2 lines>...
+        description = f'ShopAI Order {order.order_number}',
+    )
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\stripe\_payment_intent.py", line 9308, in create
+    cls._static_request(
+    ~~~~~~~~~~~~~~~~~~~^
+        "post",
+        ^^^^^^^
+        cls.class_url(),
+        ^^^^^^^^^^^^^^^^
+        params=params,
+        ^^^^^^^^^^^^^^
+    ),
+    ^
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\stripe\_api_resource.py", line 177, in _static_request
+    return _APIRequestor._global_instance().request(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        method_,
+        ^^^^^^^^
+    ...<4 lines>...
+        api_mode=api_mode,
+        ^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\stripe\_api_requestor.py", line 186, in request
+    rbody, rcode, rheaders = requestor.request_raw(
+                             ~~~~~~~~~~~~~~~~~~~~~^
+        method.lower(),
+        ^^^^^^^^^^^^^^^
+    ...<6 lines>...
+        usage=usage,
+        ^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\stripe\_api_requestor.py", line 599, in request_raw
+    ) = self._get_http_client().request_with_retries(
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        method,
+        ^^^^^^^
+    ...<4 lines>...
+        _usage=usage,
+        ^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\stripe\_http_client.py", line 306, in request_with_retries
+    return self._request_with_retries_internal(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        method,
+        ^^^^^^^
+    ...<5 lines>...
+        _usage=_usage,
+        ^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\stripe\_http_client.py", line 393, in _request_with_retries_internal
+    raise connection_error
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\stripe\_http_client.py", line 360, in _request_with_retries_internal
+    response = self.request(method, url, headers, post_data)
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\stripe\_http_client.py", line 622, in request
+    return self._request_internal(
+           ~~~~~~~~~~~~~~~~~~~~~~^
+        method, url, headers, post_data, is_streaming=False
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\stripe\_http_client.py", line 718, in _request_internal
+    self._handle_request_error(e)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\stripe\_http_client.py", line 773, in _handle_request_error
+    raise APIConnectionError(msg, should_retry=should_retry)
+stripe._error.APIConnectionError: Unexpected error communicating with Stripe.  If this problem persists,
+let us know at support@stripe.com.
+
+(Network error: ConnectionError: HTTPSConnectionPool(host='api.stripe.com', port=443): Max retries exceeded with url: /v1/payment_intents (Caused by NameResolutionError("HTTPSConnection(host='api.stripe.com', port=443): Failed to resolve 'api.stripe.com' ([Errno 11001] getaddrinfo failed)")))
+[ERROR] 2026-08-06 02:22:55,610 basehttp "GET /payments/SAI-2608052322-7D64/ HTTP/1.1" 500 255745

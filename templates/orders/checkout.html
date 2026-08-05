@@ -152,7 +152,7 @@
             {% for item in items %}
             <div style="display:flex;gap:.875rem;align-items:center;">
               <div style="width:52px;height:52px;background:var(--bg-secondary);border-radius:8px;flex-shrink:0;overflow:hidden;position:relative;">
-                {% if item.product.primary_image %}<img src="{{ item.product.primary_image.image.url }}" style="width:100%;height:100%;object-fit:cover;" />{% else %}<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:1.5rem;">🛍️</div>{% endif %}
+                {% if item.product.primary_image %}<img src="{{ item.product.primary_image.image.url }}" style="width:100%;height:100%;object-fit:cover;" />{% else %}<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:1.5rem;"></div>{% endif %}
                 <span style="position:absolute;top:-4px;right:-4px;width:18px;height:18px;background:var(--accent-gold);color:var(--bg-primary);border-radius:50%;font-size:.65rem;font-weight:700;display:flex;align-items:center;justify-content:center;">{{ item.quantity }}</span>
               </div>
               <div style="flex:1;min-width:0;">
