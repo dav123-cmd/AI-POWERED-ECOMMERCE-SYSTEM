@@ -154,7 +154,7 @@ def checkout(request):
         'shipping_fee': shipping_fee,
         'tax_amount': tax_amount,
         'grand_total': grand_total,
-        'stripe_public_key': __import__('django.conf', fromlist=['settings']).settings.STRIPE_PUBLIC_KEY,
+        #'stripe_public_key': __import__('django.conf', fromlist=['settings']).settings.STRIPE_PUBLIC_KEY,
     })
 
 

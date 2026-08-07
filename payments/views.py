@@ -29,6 +29,11 @@ def payment_page(request, order_number):
     if order.payment_status == 'paid':
         return redirect('payments:success', order_number=order_number)
 
+    requested_method = request.GET.get('method')
+    if requested_method in ['stripe', 'paypal', 'mpesa'] and order.payment_method != requested_method:
+        order.payment_method = requested_method
+        order.save(update_fields=['payment_method'])
+
     context = {'order': order, 'stripe_public_key': settings.STRIPE_PUBLIC_KEY}
 
     if order.payment_method == 'stripe':

@@ -282,15 +282,15 @@ STRIPE_PUBLIC_KEY = os.environ.get('STRIPE_PUBLIC_KEY')
 STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY')
 STRIPE_WEBHOOK_SECRET = ''
 
-PAYPAL_CLIENT_ID = config('PAYPAL_CLIENT_ID', default='')
-PAYPAL_CLIENT_SECRET = config('PAYPAL_CLIENT_SECRET', default='')
-PAYPAL_MODE = config('PAYPAL_MODE', default='sandbox')  # sandbox or live
+PAYPAL_CLIENT_ID = os.environ.get('PAYPAL_CLIENT_ID')
+PAYPAL_CLIENT_SECRET =os.environ.get('PAYPAL_CLIENT_SECRET')
+PAYPAL_MODE = os.environ.get('PAYPAL_MODE', 'sandbox')  # sandbox or live
 
-MPESA_CONSUMER_KEY = config('MPESA_CONSUMER_KEY', default='')
-MPESA_CONSUMER_SECRET = config('MPESA_CONSUMER_SECRET', default='')
-MPESA_SHORTCODE = config('MPESA_SHORTCODE', default='')
-MPESA_PASSKEY = config('MPESA_PASSKEY', default='')
-MPESA_ENVIRONMENT = config('MPESA_ENVIRONMENT', default='sandbox')
+MPESA_CONSUMER_KEY = os.environ.get('MPESA_CONSUMER_KEY')
+MPESA_CONSUMER_SECRET = os.environ.get('MPESA_CONSUMER_SECRET')
+MPESA_SHORTCODE = os.environ.get('MPESA_SHORTCODE')
+MPESA_PASSKEY = os.environ.get('MPESA_PASSKEY')
+MPESA_ENVIRONMENT = os.environ.get('MPESA_ENVIRONMENT')
 
 
 

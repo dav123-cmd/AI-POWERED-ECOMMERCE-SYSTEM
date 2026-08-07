@@ -15098,3 +15098,539 @@ let us know at support@stripe.com.
 
 (Network error: ConnectionError: HTTPSConnectionPool(host='api.stripe.com', port=443): Max retries exceeded with url: /v1/payment_intents (Caused by NameResolutionError("HTTPSConnection(host='api.stripe.com', port=443): Failed to resolve 'api.stripe.com' ([Errno 11001] getaddrinfo failed)")))
 [ERROR] 2026-08-06 02:22:55,610 basehttp "GET /payments/SAI-2608052322-7D64/ HTTP/1.1" 500 255745
+[ERROR] 2026-08-06 17:10:14,882 log Internal Server Error: /payments/SAI-2608052322-7D64/
+Traceback (most recent call last):
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\urllib3\connection.py", line 204, in _new_conn
+    sock = connection.create_connection(
+        (self._dns_host, self.port),
+    ...<2 lines>...
+        socket_options=self.socket_options,
+    )
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\urllib3\util\connection.py", line 60, in create_connection
+    for res in socket.getaddrinfo(host, port, family, socket.SOCK_STREAM):
+               ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DAVE JUNIOR\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 977, in getaddrinfo
+    for res in _socket.getaddrinfo(host, port, family, type, proto, flags):
+               ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+socket.gaierror: [Errno 11001] getaddrinfo failed
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\urllib3\connectionpool.py", line 788, in urlopen
+    response = self._make_request(
+        conn,
+    ...<10 lines>...
+        **response_kw,
+    )
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\urllib3\connectionpool.py", line 488, in _make_request
+    raise new_e
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\urllib3\connectionpool.py", line 464, in _make_request
+    self._validate_conn(conn)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\urllib3\connectionpool.py", line 1106, in _validate_conn
+    conn.connect()
+    ~~~~~~~~~~~~^^
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\urllib3\connection.py", line 759, in connect
+    self.sock = sock = self._new_conn()
+                       ~~~~~~~~~~~~~~^^
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\urllib3\connection.py", line 211, in _new_conn
+    raise NameResolutionError(self.host, self, e) from e
+urllib3.exceptions.NameResolutionError: HTTPSConnection(host='api.stripe.com', port=443): Failed to resolve 'api.stripe.com' ([Errno 11001] getaddrinfo failed)
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\requests\adapters.py", line 486, in send
+    resp = conn.urlopen(
+        method=request.method,
+    ...<9 lines>...
+        chunked=chunked,
+    )
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\urllib3\connectionpool.py", line 842, in urlopen
+    retries = retries.increment(
+        method, url, error=new_e, _pool=self, _stacktrace=sys.exc_info()[2]
+    )
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\urllib3\util\retry.py", line 543, in increment
+    raise MaxRetryError(_pool, url, reason) from reason  # type: ignore[arg-type]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+urllib3.exceptions.MaxRetryError: HTTPSConnectionPool(host='api.stripe.com', port=443): Max retries exceeded with url: /v1/payment_intents (Caused by NameResolutionError("HTTPSConnection(host='api.stripe.com', port=443): Failed to resolve 'api.stripe.com' ([Errno 11001] getaddrinfo failed)"))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\stripe\_http_client.py", line 686, in _request_internal
+    result = cast(
+        "RequestsSession", self._thread_local.session
+    ).request(
+        method,
+    ...<4 lines>...
+        **kwargs,
+    )
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\requests\sessions.py", line 589, in request
+    resp = self.send(prep, **send_kwargs)
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\requests\sessions.py", line 703, in send
+    r = adapter.send(request, **kwargs)
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\requests\adapters.py", line 519, in send
+    raise ConnectionError(e, request=request)
+requests.exceptions.ConnectionError: HTTPSConnectionPool(host='api.stripe.com', port=443): Max retries exceeded with url: /v1/payment_intents (Caused by NameResolutionError("HTTPSConnection(host='api.stripe.com', port=443): Failed to resolve 'api.stripe.com' ([Errno 11001] getaddrinfo failed)"))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\ShopSmartAI\payments\views.py", line 35, in payment_page
+    intent, payment = create_payment_intent(order)
+                      ~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\ShopSmartAI\payments\stripe_service.py", line 15, in create_payment_intent
+    intent = stripe.PaymentIntent.create(
+        amount      = amount_cents,
+    ...<2 lines>...
+        description = f'ShopAI Order {order.order_number}',
+    )
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\stripe\_payment_intent.py", line 9308, in create
+    cls._static_request(
+    ~~~~~~~~~~~~~~~~~~~^
+        "post",
+        ^^^^^^^
+        cls.class_url(),
+        ^^^^^^^^^^^^^^^^
+        params=params,
+        ^^^^^^^^^^^^^^
+    ),
+    ^
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\stripe\_api_resource.py", line 177, in _static_request
+    return _APIRequestor._global_instance().request(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        method_,
+        ^^^^^^^^
+    ...<4 lines>...
+        api_mode=api_mode,
+        ^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\stripe\_api_requestor.py", line 186, in request
+    rbody, rcode, rheaders = requestor.request_raw(
+                             ~~~~~~~~~~~~~~~~~~~~~^
+        method.lower(),
+        ^^^^^^^^^^^^^^^
+    ...<6 lines>...
+        usage=usage,
+        ^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\stripe\_api_requestor.py", line 599, in request_raw
+    ) = self._get_http_client().request_with_retries(
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        method,
+        ^^^^^^^
+    ...<4 lines>...
+        _usage=usage,
+        ^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\stripe\_http_client.py", line 306, in request_with_retries
+    return self._request_with_retries_internal(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        method,
+        ^^^^^^^
+    ...<5 lines>...
+        _usage=_usage,
+        ^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\stripe\_http_client.py", line 393, in _request_with_retries_internal
+    raise connection_error
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\stripe\_http_client.py", line 360, in _request_with_retries_internal
+    response = self.request(method, url, headers, post_data)
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\stripe\_http_client.py", line 622, in request
+    return self._request_internal(
+           ~~~~~~~~~~~~~~~~~~~~~~^
+        method, url, headers, post_data, is_streaming=False
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\stripe\_http_client.py", line 718, in _request_internal
+    self._handle_request_error(e)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\stripe\_http_client.py", line 773, in _handle_request_error
+    raise APIConnectionError(msg, should_retry=should_retry)
+stripe._error.APIConnectionError: Unexpected error communicating with Stripe.  If this problem persists,
+let us know at support@stripe.com.
+
+(Network error: ConnectionError: HTTPSConnectionPool(host='api.stripe.com', port=443): Max retries exceeded with url: /v1/payment_intents (Caused by NameResolutionError("HTTPSConnection(host='api.stripe.com', port=443): Failed to resolve 'api.stripe.com' ([Errno 11001] getaddrinfo failed)")))
+[ERROR] 2026-08-06 17:10:15,127 basehttp "GET /payments/SAI-2608052322-7D64/ HTTP/1.1" 500 255745
+[ERROR] 2026-08-06 23:20:48,903 log Internal Server Error: /payments/mpesa/initiate/SAI-2608062019-3BE6/
+Traceback (most recent call last):
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\requests\models.py", line 971, in json
+    return complexjson.loads(self.text, **kwargs)
+           ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DAVE JUNIOR\AppData\Local\Programs\Python\Python313\Lib\json\__init__.py", line 352, in loads
+    return _default_decoder.decode(s)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "C:\Users\DAVE JUNIOR\AppData\Local\Programs\Python\Python313\Lib\json\decoder.py", line 345, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DAVE JUNIOR\AppData\Local\Programs\Python\Python313\Lib\json\decoder.py", line 363, in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\django\views\decorators\http.py", line 64, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\ShopSmartAI\payments\views.py", line 104, in mpesa_initiate
+    result = stk_push(order, phone)
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\ShopSmartAI\payments\mpesa_service.py", line 32, in stk_push
+    token         = _get_access_token()
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\ShopSmartAI\payments\mpesa_service.py", line 17, in _get_access_token
+    return resp.json().get('access_token')
+           ~~~~~~~~~^^
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\requests\models.py", line 975, in json
+    raise RequestsJSONDecodeError(e.msg, e.doc, e.pos)
+requests.exceptions.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+[ERROR] 2026-08-06 23:20:49,165 basehttp "POST /payments/mpesa/initiate/SAI-2608062019-3BE6/ HTTP/1.1" 500 120632
+[ERROR] 2026-08-06 23:21:06,723 log Internal Server Error: /payments/mpesa/initiate/SAI-2608062019-3BE6/
+Traceback (most recent call last):
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\requests\models.py", line 971, in json
+    return complexjson.loads(self.text, **kwargs)
+           ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DAVE JUNIOR\AppData\Local\Programs\Python\Python313\Lib\json\__init__.py", line 352, in loads
+    return _default_decoder.decode(s)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "C:\Users\DAVE JUNIOR\AppData\Local\Programs\Python\Python313\Lib\json\decoder.py", line 345, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DAVE JUNIOR\AppData\Local\Programs\Python\Python313\Lib\json\decoder.py", line 363, in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\django\views\decorators\http.py", line 64, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\ShopSmartAI\payments\views.py", line 104, in mpesa_initiate
+    result = stk_push(order, phone)
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\ShopSmartAI\payments\mpesa_service.py", line 32, in stk_push
+    token         = _get_access_token()
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\ShopSmartAI\payments\mpesa_service.py", line 17, in _get_access_token
+    return resp.json().get('access_token')
+           ~~~~~~~~~^^
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\requests\models.py", line 975, in json
+    raise RequestsJSONDecodeError(e.msg, e.doc, e.pos)
+requests.exceptions.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+[ERROR] 2026-08-06 23:21:06,740 basehttp "POST /payments/mpesa/initiate/SAI-2608062019-3BE6/ HTTP/1.1" 500 120979
+[ERROR] 2026-08-06 23:21:08,080 log Internal Server Error: /payments/mpesa/initiate/SAI-2608062019-3BE6/
+Traceback (most recent call last):
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\requests\models.py", line 971, in json
+    return complexjson.loads(self.text, **kwargs)
+           ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DAVE JUNIOR\AppData\Local\Programs\Python\Python313\Lib\json\__init__.py", line 352, in loads
+    return _default_decoder.decode(s)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "C:\Users\DAVE JUNIOR\AppData\Local\Programs\Python\Python313\Lib\json\decoder.py", line 345, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DAVE JUNIOR\AppData\Local\Programs\Python\Python313\Lib\json\decoder.py", line 363, in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\django\views\decorators\http.py", line 64, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\ShopSmartAI\payments\views.py", line 104, in mpesa_initiate
+    result = stk_push(order, phone)
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\ShopSmartAI\payments\mpesa_service.py", line 32, in stk_push
+    token         = _get_access_token()
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\ShopSmartAI\payments\mpesa_service.py", line 17, in _get_access_token
+    return resp.json().get('access_token')
+           ~~~~~~~~~^^
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\requests\models.py", line 975, in json
+    raise RequestsJSONDecodeError(e.msg, e.doc, e.pos)
+requests.exceptions.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+[ERROR] 2026-08-06 23:21:08,098 basehttp "POST /payments/mpesa/initiate/SAI-2608062019-3BE6/ HTTP/1.1" 500 120979
+[ERROR] 2026-08-06 23:23:10,817 log Internal Server Error: /payments/mpesa/initiate/SAI-2608062019-3BE6/
+Traceback (most recent call last):
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\requests\models.py", line 971, in json
+    return complexjson.loads(self.text, **kwargs)
+           ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DAVE JUNIOR\AppData\Local\Programs\Python\Python313\Lib\json\__init__.py", line 352, in loads
+    return _default_decoder.decode(s)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "C:\Users\DAVE JUNIOR\AppData\Local\Programs\Python\Python313\Lib\json\decoder.py", line 345, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DAVE JUNIOR\AppData\Local\Programs\Python\Python313\Lib\json\decoder.py", line 363, in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\django\views\decorators\http.py", line 64, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\ShopSmartAI\payments\views.py", line 104, in mpesa_initiate
+    result = stk_push(order, phone)
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\ShopSmartAI\payments\mpesa_service.py", line 32, in stk_push
+    token         = _get_access_token()
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\ShopSmartAI\payments\mpesa_service.py", line 17, in _get_access_token
+    return resp.json().get('access_token')
+           ~~~~~~~~~^^
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\requests\models.py", line 975, in json
+    raise RequestsJSONDecodeError(e.msg, e.doc, e.pos)
+requests.exceptions.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+[ERROR] 2026-08-06 23:23:10,827 basehttp "POST /payments/mpesa/initiate/SAI-2608062019-3BE6/ HTTP/1.1" 500 120993
+[ERROR] 2026-08-06 23:23:13,502 log Internal Server Error: /payments/mpesa/initiate/SAI-2608062019-3BE6/
+Traceback (most recent call last):
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\requests\models.py", line 971, in json
+    return complexjson.loads(self.text, **kwargs)
+           ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DAVE JUNIOR\AppData\Local\Programs\Python\Python313\Lib\json\__init__.py", line 352, in loads
+    return _default_decoder.decode(s)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "C:\Users\DAVE JUNIOR\AppData\Local\Programs\Python\Python313\Lib\json\decoder.py", line 345, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DAVE JUNIOR\AppData\Local\Programs\Python\Python313\Lib\json\decoder.py", line 363, in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\django\views\decorators\http.py", line 64, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\ShopSmartAI\payments\views.py", line 104, in mpesa_initiate
+    result = stk_push(order, phone)
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\ShopSmartAI\payments\mpesa_service.py", line 32, in stk_push
+    token         = _get_access_token()
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\ShopSmartAI\payments\mpesa_service.py", line 17, in _get_access_token
+    return resp.json().get('access_token')
+           ~~~~~~~~~^^
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\requests\models.py", line 975, in json
+    raise RequestsJSONDecodeError(e.msg, e.doc, e.pos)
+requests.exceptions.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+[ERROR] 2026-08-06 23:23:13,526 basehttp "POST /payments/mpesa/initiate/SAI-2608062019-3BE6/ HTTP/1.1" 500 120993
+[ERROR] 2026-08-06 23:23:22,358 log Internal Server Error: /payments/mpesa/initiate/SAI-2608062019-3BE6/
+Traceback (most recent call last):
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\requests\models.py", line 971, in json
+    return complexjson.loads(self.text, **kwargs)
+           ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DAVE JUNIOR\AppData\Local\Programs\Python\Python313\Lib\json\__init__.py", line 352, in loads
+    return _default_decoder.decode(s)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "C:\Users\DAVE JUNIOR\AppData\Local\Programs\Python\Python313\Lib\json\decoder.py", line 345, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DAVE JUNIOR\AppData\Local\Programs\Python\Python313\Lib\json\decoder.py", line 363, in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\django\views\decorators\http.py", line 64, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\ShopSmartAI\payments\views.py", line 104, in mpesa_initiate
+    result = stk_push(order, phone)
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\ShopSmartAI\payments\mpesa_service.py", line 32, in stk_push
+    token         = _get_access_token()
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\ShopSmartAI\payments\mpesa_service.py", line 17, in _get_access_token
+    return resp.json().get('access_token')
+           ~~~~~~~~~^^
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\requests\models.py", line 975, in json
+    raise RequestsJSONDecodeError(e.msg, e.doc, e.pos)
+requests.exceptions.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+[ERROR] 2026-08-06 23:23:22,371 basehttp "POST /payments/mpesa/initiate/SAI-2608062019-3BE6/ HTTP/1.1" 500 120993
+[ERROR] 2026-08-06 23:30:44,469 log Internal Server Error: /payments/mpesa/initiate/SAI-2608062030-33FB/
+Traceback (most recent call last):
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\requests\models.py", line 971, in json
+    return complexjson.loads(self.text, **kwargs)
+           ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DAVE JUNIOR\AppData\Local\Programs\Python\Python313\Lib\json\__init__.py", line 352, in loads
+    return _default_decoder.decode(s)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "C:\Users\DAVE JUNIOR\AppData\Local\Programs\Python\Python313\Lib\json\decoder.py", line 345, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DAVE JUNIOR\AppData\Local\Programs\Python\Python313\Lib\json\decoder.py", line 363, in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\django\views\decorators\http.py", line 64, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\ShopSmartAI\payments\views.py", line 104, in mpesa_initiate
+    result = stk_push(order, phone)
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\ShopSmartAI\payments\mpesa_service.py", line 32, in stk_push
+    token         = _get_access_token()
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\ShopSmartAI\payments\mpesa_service.py", line 17, in _get_access_token
+    return resp.json().get('access_token')
+           ~~~~~~~~~^^
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\requests\models.py", line 975, in json
+    raise RequestsJSONDecodeError(e.msg, e.doc, e.pos)
+requests.exceptions.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+[ERROR] 2026-08-06 23:30:44,484 basehttp "POST /payments/mpesa/initiate/SAI-2608062030-33FB/ HTTP/1.1" 500 120979
+[ERROR] 2026-08-06 23:30:45,536 log Internal Server Error: /payments/mpesa/initiate/SAI-2608062030-33FB/
+Traceback (most recent call last):
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\requests\models.py", line 971, in json
+    return complexjson.loads(self.text, **kwargs)
+           ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DAVE JUNIOR\AppData\Local\Programs\Python\Python313\Lib\json\__init__.py", line 352, in loads
+    return _default_decoder.decode(s)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "C:\Users\DAVE JUNIOR\AppData\Local\Programs\Python\Python313\Lib\json\decoder.py", line 345, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DAVE JUNIOR\AppData\Local\Programs\Python\Python313\Lib\json\decoder.py", line 363, in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\django\views\decorators\http.py", line 64, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\ShopSmartAI\payments\views.py", line 104, in mpesa_initiate
+    result = stk_push(order, phone)
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\ShopSmartAI\payments\mpesa_service.py", line 32, in stk_push
+    token         = _get_access_token()
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\ShopSmartAI\payments\mpesa_service.py", line 17, in _get_access_token
+    return resp.json().get('access_token')
+           ~~~~~~~~~^^
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\requests\models.py", line 975, in json
+    raise RequestsJSONDecodeError(e.msg, e.doc, e.pos)
+requests.exceptions.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+[ERROR] 2026-08-06 23:30:45,557 basehttp "POST /payments/mpesa/initiate/SAI-2608062030-33FB/ HTTP/1.1" 500 120979
+[ERROR] 2026-08-07 04:54:56,700 log Internal Server Error: /payments/SAI-2608070154-A284/
+Traceback (most recent call last):
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\ShopSmartAI\payments\views.py", line 52, in payment_page
+    return render(request, 'payments/payment_page.html', context)
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\django\template\loader.py", line 15, in get_template
+    return engine.get_template(template_name)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\django\template\backends\django.py", line 33, in get_template
+    return Template(self.engine.get_template(template_name), self)
+                    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\django\template\engine.py", line 177, in get_template
+    template, origin = self.find_template(template_name)
+                       ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\django\template\engine.py", line 159, in find_template
+    template = loader.get_template(name, skip=skip)
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\django\template\loaders\cached.py", line 57, in get_template
+    template = super().get_template(template_name, skip)
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\django\template\loaders\base.py", line 28, in get_template
+    return Template(
+        contents,
+    ...<2 lines>...
+        self.engine,
+    )
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\django\template\base.py", line 154, in __init__
+    self.nodelist = self.compile_nodelist()
+                    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\django\template\base.py", line 196, in compile_nodelist
+    return parser.parse()
+           ~~~~~~~~~~~~^^
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\django\template\base.py", line 510, in parse
+    raise self.error(token, e)
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\django\template\base.py", line 508, in parse
+    compiled_result = compile_func(self, token)
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\django\template\loader_tags.py", line 295, in do_extends
+    nodelist = parser.parse()
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\django\template\base.py", line 510, in parse
+    raise self.error(token, e)
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\django\template\base.py", line 508, in parse
+    compiled_result = compile_func(self, token)
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\django\template\loader_tags.py", line 295, in do_extends
+    nodelist = parser.parse()
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\django\template\base.py", line 510, in parse
+    raise self.error(token, e)
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\django\template\base.py", line 508, in parse
+    compiled_result = compile_func(self, token)
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\django\template\loader_tags.py", line 228, in do_block
+    raise TemplateSyntaxError(
+        "'%s' tag with name '%s' appears more than once" % (bits[0], block_name)
+    )
+django.template.exceptions.TemplateSyntaxError: 'block' tag with name 'title' appears more than once
+[ERROR] 2026-08-07 04:54:57,122 basehttp "GET /payments/SAI-2608070154-A284/ HTTP/1.1" 500 255668
+[ERROR] 2026-08-07 07:06:39,493 log Internal Server Error: /payments/mpesa/initiate/SAI-2608070405-E658/
+Traceback (most recent call last):
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\requests\models.py", line 971, in json
+    return complexjson.loads(self.text, **kwargs)
+           ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DAVE JUNIOR\AppData\Local\Programs\Python\Python313\Lib\json\__init__.py", line 352, in loads
+    return _default_decoder.decode(s)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "C:\Users\DAVE JUNIOR\AppData\Local\Programs\Python\Python313\Lib\json\decoder.py", line 345, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\DAVE JUNIOR\AppData\Local\Programs\Python\Python313\Lib\json\decoder.py", line 363, in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\django\views\decorators\http.py", line 64, in inner
+    return func(request, *args, **kwargs)
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\ShopSmartAI\payments\views.py", line 109, in mpesa_initiate
+    result = stk_push(order, phone)
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\ShopSmartAI\payments\mpesa_service.py", line 66, in stk_push
+    data = resp.json()
+  File "C:\Users\DAVE JUNIOR\Desktop\AI POWERED ECOMMERCE\VENV\Lib\site-packages\requests\models.py", line 975, in json
+    raise RequestsJSONDecodeError(e.msg, e.doc, e.pos)
+requests.exceptions.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+[ERROR] 2026-08-07 07:06:39,638 basehttp "POST /payments/mpesa/initiate/SAI-2608070405-E658/ HTTP/1.1" 500 124082

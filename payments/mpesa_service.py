@@ -13,8 +13,15 @@ def _get_access_token():
     url  = 'https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials'
     if settings.MPESA_ENVIRONMENT == 'production':
         url = 'https://api.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials'
-    resp = requests.get(url, auth=(settings.MPESA_CONSUMER_KEY, settings.MPESA_CONSUMER_SECRET))
-    return resp.json().get('access_token')
+    # Basic validation for credentials to give clearer error messages
+    if not settings.MPESA_CONSUMER_KEY or not settings.MPESA_CONSUMER_SECRET:
+        raise RuntimeError('MPESA_CONSUMER_KEY or MPESA_CONSUMER_SECRET not configured')
+    resp = requests.get(url, auth=(settings.MPESA_CONSUMER_KEY, settings.MPESA_CONSUMER_SECRET), timeout=10)
+    data = resp.json()
+    token = data.get('access_token')
+    if not token:
+        raise RuntimeError(f'Failed to obtain M-Pesa access token: {data}')
+    return token
 
 
 def _get_password():
@@ -32,7 +39,8 @@ def stk_push(order, phone_number):
     token         = _get_access_token()
     password, ts  = _get_password()
     amount        = int(order.total)
-    callback_url  = f'https://yourdomain.com/payments/mpesa/callback/'
+    # Allow overriding the callback URL from settings (useful for production/ngrok)
+    callback_url = getattr(settings, 'MPESA_CALLBACK_URL', '') or f'https://yourdomain.com/payments/mpesa/callback/'
     base_url      = 'https://sandbox.safaricom.co.ke' if settings.MPESA_ENVIRONMENT == 'sandbox' \
                     else 'https://api.safaricom.co.ke'
 
